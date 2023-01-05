@@ -1,0 +1,7 @@
+.container {
+  background-color: rgb(16, 83, 108);
+  color: var(--primary-font-color);
+}
+.containerCenter {
+  text-align: center;
+}
