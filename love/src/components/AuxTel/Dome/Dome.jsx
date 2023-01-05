@@ -27,7 +27,7 @@ export default class Dome extends Component {
 
   static defaultProps = {
     width: 500,
-    height: 500,
+    height: 5000,
   };
 
   constructor(props) {
