@@ -1,0 +1,34 @@
+.inputAzimuth.inputElevation {
+  width: 100px;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
+.svg {
+  overflow: visible;
+  margin: 20px;
+}
+
+.circleLimit {
+  fill: rgb(255, 255, 255);
+  transform-origin: center;
+}
+
+.circle {
+  fill: rgb(255, 156, 243);
+  transition: transform 1s linear;
+  transform-origin: center center;
+}
+
+.paramLabel {
+  display: table-cell;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
+.paramContainer {
+  display: table-row;
+  width: fit-content;
+  padding: 0.5em;
+  text-align: left;
+}

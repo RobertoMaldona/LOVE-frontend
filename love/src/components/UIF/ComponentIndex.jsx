@@ -34,6 +34,16 @@ const defaultSchemaProps = {
 };
 
 export const observatoryIndex = {
+  NewComponent: {
+    component: require('../NewComponent/NewComponent.container').default,
+    schema: {
+      ...require('../NewComponent/NewComponent.container').schema,
+      props: {
+        ...defaultSchemaProps,
+        ...require('../NewComponent/NewComponent.container').schema.props,
+      },
+    },
+  },
   ScriptQueue: {
     component: require('../ScriptQueue/ScriptQueue.container').default,
     schema: {

@@ -360,6 +360,14 @@ export const getDomeState = (state) => {
   };
 };
 
+export const getAzElState = (state) => {
+  const subscriptions = ['telemetry-ATMCS-0-mount_AzEl_Encoders'];
+  const AzElData = getStreamsData(state, subscriptions);
+  return {
+    azElMountEncoders: AzElData['telemetry-ATMCS-0-mount_AzEl_Encoders'],
+  };
+};
+
 export const getMountSubscriptions = (index) => {
   return [
     // ATHexapod
@@ -444,7 +452,7 @@ export const getMountState = (state, index) => {
       : 'Unknown',
     m1AirPressure: mountData[`telemetry-ATPneumatics-${index}-m1AirPressure`]
       ? mountData[`telemetry-ATPneumatics-${index}-m1AirPressure`].pressure
-      : 'Unknown', 
+      : 'Unknown',
     // ATMCS
     m3InPosition: m3InPosition ? m3InPosition[m3InPosition.length - 1].inPosition.value : 0,
     nasmyth1RotatorInPosition: nasmyth1RotatorInPosition
