@@ -313,6 +313,17 @@ export const getM2ActuatorTable = (state) => {
     positionIMSZRot: m2ActuatorsData['telemetry-MTM2-0-positionIMS']?.zRot?.value ?? 0,
   };
 };
+export const getATMCSpos = (state) => {
+  const domeSubscriptions = ['telemetry-ATMCS-0-mount_AzEl_Encoders', 'telemetry-ATDome-0-position'];
+  const domeData = getStreamsData(state, domeSubscriptions);
+  return {
+    azMount: domeData['telemetry-ATMCS-0-mount_AzEl_Encoders']?.azimuthCalculatedAngle.value[0] ?? 0,
+    elMount: domeData['telemetry-ATMCS-0-mount_AzEl_Encoders']?.elevationCalculatedAngle.value[0] ?? 0,
+    azimuthPosition: domeData['telemetry-ATDome-0-position']
+      ? domeData['telemetry-ATDome-0-position'].azimuthPosition.value
+      : 0,
+  };
+};
 
 export const getDomeState = (state) => {
   const domeSubscriptions = [
@@ -444,7 +455,7 @@ export const getMountState = (state, index) => {
       : 'Unknown',
     m1AirPressure: mountData[`telemetry-ATPneumatics-${index}-m1AirPressure`]
       ? mountData[`telemetry-ATPneumatics-${index}-m1AirPressure`].pressure
-      : 'Unknown', 
+      : 'Unknown',
     // ATMCS
     m3InPosition: m3InPosition ? m3InPosition[m3InPosition.length - 1].inPosition.value : 0,
     nasmyth1RotatorInPosition: nasmyth1RotatorInPosition

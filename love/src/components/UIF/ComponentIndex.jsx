@@ -181,6 +181,16 @@ export const observatoryIndex = {
 };
 
 export const auxtelIndex = {
+  Circle: {
+    component: require('../Circle/Circle.container').default,
+    schema: {
+      ...require('../Circle/Circle.container').schema,
+      props: {
+        ...defaultSchemaProps,
+        ...require('../Circle/Circle.container').schema.props,
+      },
+    },
+  },
   MountSummaryPanel: {
     component: require('../AuxTel/Mount/SummaryPanel/SummaryPanel.container').default,
     schema: {
