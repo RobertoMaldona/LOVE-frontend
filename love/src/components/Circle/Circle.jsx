@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styles from './Circle.module.css';
+import { formatSecondsToDigital } from 'Utils';
 
 export default class Circle extends Component {
   static propTypes = {
@@ -14,10 +15,16 @@ export default class Circle extends Component {
 
   constructor(props) {
     super(props);
+    this.state = {
+      time: 10,
+    };
   }
 
   componentDidMount = () => {
     this.props.subscribeToStream();
+    setInterval(() => {
+      this.setState((prevState) => ({ time: prevState.time - 1 }));
+    }, 1000);
   };
 
   componentWillUnmount = () => {
@@ -79,6 +86,7 @@ export default class Circle extends Component {
             </g>
           </svg>
         </div>
+        <div>{formatSecondsToDigital(this.state.time)}</div>
       </div>
     );
   }
