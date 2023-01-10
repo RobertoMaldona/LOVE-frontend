@@ -30,3 +30,12 @@
 .summaryTable {
   align-self: center;
 }
+
+td.statusColumn {
+  min-width: 8em;
+  text-align: center;
+}
+
+.statusDiv {
+  display: inline-block;
+}

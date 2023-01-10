@@ -21,41 +21,38 @@ export const schema = {
       isPrivate: false,
       default: 'CSC details',
     },
+    // planes:  {
+    //   type: 'array',
+    //   description: 'Planes',
+    //   isPrivate: false,
+    //   default: [
+    //     {
+    //       id: 'LAN54',
+    //       latitude: '28.4545454',
+    //       longituded:'28.4545454',
+    //       trajectory:'28.4545454',
+    //       velocity:'450mph',
+    //     },
+    //   ],
+    // },
   },
 };
 
 const FlightTrackerContainer = ({
   //   subscribeToStream,
   //   unsubscribeToStream,
+  planes,
   ...props
 }) => {
-  if (props.isRaw) {
-    return <SubscriptionTableContainer /*subscriptions={props.subscriptions}*/></SubscriptionTableContainer>;
-  }
   return (
     <FlightTracker
-    //   subscribeToStream={subscribeToStream}
-    //   unsubscribeToStream={unsubscribeToStream}
+      planes={planes}
+      //   subscribeToStream={subscribeToStream}
+      //   unsubscribeToStream={unsubscribeToStream}
     />
   );
 };
+// getDataFlightTracker
 
-const mapStateToProps = (state) => {
-  return;
-};
-
-const mapDispatchToProps = (dispatch) => {
-  const subscriptions = ['telemetry-ATMCS-0-mount_AzEl_Encoders'];
-  return {
-    subscriptions,
-    subscribeToStream: () => {
-      subscriptions.forEach((stream) => dispatch(addGroup(stream)));
-    },
-    unsubscribeToStream: () => {
-      subscriptions.forEach((stream) => dispatch(removeGroup(stream)));
-    },
-  };
-};
-
-// export default connect(mapStateToProps, mapDispatchToProps)(CircleContainer);
+// export default connect(mapStateToProps, mapDispatchToProps)(FlightTrackerContainer);
 export default FlightTrackerContainer;
