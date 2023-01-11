@@ -39,3 +39,7 @@ td.statusColumn {
 .statusDiv {
   display: inline-block;
 }
+
+.divLastUp {
+  text-align: left;
+}
