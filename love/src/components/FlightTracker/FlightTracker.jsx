@@ -10,6 +10,7 @@ import ManagerInterface, { formatSecondsToDigital } from 'Utils';
 import { scaleDiverging } from 'd3';
 
 const DEFAULT_POLLING_TIMEOUT = 5000;
+const RADIUS = 160;
 export default class FlightTracker extends Component {
   constructor(props) {
     super(props);
@@ -20,6 +21,7 @@ export default class FlightTracker extends Component {
       planes: [],
       planesState: {},
       lastUpdate: 0,
+      planesDistance: {},
     };
   }
 
@@ -28,12 +30,19 @@ export default class FlightTracker extends Component {
    * @param {*} radio: radio to explore
    * @returns boolean, true if the position is inside the radio
    */
-  planeInRadio = (position, radio) => {
-    const centralLatitude = 10;
-    const centralLongitude = 10;
-    const d2 = (position[0] - centralLatitude) ** 2 + (position[1] - centralLongitude) ** 2;
-    const d = Math.sqrt(d2);
-    return d <= radio;
+  planeDistance = (position) => {
+    const origin = [-30.2326, -70.7312];
+    const earthRadius = 6371; // in km
+    const angle1 = (origin[0] * Math.PI) / 180; // in radians
+    const angle2 = (position[0] * Math.PI) / 180;
+    const deltaAngle1 = ((position[0] - origin[0]) * Math.PI) / 180;
+    const deltaAngle2 = ((position[1] - origin[1]) * Math.PI) / 180;
+
+    const a = Math.sin(deltaAngle1 / 2) ** 2 + Math.cos(angle1) * Math.cos(angle2) * Math.sin(deltaAngle2 / 2) ** 2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    const d = earthRadius * c; // in km
+    return d;
   };
 
   componentDidUpdate = (prevProps, prevState) => {
@@ -41,9 +50,9 @@ export default class FlightTracker extends Component {
     const RADIO2 = 5;
 
     if (!isEqual(prevState.planes, this.state.planes)) {
-      console.log('PASE POR DIDUPDATE');
       const newTimers = prevState.timers;
       const newPlanesState = prevState.planesState;
+      const newPlanesDistance = {};
 
       const listIdPlanes = [];
       this.state.planes.map((value) => {
@@ -60,13 +69,15 @@ export default class FlightTracker extends Component {
       this.state.planes.map((value) => {
         const { loc, id } = value;
 
+        const dist = this.planeDistance(loc);
+        newPlanesDistance[id] = dist;
         //Add the new planes in planeState
         if (!newPlanesState.hasOwnProperty(id)) newPlanesState[id] = 'running';
 
         //Plane inside RADIO1
-        if (this.planeInRadio(loc, RADIO1)) {
+        if (dist < RADIO1) {
           //Plane between RADIO1 and RADIO2
-          if (!this.planeInRadio(loc, RADIO2)) {
+          if (!dist < RADIO2) {
             if (this.state.timers[id] === undefined) {
               newTimers = { ...newTimers, id: 600 };
               newPlanesState[id] = 'warning';
@@ -86,7 +97,7 @@ export default class FlightTracker extends Component {
       });
 
       //setState with the parameters newPlanesState and newTimers
-      this.setState({ timers: newTimers, planesState: newPlanesState });
+      this.setState({ timers: newTimers, planesState: newPlanesState, planesDistance: newPlanesDistance });
     }
   };
 
@@ -101,14 +112,24 @@ export default class FlightTracker extends Component {
     ManagerInterface.getDataFlightTracker('(-30.2326, -70.7312)', '200').then((res) => {
       //Set up initial state planesState
       const planesStateIN = {};
+      const timers = {};
+      const planeDistance = {};
       res.map((value) => {
         planesStateIN[value.id] = 'running';
+        const distance = this.planeDistance(value.loc);
+        planeDistance[value.id] = distance;
+        if (distance < 100) {
+          planesStateIN[value.id] = 'alert';
+          timers[value.id] = 600;
+        }
       });
 
       this.setState({
         planes: res,
         lastUpdate: Date.now(),
         planesState: planesStateIN,
+        timers: timers,
+        planesDistance: planeDistance,
       });
     });
 
@@ -133,13 +154,10 @@ export default class FlightTracker extends Component {
   changeStateTimer(timers) {
     const newTimers = timers;
     for (const [key, value] of Object.entries(newTimers)) {
-      if (value == 0) {
-        delete newTimers[key];
-      } else {
+      if (value > 0) {
         newTimers[key] = value - 1;
       }
     }
-
     return { timers: newTimers };
   }
 
@@ -172,8 +190,16 @@ export default class FlightTracker extends Component {
         title: 'Longitude',
       },
       {
-        field: 'trajectodivir parte enterary',
-        title: 'Trajectory',
+        field: 'distance',
+        title: 'Distance',
+        className: styles.statusColumn,
+        render: (value) => {
+          return (
+            <StatusText small status={value[1]}>
+              {value[0]} km
+            </StatusText>
+          );
+        },
       },
       {
         field: 'velocity',
@@ -191,24 +217,43 @@ export default class FlightTracker extends Component {
         time: [this.state.timers[id] ?? 600, this.state.planesState[id] ?? 'undefined'],
         longitude: element['loc'][0] ?? 'undefined',
         latitude: element['loc'][1] ?? 'undefined',
+        distance: [Math.round(this.state.planesDistance[id]) ?? 'undefined', this.state.planesState[id] ?? 'undefined'],
       });
     });
 
     const dateNow = Date.now();
-
+    const timerLength = Object.keys(this.state.timers).length ?? 0;
+    const inRadius = timerLength > 0 ? 'warning' : 'ok';
+    const planesProp = [1, 2, 3, 4];
     return (
       <>
         <div className={styles.divLastUp}>LastUpdate: {Math.round((dateNow - this.state.lastUpdate) / 1000)}seg</div>
         <div className={styles.container}>
-          {/* <MapFlightTracker planes={[]}></MapFlightTracker> */}
           <div className={styles.statusDiv}>
-            <Title>Monitoring status</Title>
-            <Value>
-              <StatusText title={'Monitoring status'} status={'running'} small>
-                {'Connected'}
-              </StatusText>
-            </Value>
+            <div className={styles.statusDiv}>
+              <Title>Monitoring status</Title>
+              <Value>
+                <StatusText title={'Monitoring status'} status={'running'} small>
+                  {'Connected'}
+                </StatusText>
+              </Value>
+            </div>
+            <div className={styles.statusDiv}>
+              <Title>Aircraft in Radius</Title>
+              <Value>
+                <StatusText title={'Aircraft in Radius'} status={inRadius} small>
+                  {timerLength}
+                </StatusText>
+              </Value>
+            </div>
           </div>
+          <br></br>
+          <br></br>
+          <br></br>
+          <MapFlightTracker planes={planesProp}></MapFlightTracker>
+          <br></br>
+          <br></br>
+          <br></br>
 
           <SimpleTable headers={headers} data={tableData}></SimpleTable>
         </div>

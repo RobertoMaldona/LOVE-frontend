@@ -13,13 +13,13 @@ export const schema = {
       type: 'boolean',
       description: 'Tittlebar of this',
       isPrivate: false,
-      default: false,
+      default: true,
     },
     title: {
       type: 'string',
       description: 'Name diplayed in the title bar (if visible)',
       isPrivate: false,
-      default: 'CSC details',
+      default: 'Flight Tracker',
     },
     // planes:  {
     //   type: 'array',
