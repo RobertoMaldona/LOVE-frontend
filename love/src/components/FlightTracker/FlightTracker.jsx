@@ -171,7 +171,7 @@ export default class FlightTracker extends Component {
       {
         field: 'time',
         title: 'Approach timer',
-        type: 'number',
+        type: 'array',
         className: styles.statusColumn,
         render: (value) => {
           return (
@@ -192,11 +192,12 @@ export default class FlightTracker extends Component {
       {
         field: 'distance',
         title: 'Distance',
+        type: 'array',
         className: styles.statusColumn,
         render: (value) => {
           return (
             <StatusText small status={value[1]}>
-              {value[0]} km
+              {value[0].toString()} km
             </StatusText>
           );
         },
@@ -224,7 +225,7 @@ export default class FlightTracker extends Component {
     const dateNow = Date.now();
     const timerLength = Object.keys(this.state.timers).length ?? 0;
     const inRadius = timerLength > 0 ? 'warning' : 'ok';
-    const planesProp = [1, 2, 3, 4];
+
     return (
       <>
         <div className={styles.divLastUp}>LastUpdate: {Math.round((dateNow - this.state.lastUpdate) / 1000)}seg</div>
@@ -242,7 +243,7 @@ export default class FlightTracker extends Component {
               <Title>Aircraft in Radius</Title>
               <Value>
                 <StatusText title={'Aircraft in Radius'} status={inRadius} small>
-                  {timerLength}
+                  {timerLength.toString()}
                 </StatusText>
               </Value>
             </div>
@@ -250,7 +251,10 @@ export default class FlightTracker extends Component {
           <br></br>
           <br></br>
           <br></br>
-          <MapFlightTracker planes={planesProp}></MapFlightTracker>
+          <MapFlightTracker planes={this.state.planes}></MapFlightTracker>
+          <br></br>
+          <br></br>
+          <br></br>
           <br></br>
           <br></br>
           <br></br>
