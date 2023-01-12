@@ -11,6 +11,7 @@ import { scaleDiverging } from 'd3';
 
 const DEFAULT_POLLING_TIMEOUT = 5000;
 const RADIUS = 160;
+
 export default class FlightTracker extends Component {
   constructor(props) {
     super(props);
