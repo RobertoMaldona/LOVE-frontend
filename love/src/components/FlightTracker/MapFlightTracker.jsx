@@ -26,7 +26,7 @@ export default class MapFlightTracker extends Component {
     const projection = d3
       .geoMercator()
       .center([-70.73709442008416, -30.240476801377167])
-      .scale(width * 1)
+      .scale(width * 15)
       .translate([width / 2, height / 2]);
 
     return projection([latitude, longitude]);
@@ -153,9 +153,22 @@ export default class MapFlightTracker extends Component {
 
   render() {
     const { planes } = this.props;
-    // const [latitude, longitude] = this.cordsPlaneInMap(-70.73709442008416, -30.240476801377167);
-    const sizePlane = 15; //La mitad del size.
-    const scale = 0.5;
+    const scale = 1;
+    const sizePlane = 15 * scale; //La mitad del size.
+
+    // const lat_long_1 = [-69.72640645677438, -28.671508190008392]
+    // const lat_long_2 = [-69.79391230365658, -29.057079010258132]
+    // const lat_long_3 = [-69.93171344197097, -29.672737573022122]
+
+    // const cord1 = this.cordsPlaneInMap(lat_long_1);
+    // const cord2 = this.cordsPlaneInMap(lat_long_2);
+    // const cord3 = this.cordsPlaneInMap(lat_long_3);
+
+    // console.log([cord1, cord2, cord3]);
+
+    // console.log("Radio1:", Math.sqrt((cord1[0]**2 + cord1[1]**2)));
+    // console.log("Radio2:", Math.sqrt((cord2[0]**2 + cord2[1]**2)));
+    // console.log("Radio3:", Math.sqrt((cord3[0]**2 + cord3[1]**2)));
 
     return (
       <>
