@@ -30,6 +30,7 @@ export default class FlightTracker extends Component {
    * @param {*} position: list with latitude and lonegitude
    * @param {*} radio: radio to explore
    * @returns boolean, true if the position is inside the radio
+   * THis function uses Haversine formula.
    */
   planeDistance = (position) => {
     const origin = [-30.2326, -70.7312];

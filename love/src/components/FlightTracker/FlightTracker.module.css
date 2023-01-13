@@ -63,3 +63,11 @@ td.statusColumn {
 .rect {
   fill: var(--secondary-background-dimmed-color);
 }
+
+.telescope {
+  fill: #bcd8e2;
+  stroke: #bcd8e2;
+  stroke-miterlimit: 10;
+  stroke-width: 100px;
+  rotate: rotate + 'deg';
+}
