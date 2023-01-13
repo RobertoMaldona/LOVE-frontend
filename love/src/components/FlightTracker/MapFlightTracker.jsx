@@ -26,13 +26,13 @@ export default class MapFlightTracker extends Component {
     const projection = d3
       .geoMercator()
       .center([-70.73709442008416, -30.240476801377167])
-      .scale(width * 15)
+      .scale(width * 1)
       .translate([width / 2, height / 2]);
 
     return projection([latitude, longitude]);
   }
 
-  getRegion() {
+  getRegionSvg() {
     const width = 500;
     const height = 500;
     const telescopeCoords = [-70.73709442008416, -30.240476801377167];
@@ -40,7 +40,7 @@ export default class MapFlightTracker extends Component {
     const projection = d3
       .geoMercator()
       .center(telescopeCoords)
-      .scale(width * 15)
+      .scale(width)
       .translate([width / 2, height / 2]);
 
     let geoGenerator = d3.geoPath().projection(projection);
@@ -52,11 +52,15 @@ export default class MapFlightTracker extends Component {
     d3.json(url_coquimbo).then(function (Coquimbo) {
       d3.json(url_valparaiso).then(function (Valparaiso) {
         d3.json(url_atacama).then(function (Atacama) {
+          d3.select('#TelescopeDiv #Paths').selectAll('*').remove();
+
           const svg = d3
             .select('#TelescopeDiv #Paths')
             .attr('width', width)
             .attr('height', height)
-            .style('background-color', 'none');
+            .style('background-color', 'grey')
+            .attr('viewBox', '0 0 500 500')
+            .attr('transform', 'scale(100px)');
 
           Coquimbo.features.map((feature) => {
             svg.append('path').attr('id', feature.properties['NOM_COM']).attr('d', geoGenerator(feature));
@@ -67,57 +71,81 @@ export default class MapFlightTracker extends Component {
           });
 
           Valparaiso.features.map((feature) => {
-            if (feature.properties['NOM_COM'] == 'Isla de Pascua') {
-              console.log(feature);
-              svg.append('path').attr('id', feature.properties['NOM_COM']).attr('d', geoGenerator(feature));
-            }
+            svg.append('path').attr('id', feature.properties['NOM_COM']).attr('d', geoGenerator(feature));
           });
 
-          svg // first zone.
+          // first zone : 200 km area.
+          // const lat_long_1 = [-69.72640645677438, -28.671508190008392,]
+          // const coords_1 = projection(lat_long_1)
+          // console.log(coords_3) returns [369.06887052271304, 37.708654259502964]
+          // const radius_1 = 118.17 with Euclidian distance.
+
+          const mask = svg.append('mask').attr('id', 'Mask');
+          mask.append('rect').attr('width', '500').attr('height', '500').attr('fill', 'white');
+          mask
+            .append('circle')
+            .attr('cx', '250')
+            .attr('cy', '250')
+            .attr('r', ' 118.17')
+            .attr('stroke', 'black')
+            .attr('strokeWidth', '2')
+            .attr('fill', 'black');
+
+          svg
             .append('rect')
-            .attr('mask', 'url(#mask)')
+            .attr('mask', 'url(#Mask)')
             .classed(styles.rect, true)
             .attr('width', '500')
             .attr('height', '500');
 
-          svg // second zone.
-            .append('circle')
-            .attr('id', 'circle2')
-            .attr('cx', '250')
-            .attr('cy', '250')
-            .attr('r', '150')
-            .attr('stroke', 'white')
-            .attr('stroke-width', '1')
-            .attr('fill', 'none');
+          // second zone : 160 km area.
+          // const lat_long_2 = [-69.79391230365658, -29.057079010258132]
+          // const coords_2 = projection(lat_long_2)
+          // console.log(coords_2) returns [258.2308166887949, 238.11678270002164]
+          // const radius_2 = 7.474163904047484 with Euclidian distance.
 
-          svg // third zone.
-            .append('circle')
-            .attr('id', 'circle3')
-            .attr('cx', '250')
-            .attr('cy', '250')
-            .attr('r', '80')
-            .attr('stroke', 'white')
-            .attr('stroke-width', '1')
-            .attr('fill', 'none');
+          // svg
+          //   .append('circle')
+          //   .attr('id', 'circle2')
+          //   .attr('cx', '250')
+          //   .attr('cy', '250')
+          //   .attr('r', ' 7.474163904047484')
+          //   .attr('stroke', 'white')
+          //   .attr('stroke-width', '1')
+          //   .attr('fill', 'none');
+
+          // // third zone.
+          // const lat_long_3 = [-69.93171344197097, -29.672737573022122]
+          // const coords_3 = projection(lat_long_3)
+          // console.log(coords_3) returns [608.3541160975551, 838.8888716360411]
+          // const radius_3 = 359.17483402334307 with Euclidian distance.
+
+          // svg
+          //   .append('circle')
+          //   .attr('id', 'circle3')
+          //   .attr('cx', '250')
+          //   .attr('cy', '250')
+          //   .attr('r', '80')
+          //   .attr('stroke', 'white')
+          //   .attr('stroke-width', '1')
+          //   .attr('fill', 'none');
 
           // telescope icon.
 
-          const [cordx, cordy] = projection(telescopeCoords);
-          const sizePlane = 15;
-          const scale = 5;
-          const pathTelescope =
-            'm13.02,4.99l-4.01-.02v-.63l-.88-2.96-.21-.16-.05-.17-.89-.6h-.12l-.46-.32h-1.63v.16h-2.42l-.22-.16H.41v.13h.17v.16l-.46.03v5.36l.55.04v5.03h5.15c.45.92,2.22,3.75,2.81,4.69h0l.14.25.14.25.14-.25.14-.25h0c.59-.94,2.36-3.77,2.81-4.69h6.31v-2.7l-5.29-3.19Z';
+          // const [cordx, cordy] = projection(telescopeCoords);
+          // const sizePlane = 15;
+          // const scale = 5;
+          // const pathTelescope =
+          //   'm13.02,4.99l-4.01-.02v-.63l-.88-2.96-.21-.16-.05-.17-.89-.6h-.12l-.46-.32h-1.63v.16h-2.42l-.22-.16H.41v.13h.17v.16l-.46.03v5.36l.55.04v5.03h5.15c.45.92,2.22,3.75,2.81,4.69h0l.14.25.14.25.14-.25.14-.25h0c.59-.94,2.36-3.77,2.81-4.69h6.31v-2.7l-5.29-3.19Z';
 
-          svg
-            .append('g')
-            .attr('id', 'telescopeIconG')
-            .attr('transform', `scale(${scale}) translate(${cordx},${cordy})`)
-            .append('path')
-            .attr('id', 'telescopeIconP')
-            .attr('d', pathTelescope)
-            .classed(styles.telescope, true);
-
-          var r = document.querySelector('Paths');
+          // svg
+          //   .append('g')
+          //   .attr('id', 'telescopeIconG')
+          //   .attr('transform', `scale(${scale}) translate(${cordx},${cordy})`)
+          //   .append('path')
+          //   .attr('id', 'telescopeIconP')
+          //   .attr('d', pathTelescope)
+          //   .classed(styles.telescope, true);
         });
       });
     });
@@ -141,6 +169,10 @@ export default class MapFlightTracker extends Component {
         {/* This radius defines the zoom that we want.*/}
         {/* </mask>
             </svg>
+        <div className={styles.container}>
+          <div>{this.getRegionSvg()}</div>
+          <div id="TelescopeDiv">
+            <svg id="Paths" className={styles.CoquimboSvg}></svg>
           </div>
         </div> */}
 

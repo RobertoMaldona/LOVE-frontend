@@ -43,9 +43,27 @@ def is_inside_area(origin, test_point, radius):
     else: 
         return "False"
 
-# print("new latitude", -30.24037 +(200/6371)*180/math.pi)
-# print("new longitude",-70.73691 + (200/6371)*(180/math.pi)/math.cos(-30.24037*math.pi/180))
 # is_inside_area([-30.24037, -70.73691], [-28.441726788162537, -68.65495464709075], 200 )
 # print((-28.441726788162537 +30.24037)*111.11, 111)
-# point_reference = [-31.918213039964222, -70.24057012821072]
-is_inside_area([-30.24037, -70.73691], point_reference,  200 )
+
+# testing.
+lat_long = [-29.00657526492613, -69.77679793265125]
+# print("new latitude", -30.240476801377167 +(200/6371)*180/math.pi)
+# print("new longitude",-70.73709442008416 + (200/6371)*(180/math.pi)/math.cos(-30.240476801377167*math.pi/180))
+
+
+# point_reference = [-29.672737573022122, -69.93171344197097]
+# is_inside_area([-30.240476801377167, -70.73709442008416], point_reference,  200)
+
+intern_radius = [-29.672737573022122, -69.93171344197097]
+second_radius = [-29.057079010258132, -69.79391230365658]
+external_radius = [-28.671508190008392, -69.72640645677438]
+
+
+
+
+def distance(point_1, point_2):
+    radio =  (math.sqrt((point_1[0] -point_2[0])**2 + (point_1[1]-point_2[1])**2))
+    return radio
+
+print(distance([608.3541160975551, 838.8888716360411],[250, 250])) #118.17404360439777
