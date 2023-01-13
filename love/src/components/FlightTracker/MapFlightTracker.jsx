@@ -6,6 +6,7 @@ import * as d3 from 'd3';
 import CoquimboURL from './Coquimbo.geojson';
 import ValparaisoURL from './Valparaiso.geojson';
 import AtacamaURL from './Atacama.geojson';
+import Button from 'components/GeneralPurpose/Button/Button';
 import TelescopeURL from './telescope.svg';
 import { ReactComponent as Map } from './Map.svg';
 
@@ -168,16 +169,26 @@ export default class MapFlightTracker extends Component {
     const { planes } = this.props;
     // const [latitude, longitude] = this.cordsPlaneInMap(-70.73709442008416, -30.240476801377167);
     const sizePlane = 15; //La mitad del size.
-    const scale = 5;
+    const scale = 0.5;
 
     return (
       <>
+        {/* <div className={styles.container}>
+          <div>{this.getRegion()}</div>
+          <div id="TelescopeDiv">
+            <svg id="Paths" className={styles.CoquimboSvg}>
+              <mask id="mask">
+                <rect fill="white" width="500" height="500" />
+                <circle id="circle1" cx="250" cy="250" r="250" stroke="white" strokeWidth="2" fill="black" />{' '} */}
+        {/* This radius defines the zoom that we want.*/}
+        {/* </mask>
+            </svg>
         <div className={styles.container}>
           {/* <div>{this.getRegionSvg()}</div> */}
           <div id="TelescopeDiv">
             <Map></Map>
           </div>
-        </div>
+        </div> */}
 
         <div className={styles.mapDiv}>
           <svg
@@ -196,7 +207,7 @@ export default class MapFlightTracker extends Component {
               return (
                 <g
                   id="layer1"
-                  key={airCraft}
+                  key={airCraft.id}
                   transform={`scale(${scale}) translate(${(cordx - sizePlane) / scale},${
                     -1022.3622 + (cordy - sizePlane) / scale
                   }) `}
