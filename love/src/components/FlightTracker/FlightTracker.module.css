@@ -44,8 +44,3 @@ td.statusColumn {
   width: 100%;
   height: 425px;
 }
-
-path {
-  transform: rotate(180deg);
-  transform-origin: 50% 50%;
-}
