@@ -44,3 +44,30 @@ td.statusColumn {
   width: 100%;
   height: 425px;
 }
+
+.CoquimboSvg path {
+  opacity: 0.5;
+  border-radius: 50%;
+  fill: #6f6f6f;
+  fill-opacity: 1;
+  fill-rule: evenodd;
+  stroke: #ffffff;
+  stroke-width: 1;
+  stroke-linecap: butt;
+  stroke-linejoin: miter;
+  stroke-miterlimit: 4;
+  stroke-dasharray: none;
+  stroke-opacity: 1;
+}
+
+.rect {
+  fill: var(--secondary-background-dimmed-color);
+}
+
+.telescope {
+  fill: #bcd8e2;
+  stroke: #bcd8e2;
+  stroke-miterlimit: 10;
+  stroke-width: 100px;
+  rotate: rotate + 'deg';
+}

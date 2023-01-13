@@ -11,6 +11,7 @@ import { scaleDiverging } from 'd3';
 
 const DEFAULT_POLLING_TIMEOUT = 5000;
 const RADIUS = 160;
+
 export default class FlightTracker extends Component {
   constructor(props) {
     super(props);
@@ -29,6 +30,7 @@ export default class FlightTracker extends Component {
    * @param {*} position: list with latitude and lonegitude
    * @param {*} radio: radio to explore
    * @returns boolean, true if the position is inside the radio
+   * THis function uses Haversine formula.
    */
   planeDistance = (position) => {
     const origin = [-30.2326, -70.7312];

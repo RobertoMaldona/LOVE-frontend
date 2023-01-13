@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styles from './Circle.module.css';
 import { formatSecondsToDigital } from 'Utils';
+import Button from 'components/GeneralPurpose/Button/Button';
 
 export default class Circle extends Component {
   static propTypes = {
@@ -36,6 +37,13 @@ export default class Circle extends Component {
     return dist;
   }
 
+  ChangeBackground() {
+    var r = document.querySelector(':root');
+    var randomColor = Math.floor(Math.random() * 16777215).toString(16);
+    // console.log(r);
+    r.style.setProperty('--tertiary-background-color', '#' + randomColor);
+    r.style.setProperty('--second-secondary-background-color', '#' + randomColor);
+  }
   render() {
     const { az } = this.props;
     const { el } = this.props;
@@ -46,7 +54,7 @@ export default class Circle extends Component {
     const height = 300;
     const width = 300;
 
-    console.log('azMount: ' + azimuthPosition + ' elMount: ' + elMount);
+    // console.log('azMount: ' + azimuthPosition + ' elMount: ' + elMount);
     return (
       <div>
         <div className={styles.Div}>
@@ -87,6 +95,11 @@ export default class Circle extends Component {
           </svg>
         </div>
         <div>{formatSecondsToDigital(this.state.time)}</div>
+        <div>
+          <Button title={'ChangeBackground'} onClick={this.ChangeBackground}>
+            Change ground
+          </Button>
+        </div>
       </div>
     );
   }
