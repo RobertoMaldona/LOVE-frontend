@@ -92,7 +92,7 @@ export default class MapFlightTracker extends Component {
             return (
               <g
                 id="layer1"
-                key={airCraft}
+                key={airCraft.id}
                 transform={`scale(${scale}) translate(${(cordx - sizePlane) / scale},${
                   -1022.3622 + (cordy - sizePlane) / scale
                 }) `}
