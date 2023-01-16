@@ -48,8 +48,8 @@ export default class FlightTracker extends Component {
   };
 
   componentDidUpdate = (prevProps, prevState) => {
-    const RADIO1 = 10;
-    const RADIO2 = 5;
+    const RADIO1 = 160;
+    const RADIO2 = 100;
 
     if (!isEqual(prevState.planes, this.state.planes)) {
       const newTimers = prevState.timers;
@@ -120,8 +120,10 @@ export default class FlightTracker extends Component {
         planesStateIN[value.id] = 'running';
         const distance = this.planeDistance(value.loc);
         planeDistance[value.id] = distance;
-        if (distance < 100) {
-          planesStateIN[value.id] = 'alert';
+        if (distance < 160) {
+          if (distance < 100) planesStateIN[value.id] = 'alert';
+          else planesStateIN[value.id] = 'warning';
+
           timers[value.id] = 600;
         }
       });
@@ -199,7 +201,7 @@ export default class FlightTracker extends Component {
         render: (value) => {
           return (
             <StatusText small status={value[1]}>
-              {value[0].toString()} km
+              {value[0].toString() + 'km'}
             </StatusText>
           );
         },
@@ -230,38 +232,40 @@ export default class FlightTracker extends Component {
 
     return (
       <>
-        <div className={styles.divLastUp}>LastUpdate: {Math.round((dateNow - this.state.lastUpdate) / 1000)}seg</div>
+        <div className={styles.divLastUp}>Last Update: {Math.round((dateNow - this.state.lastUpdate) / 1000)}seg</div>
         <div className={styles.container}>
           <div className={styles.statusDiv}>
-            <div className={styles.statusDiv}>
-              <Title>Monitoring status</Title>
-              <Value>
+            <div className={styles.statusDivElement}>
+              <div className={styles.statusElement}>
+                <Title>Monitoring status</Title>
+              </div>
+              <div className={styles.statusElement}>
                 <StatusText title={'Monitoring status'} status={'running'} small>
                   {'Connected'}
                 </StatusText>
-              </Value>
+              </div>
             </div>
-            <div className={styles.statusDiv}>
-              <Title>Aircraft in Radius</Title>
-              <Value>
-                <StatusText title={'Aircraft in Radius'} status={inRadius} small>
-                  {timerLength.toString()}
-                </StatusText>
-              </Value>
+            <div className={styles.statusDivElement}>
+              <div className={styles.statusElement}>
+                <Title>Aircraft in Radius</Title>
+              </div>
+              <div className={styles.statusElement}>
+                <Value>
+                  <StatusText title={'Aircraft in Radius'} status={inRadius} small>
+                    {timerLength.toString()}
+                  </StatusText>
+                </Value>
+              </div>
             </div>
           </div>
           <br></br>
+          <div className={styles.divElement}>
+            <MapFlightTracker planes={tableData}></MapFlightTracker>
+          </div>
           <br></br>
-          <br></br>
-          <MapFlightTracker planes={this.state.planes}></MapFlightTracker>
-          <br></br>
-          <br></br>
-          <br></br>
-          <br></br>
-          <br></br>
-          <br></br>
-
-          <SimpleTable headers={headers} data={tableData}></SimpleTable>
+          <div className={styles.divElement}>
+            <SimpleTable headers={headers} data={tableData}></SimpleTable>
+          </div>
         </div>
       </>
     );

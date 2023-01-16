@@ -66,4 +66,8 @@ def distance(point_1, point_2):
     radio =  (math.sqrt((point_1[0] -point_2[0])**2 + (point_1[1]-point_2[1])**2))
     return radio
 
-print(distance([608.3541160975551, 838.8888716360411],[250, 250])) #118.17404360439777
+external_radius_c = [364.65891235520394, 45.57129669433607]
+second_radius_c = [357.00061695433305, 95.5181751002815]
+intern_radius_c = [341.3675737065496, 175.66005738475087]
+
+print(distance(second_radius_c,[250, 250])) #118.17404360439777
