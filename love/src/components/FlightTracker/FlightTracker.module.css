@@ -85,3 +85,11 @@ td.statusColumn {
 .pathPlane {
   transform-box: 'fill-box';
 }
+
+.circle {
+  background-color: '#2E3E47';
+}
+
+.laSerena {
+  fill: #788f9b;
+}
