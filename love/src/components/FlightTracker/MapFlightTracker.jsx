@@ -63,6 +63,7 @@ export default class MapFlightTracker extends Component {
             .select('#telescopeDiv #Paths')
             .attr('width', `${100}%`)
             .attr('height', `${100}%`)
+            .attr('min-width', '5%')
             .attr('viewBox', `0 0 ${width} ${height}`);
 
           Coquimbo.features.map((feature) => {
@@ -327,14 +328,14 @@ export default class MapFlightTracker extends Component {
           </div> */}
 
         {/* this is for generate the static map */}
-        {/* <div>{this.getRegionSvg()}</div>
-          <div id="telescopeDiv">
-            <svg id="Paths" className={styles.CoquimboSvg}></svg>
-          </div> */}
-        {/* run this for load the static map */}
-        <div id="TelescopeDiv">
-          <Map></Map>
+        <div>{this.getRegionSvg()}</div>
+        <div id="telescopeDiv">
+          <svg id="Paths" className={styles.CoquimboSvg}></svg>
         </div>
+        {/* run this for load the static map */}
+        {/* <div id="TelescopeDiv">
+          <Map></Map>
+        </div> */}
       </>
     );
   }
