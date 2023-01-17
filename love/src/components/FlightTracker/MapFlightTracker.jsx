@@ -45,7 +45,7 @@ export default class MapFlightTracker extends Component {
     const projection = d3
       .geoMercator()
       .center(telescopeCoords)
-      .scale(width * 13) // scale; 13 - 200 km,  16.05 -160 km and 25.2 -100 km.
+      .scale(width * 25.2) // scale; 13 - 200 km,  16.05 -160 km and 25.2 -100 km.
       .translate([width / 2, height / 2 + 15]);
 
     let geoGenerator = d3.geoPath().projection(projection);
@@ -126,9 +126,9 @@ export default class MapFlightTracker extends Component {
             .attr('id', 'middle_circle')
             .attr('cx', '50%')
             .attr('cy', '50%')
-            .attr('r', '175.79622153494552')
-            .attr('stroke', '#bcd8e2')
-            .attr('stroke-width', '1')
+            .attr('r', '219.84341506903084')
+            // .attr('stroke', '#bcd8e2')
+            // .attr('stroke-width', '1')
             .attr('fill', 'none');
 
           // third zone : 100 km area.
@@ -142,9 +142,9 @@ export default class MapFlightTracker extends Component {
             .attr('id', 'intern_circle')
             .attr('cx', '50%')
             .attr('cy', '50%')
-            .attr('r', '108.94614410158273')
-            .attr('stroke', '#bcd8e2')
-            .attr('stroke-width', '1')
+            .attr('r', '219.17340003748237')
+            // .attr('stroke', '#bcd8e2')
+            // .attr('stroke-width', '1')
             .attr('fill', 'none');
 
           // this circle depends on external circle.
@@ -348,10 +348,10 @@ export default class MapFlightTracker extends Component {
           </div> */}
 
         {/* this is for generate the static map */}
-        <div>{this.getRegionSvg()}</div>
+        {/* <div>{this.getRegionSvg()}</div>
         <div id="telescopeDiv">
           <svg id="Paths" className={styles.CoquimboSvg}></svg>
-        </div>
+        </div> */}
         {/* run this for load the static map */}
         {/* <div id="TelescopeDiv">
           <Map></Map>
