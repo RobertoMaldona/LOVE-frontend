@@ -189,8 +189,8 @@ export default class MapFlightTracker extends Component {
    * @param {*} id
    */
   addPlanes(airCraft) {
-    const { id, distance } = airCraft;
-    const [longitude, latitude] = airCraft.loc;
+    const { id, distance, loc } = airCraft;
+    const [longitude, latitude] = loc;
     const [cordx, cordy] = this.cordsPlaneInMap(latitude, longitude);
     const status = distance[1] === 'running' ? 'ok' : distance[1];
 
@@ -249,9 +249,6 @@ export default class MapFlightTracker extends Component {
         </div>
 
         {planes.map((airCraft) => {
-          // const [longitude, latitude] = airCraft.loc;
-          // const [cordx, cordy] = this.cordsPlaneInMap(latitude, longitude);
-          // this.addPlanes(rotate, cordx, cordy, airCraft.id);
           this.addPlanes(airCraft);
         })}
 
