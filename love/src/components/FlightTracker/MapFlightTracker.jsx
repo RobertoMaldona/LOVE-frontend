@@ -191,17 +191,17 @@ export default class MapFlightTracker extends Component {
     return (
       <>
         {/* this is for generate the static map */}
-        {/* <div className={styles.container}>
+        <div className={styles.container}>
           <div>{this.getRegionSvg()}</div>
           <div id="TelescopeDiv">
             <svg id="Paths" className={styles.CoquimboSvg}></svg>
           </div>
-        </div> */}
+        </div>
 
         {/* run this for load the static map */}
-        <div id="TelescopeDiv">
+        {/* <div id="TelescopeDiv">
           <Map></Map>
-        </div>
+        </div> */}
       </>
     );
   }
