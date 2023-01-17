@@ -8,7 +8,7 @@ import ValparaisoURL from './Valparaiso.geojson';
 import AtacamaURL from './Atacama.geojson';
 import Button from 'components/GeneralPurpose/Button/Button';
 import TelescopeURL from './telescope.svg';
-import { ReactComponent as Map } from './Map160.svg';
+import { ReactComponent as Map } from './Map200.svg';
 import { Document } from 'yaml';
 import * as ReactDOM from 'react-dom';
 import { style } from 'd3';
@@ -209,7 +209,7 @@ export default class MapFlightTracker extends Component {
     //Remove the g airCraft previous.
     svg.select(`#id${id}`).remove();
 
-    var tooltip = d3.select('#tooltip').text("I'm a circle!");
+    var tooltip = d3.select('#tooltip');
     //
     svg
       .append('g')
@@ -229,7 +229,11 @@ export default class MapFlightTracker extends Component {
       .style('transform-origin', 'center center')
       .style('rotate', `${rotateRandom}deg`)
       .on('mouseover', function () {
-        return tooltip.style('visibility', 'visible').style('top', '100px');
+        return tooltip
+          .style('visibility', 'visible')
+          .attr('transform', `translate(${cordx + 10}, ${cordy})`)
+          .select('#textTool')
+          .text(`${id}`);
       })
       // .on("mousemove", function(event){return tooltip.style("top", (event.clientY-200)+"px").style("left",(event.clientX-200)+"px");})
       .on('mouseout', function () {
@@ -251,22 +255,38 @@ export default class MapFlightTracker extends Component {
       .style('rotate', `${rotateRandom}deg`);
   }
 
-  testHov() {
-    const map = document.getElementById('mapTelescope');
+  insertTooltip() {
+    const map = d3.select('#mapTelescope');
+
+    map
+      .append('g')
+      .attr('id', 'tooltip')
+      .style('visibility', 'hidden')
+      .append('rect')
+      .attr('width', '10%')
+      .attr('height', '5%')
+      .attr('fill', 'orange');
+
+    map
+      .select('#tooltip')
+      .append('text')
+      .attr('id', 'textTool')
+      .attr('x', '5%')
+      .attr('y', '2.5%')
+      .attr('alignment-baseline', 'middle')
+      .attr('text-anchor', 'middle');
   }
   render() {
     const { planes } = this.props;
     const rotate = 70;
+
     return (
       <>
         <div id="telescopeDiv" className={styles.telescopeDiv}>
           <Map id="mapTelescope"></Map>
-          <div className={styles.maskMap}></div>
-          <div id="tooltip" className={styles.tooltip}></div>
         </div>
 
-        {/* {this.testHov()} */}
-
+        {this.insertTooltip()}
         {planes.map((airCraft) => {
           this.addPlanes(airCraft);
         })}
