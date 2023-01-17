@@ -258,14 +258,12 @@ export default class FlightTracker extends Component {
               </div>
             </div>
           </div>
-          <br></br>
-          <div className={styles.divElement}>
-            <MapFlightTracker planes={tableData}></MapFlightTracker>
-          </div>
-          <br></br>
-          <div className={styles.divElement}>
-            <SimpleTable headers={headers} data={tableData}></SimpleTable>
-          </div>
+        </div>
+        <br></br>
+        <MapFlightTracker planes={tableData}></MapFlightTracker>
+        <br></br>
+        <div className={styles.divElement}>
+          <SimpleTable headers={headers} data={tableData}></SimpleTable>
         </div>
       </>
     );
