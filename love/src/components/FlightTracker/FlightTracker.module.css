@@ -1,6 +1,6 @@
 .container {
   display: flex;
-  flex-flow: row wrap;
+  /* flex-flow: row wrap; */
   height: fit-content;
   justify-content: center;
 }
@@ -29,10 +29,6 @@
 td.statusColumn {
   min-width: 8em;
   text-align: center;
-}
-
-.statusDiv {
-  display: inline-block;
 }
 
 .divLastUp {
@@ -69,4 +65,34 @@ td.statusColumn {
 
 .laSerena {
   fill: #788f9b;
+}
+
+.tooltip {
+  visibility: hidden;
+  position: absolute;
+}
+
+.pathPlane {
+  transform-box: 'fill-box';
+}
+
+.statusDiv {
+  display: flex;
+  width: 75%;
+}
+
+.statusDivElement {
+  display: flex;
+  width: 50%;
+  margin-right: 5%;
+}
+
+.statusElement {
+  width: 50%;
+  height: 100%;
+}
+
+.divElement {
+  width: 100%;
+  margin-top: 15px;
 }
