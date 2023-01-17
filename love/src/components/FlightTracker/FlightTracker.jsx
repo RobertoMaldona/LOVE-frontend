@@ -234,35 +234,36 @@ export default class FlightTracker extends Component {
       <>
         <div className={styles.divLastUp}>Last Update: {Math.round((dateNow - this.state.lastUpdate) / 1000)}seg</div>
         <div className={styles.container}>
-          <div className={styles.statusDiv}>
-            <div className={styles.statusDivElement}>
-              <div className={styles.statusElement}>
-                <Title>Monitoring status</Title>
-              </div>
-              <div className={styles.statusElement}>
-                <StatusText title={'Monitoring status'} status={'running'} small>
-                  {'Connected'}
+          {/* <div className={styles.statusDiv}> */}
+          <div className={styles.statusDivElement}>
+            <div className={styles.statusElement}>
+              <Title>Monitoring status</Title>
+            </div>
+            <div className={styles.statusElement}>
+              <StatusText title={'Monitoring status'} status={'running'} small>
+                {'Connected'}
+              </StatusText>
+            </div>
+          </div>
+          <div className={styles.statusDivElement}>
+            <div className={styles.statusElement}>
+              <Title>Aircraft in Radius</Title>
+            </div>
+            <div className={styles.statusElement}>
+              <Value>
+                <StatusText title={'Aircraft in Radius'} status={inRadius} small>
+                  {timerLength.toString()}
                 </StatusText>
-              </div>
+              </Value>
             </div>
-            <div className={styles.statusDivElement}>
-              <div className={styles.statusElement}>
-                <Title>Aircraft in Radius</Title>
-              </div>
-              <div className={styles.statusElement}>
-                <Value>
-                  <StatusText title={'Aircraft in Radius'} status={inRadius} small>
-                    {timerLength.toString()}
-                  </StatusText>
-                </Value>
-              </div>
-            </div>
+            {/* </div> */}
           </div>
         </div>
         <br></br>
-        <div className={styles.divElement}>
+        {/* <div className={styles.divElement}>
           <MapFlightTracker planes={tableData}></MapFlightTracker>
-        </div>
+        </div> */}
+        <MapFlightTracker planes={tableData}></MapFlightTracker>
         <br></br>
         <div className={styles.divElement}>
           <SimpleTable headers={headers} data={tableData}></SimpleTable>

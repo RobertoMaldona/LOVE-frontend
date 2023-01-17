@@ -1,13 +1,8 @@
 .container {
   display: flex;
-  flex-flow: row wrap;
+  /* flex-flow: row wrap; */
   height: fit-content;
   justify-content: center;
-}
-
-.divElement {
-  width: 100%;
-  margin-top: 15px;
 }
 
 .Div {
@@ -36,33 +31,14 @@ td.statusColumn {
   text-align: center;
 }
 
-.statusDiv {
-  display: flex;
-  width: 75%;
-}
-
-.statusDivElement {
-  display: flex;
-  width: 50%;
-  margin-right: 5%;
-}
-
-.statusElement {
-  width: 50%;
-  height: 100%;
-}
-
 .divLastUp {
   text-align: left;
-  font-size: 10px;
 }
 
-.telescopeDiv {
-  position: relative;
-}
-
-.maskMap {
-  position: absolute;
+.mapDiv {
+  align-self: center;
+  width: 100%;
+  height: 425px;
 }
 
 .CoquimboSvg path {
@@ -83,11 +59,6 @@ td.statusColumn {
 .rect {
   fill: var(--secondary-background-dimmed-color);
 }
-
-.pathPlane {
-  transform-box: 'fill-box';
-}
-
 .circle {
   background-color: '#2E3E47';
 }
@@ -99,4 +70,29 @@ td.statusColumn {
 .tooltip {
   visibility: hidden;
   position: absolute;
+}
+
+.pathPlane {
+  transform-box: 'fill-box';
+}
+
+.statusDiv {
+  display: flex;
+  width: 75%;
+}
+
+.statusDivElement {
+  display: flex;
+  width: 50%;
+  margin-right: 5%;
+}
+
+.statusElement {
+  width: 50%;
+  height: 100%;
+}
+
+.divElement {
+  width: 100%;
+  margin-top: 15px;
 }

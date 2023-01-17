@@ -61,9 +61,9 @@ export default class MapFlightTracker extends Component {
 
           const svg = d3
             .select('#telescopeDiv #Paths')
-            .attr('width', width)
-            .attr('height', height)
-            .classed(styles.circle, true);
+            .attr('width', `${100}%`)
+            .attr('height', `${100}%`)
+            .attr('viewBox', `0 0 ${width} ${height}`);
 
           Coquimbo.features.map((feature) => {
             svg
@@ -99,20 +99,20 @@ export default class MapFlightTracker extends Component {
           // const radius_1 = 221.42696271805653 with Euclidian distance.
 
           const mask = svg.append('mask').attr('id', 'Mask');
-          mask.append('rect').attr('width', '500').attr('height', '500').attr('fill', 'white');
+          mask.append('rect').attr('width', '100%').attr('height', '100%').attr('fill', 'white');
           mask
             .append('circle')
-            .attr('cx', '250')
-            .attr('cy', '250')
-            .attr('r', ' 220') // this radius let encloses the last radius in map. For scales (222, 220).
+            .attr('cx', '50%')
+            .attr('cy', '50%')
+            .attr('r', '220') // this radius let encloses the last radius in map. For scales (222, 220).
             .attr('fill', 'black');
 
           svg
             .append('rect')
             .attr('mask', 'url(#Mask)')
             .classed(styles.rect, true)
-            .attr('width', `${width}`)
-            .attr('height', `${height}`);
+            .attr('width', '100%')
+            .attr('height', '100%');
 
           // second zone : 160 km area.
           // const long_lat_2 = [-69.79391230365658, -29.057079010258132]
@@ -123,8 +123,8 @@ export default class MapFlightTracker extends Component {
           svg
             .append('circle')
             .attr('id', 'middle_circle')
-            .attr('cx', `${width / 2}`)
-            .attr('cy', `${height / 2}`)
+            .attr('cx', '50%')
+            .attr('cy', '50%')
             .attr('r', '175.79622153494552')
             .attr('stroke', '#bcd8e2')
             .attr('stroke-width', '1')
@@ -139,8 +139,8 @@ export default class MapFlightTracker extends Component {
           svg
             .append('circle')
             .attr('id', 'intern_circle')
-            .attr('cx', `${width / 2}`)
-            .attr('cy', `${height / 2}`)
+            .attr('cx', '50%')
+            .attr('cy', '50%')
             .attr('r', '108.94614410158273')
             .attr('stroke', '#bcd8e2')
             .attr('stroke-width', '1')
@@ -150,8 +150,8 @@ export default class MapFlightTracker extends Component {
           svg
             .append('circle')
             .attr('id', 'external_circle')
-            .attr('cx', `${width / 2}`)
-            .attr('cy', `${height / 2}`)
+            .attr('cx', '50%')
+            .attr('cy', '50%')
             .attr('r', '221.42696271805653')
             .attr('fill', '#bcd8e2')
             .style('opacity', '10%');
@@ -166,7 +166,7 @@ export default class MapFlightTracker extends Component {
             .append('path')
             .attr('id', 'telescopeIconP')
             .attr('d', pathTelescope)
-            .attr('transform', `translate(${250 - 31.4 / 2},${250 - 30.38 / 2})  scale(0.5)`)
+            .attr('transform', `translate(${width / 2 - 31.4 / 2},${height / 2 - 30.38 / 2})  scale(0.5)`)
             .style('fill', '#bcd8e2')
             .style('stroke', '#bcd8e2');
 
@@ -282,9 +282,9 @@ export default class MapFlightTracker extends Component {
 
     return (
       <>
-        <div id="telescopeDiv" className={styles.telescopeDiv}>
-          <Map id="mapTelescope"></Map>
-        </div>
+        {/* <div id="telescopeDiv"> */}
+        <Map id="mapTelescope"></Map>
+        {/* </div> */}
 
         {this.insertTooltip()}
         {planes.map((airCraft) => {
@@ -347,13 +347,10 @@ export default class MapFlightTracker extends Component {
           </div> */}
 
         {/* this is for generate the static map */}
-        {/* <div className={styles.container}>
-          <div>{this.getRegionSvg()}</div>
-          <div id="TelescopeDiv">
+        {/* <div>{this.getRegionSvg()}</div>
+          <div id="telescopeDiv">
             <svg id="Paths" className={styles.CoquimboSvg}></svg>
-          </div>
-        </div> */}
-
+          </div> */}
         {/* run this for load the static map */}
         {/* <div id="TelescopeDiv">
           <Map></Map>
