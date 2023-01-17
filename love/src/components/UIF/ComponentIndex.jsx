@@ -334,6 +334,16 @@ export const mainIndex = {
       },
     },
   },
+  Scheduler: {
+    component: require('../MainTel/Scheduler/Scheduler.container').default,
+    schema: {
+      ...require('../MainTel/Scheduler/Scheduler.container').schema,
+      props: {
+        ...defaultSchemaProps,
+        ...require('../MainTel/Scheduler/Scheduler.container').schema.props,
+      },
+    },
+  },
 };
 
 export const authlistIndex = {
