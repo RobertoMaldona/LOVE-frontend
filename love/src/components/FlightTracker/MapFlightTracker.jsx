@@ -8,7 +8,9 @@ import ValparaisoURL from './Valparaiso.geojson';
 import AtacamaURL from './Atacama.geojson';
 import Button from 'components/GeneralPurpose/Button/Button';
 import TelescopeURL from './telescope.svg';
-import { ReactComponent as Map } from './Map200.svg';
+import { ReactComponent as Map200 } from './Map200.svg';
+import { ReactComponent as Map160 } from './Map160.svg';
+import { ReactComponent as Map100 } from './Map100.svg';
 import { Document } from 'yaml';
 import * as ReactDOM from 'react-dom';
 import { style } from 'd3';
@@ -19,9 +21,7 @@ export default class MapFlightTracker extends Component {
     this.ref = React.createRef();
   }
 
-  componentDidMount = () => {
-    // didMount
-  };
+  componentDidMount = () => {};
 
   componentWillUnmount = () => {};
 
@@ -257,34 +257,45 @@ export default class MapFlightTracker extends Component {
 
   insertTooltip() {
     const map = d3.select('#mapTelescope');
-
+    const [width, height] = [6, 3];
     map
       .append('g')
       .attr('id', 'tooltip')
       .style('visibility', 'hidden')
       .append('rect')
-      .attr('width', '10%')
-      .attr('height', '5%')
-      .attr('fill', 'orange');
+      .attr('width', `${width}%`)
+      .attr('height', `${height}%`)
+      .attr('fill', '#bcd8e2');
 
     map
       .select('#tooltip')
       .append('text')
       .attr('id', 'textTool')
-      .attr('x', '5%')
-      .attr('y', '2.5%')
+      .attr('x', `${width / 2}%`)
+      .attr('y', `${height / 2}%`)
+      .attr('font-size', '75%')
       .attr('alignment-baseline', 'middle')
       .attr('text-anchor', 'middle');
   }
+
+  renderMap(zoom) {
+    if (zoom === '200') return <Map200 id="mapTelescope"></Map200>;
+    if (zoom === '160') return <Map160 id="mapTelescope"></Map160>;
+    return <Map100 id="mapTelescope"></Map100>;
+  }
+
   render() {
     const { planes } = this.props;
     const rotate = 70;
+    const { zoom } = this.props;
 
     return (
       <>
         {/* <div id="telescopeDiv"> */}
-        <Map id="mapTelescope"></Map>
+        {/* <Map id="mapTelescope"></Map> */}
         {/* </div> */}
+
+        {this.renderMap(zoom)}
 
         {this.insertTooltip()}
         {planes.map((airCraft) => {

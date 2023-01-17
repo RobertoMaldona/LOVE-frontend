@@ -33,6 +33,7 @@ td.statusColumn {
 
 .divLastUp {
   text-align: left;
+  font-size: 80%;
 }
 
 .mapDiv {
@@ -95,4 +96,9 @@ td.statusColumn {
 .divElement {
   width: 100%;
   margin-top: 15px;
+}
+
+.zoomDiv {
+  display: flex;
+  width: 10%;
 }

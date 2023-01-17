@@ -8,6 +8,8 @@ import isEqual, { remove } from 'lodash';
 import SimpleTable from 'components/GeneralPurpose/SimpleTable/SimpleTable';
 import ManagerInterface, { formatSecondsToDigital } from 'Utils';
 import { scaleDiverging } from 'd3';
+import { ReactComponent as ZoomIn } from './zoomIn.svg';
+import { ReactComponent as ZoomOut } from './zoomOut.svg';
 
 const DEFAULT_POLLING_TIMEOUT = 5000;
 const RADIUS = 160;
@@ -23,6 +25,7 @@ export default class FlightTracker extends Component {
       planesState: {},
       lastUpdate: 0,
       planesDistance: {},
+      zoom: '200',
     };
   }
 
@@ -155,7 +158,7 @@ export default class FlightTracker extends Component {
   /*
     Returns a new Dictionary of timers, to change in setState
   */
-  changeStateTimer(timers) {
+  changeStateTimer = (timers) => {
     const newTimers = timers;
     for (const [key, value] of Object.entries(newTimers)) {
       if (value > 0) {
@@ -163,7 +166,19 @@ export default class FlightTracker extends Component {
       }
     }
     return { timers: newTimers };
-  }
+  };
+
+  zoomIn = () => {
+    const { zoom } = this.state;
+    if (zoom === '200') this.setState({ zoom: '160' });
+    else if (zoom === '160') this.setState({ zoom: '100' });
+  };
+
+  zoomOut = () => {
+    const { zoom } = this.state;
+    if (zoom === '100') this.setState({ zoom: '160' });
+    else if (zoom === '160') this.setState({ zoom: '200' });
+  };
 
   render() {
     const headers = [
@@ -229,41 +244,46 @@ export default class FlightTracker extends Component {
     const dateNow = Date.now();
     const timerLength = Object.keys(this.state.timers).length ?? 0;
     const inRadius = timerLength > 0 ? 'warning' : 'ok';
+    const zoom = '200';
 
     return (
       <>
         <div className={styles.divLastUp}>Last Update: {Math.round((dateNow - this.state.lastUpdate) / 1000)}seg</div>
         <div className={styles.container}>
-          {/* <div className={styles.statusDiv}> */}
-          <div className={styles.statusDivElement}>
-            <div className={styles.statusElement}>
-              <Title>Monitoring status</Title>
-            </div>
-            <div className={styles.statusElement}>
-              <StatusText title={'Monitoring status'} status={'running'} small>
-                {'Connected'}
-              </StatusText>
-            </div>
-          </div>
-          <div className={styles.statusDivElement}>
-            <div className={styles.statusElement}>
-              <Title>Aircraft in Radius</Title>
-            </div>
-            <div className={styles.statusElement}>
-              <Value>
-                <StatusText title={'Aircraft in Radius'} status={inRadius} small>
-                  {timerLength.toString()}
+          <div className={styles.statusDiv}>
+            <div className={styles.statusDivElement}>
+              <div className={styles.statusElement}>
+                <Title>Monitoring status</Title>
+              </div>
+              <div className={styles.statusElement}>
+                <StatusText title={'Monitoring status'} status={'running'} small>
+                  {'Connected'}
                 </StatusText>
-              </Value>
+              </div>
             </div>
-            {/* </div> */}
+            <div className={styles.statusDivElement}>
+              <div className={styles.statusElement}>
+                <Title>Aircraft in Radius</Title>
+              </div>
+              <div className={styles.statusElement}>
+                <Value>
+                  <StatusText title={'Aircraft in Radius'} status={inRadius} small>
+                    {timerLength.toString()}
+                  </StatusText>
+                </Value>
+              </div>
+            </div>
           </div>
         </div>
         <br></br>
         {/* <div className={styles.divElement}>
           <MapFlightTracker planes={tableData}></MapFlightTracker>
         </div> */}
-        <MapFlightTracker planes={tableData}></MapFlightTracker>
+        <MapFlightTracker planes={tableData} zoom={this.state.zoom}></MapFlightTracker>
+        <div className={styles.zoomDiv}>
+          <ZoomOut onClick={this.zoomIn}></ZoomOut>
+          <ZoomIn onClick={this.zoomOut}></ZoomIn>
+        </div>
         <br></br>
         <div className={styles.divElement}>
           <SimpleTable headers={headers} data={tableData}></SimpleTable>
