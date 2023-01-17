@@ -9,10 +9,14 @@ import AtacamaURL from './Atacama.geojson';
 import Button from 'components/GeneralPurpose/Button/Button';
 import TelescopeURL from './telescope.svg';
 import { ReactComponent as Map } from './Map160.svg';
+import { Document } from 'yaml';
+import * as ReactDOM from 'react-dom';
+import { style } from 'd3';
 
 export default class MapFlightTracker extends Component {
   constructor(props) {
     super(props);
+    this.ref = React.createRef();
   }
 
   componentDidMount = () => {
@@ -205,6 +209,7 @@ export default class MapFlightTracker extends Component {
     //Remove the g airCraft previous.
     svg.select(`#id${id}`).remove();
 
+    var tooltip = d3.select('#tooltip').text("I'm a circle!");
     //
     svg
       .append('g')
@@ -222,7 +227,14 @@ export default class MapFlightTracker extends Component {
       .style('stroke', 'none')
       .style('transform-box', 'fill-box')
       .style('transform-origin', 'center center')
-      .style('rotate', `${rotateRandom}deg`);
+      .style('rotate', `${rotateRandom}deg`)
+      .on('mouseover', function () {
+        return tooltip.style('visibility', 'visible').style('top', '100px');
+      })
+      // .on("mousemove", function(event){return tooltip.style("top", (event.clientY-200)+"px").style("left",(event.clientX-200)+"px");})
+      .on('mouseout', function () {
+        return tooltip.style('visibility', 'hidden');
+      });
 
     svg
       .select(`#id${id}`)
@@ -239,14 +251,21 @@ export default class MapFlightTracker extends Component {
       .style('rotate', `${rotateRandom}deg`);
   }
 
+  testHov() {
+    const map = document.getElementById('mapTelescope');
+  }
   render() {
     const { planes } = this.props;
     const rotate = 70;
     return (
       <>
-        <div id="telescopeDiv">
+        <div id="telescopeDiv" className={styles.telescopeDiv}>
           <Map id="mapTelescope"></Map>
+          <div className={styles.maskMap}></div>
+          <div id="tooltip" className={styles.tooltip}></div>
         </div>
+
+        {/* {this.testHov()} */}
 
         {planes.map((airCraft) => {
           this.addPlanes(airCraft);
@@ -313,6 +332,11 @@ export default class MapFlightTracker extends Component {
           <div id="TelescopeDiv">
             <svg id="Paths" className={styles.CoquimboSvg}></svg>
           </div>
+        </div> */}
+
+        {/* run this for load the static map */}
+        {/* <div id="TelescopeDiv">
+          <Map></Map>
         </div> */}
       </>
     );

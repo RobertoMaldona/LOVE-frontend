@@ -57,10 +57,12 @@ td.statusColumn {
   font-size: 10px;
 }
 
-.mapDiv {
-  align-self: center;
-  width: 100%;
-  height: 425px;
+.telescopeDiv {
+  position: relative;
+}
+
+.maskMap {
+  position: absolute;
 }
 
 .CoquimboSvg path {
@@ -92,4 +94,9 @@ td.statusColumn {
 
 .laSerena {
   fill: #788f9b;
+}
+
+.tooltip {
+  visibility: hidden;
+  position: absolute;
 }
