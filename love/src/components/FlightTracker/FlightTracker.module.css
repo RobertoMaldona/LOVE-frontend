@@ -100,5 +100,48 @@ td.statusColumn {
 
 .zoomDiv {
   display: flex;
-  width: 10%;
+  width: 7.5%;
+}
+
+.zoom {
+  box-shadow: 0.5% 1% 2px 1px rgba(100, 112, 115, 0.444);
+  touch-action: manipulation;
+  cursor: pointer;
+}
+
+/* DEFAULT */
+/* .zoom,
+.zoom.disabled,
+.zoom.disabled:hover {
+  background-image: none;
+  background-color: var(--default-background-color);
+  color: var(--default-font-color);
+  border: 20px;
+}
+.zoom:hover,
+.zoom:active:hover {
+  background-image: none;
+  background-color: var(--default-active-background-color);
+  color: var(--default-active-font-color);
+  border: 2;
+}
+.zoom.active {
+  background-image: none;
+  background-color: var(--default-active-background-color);
+  color: var(--default-active-font-color);
+  border: 2;
+}
+.zoom.active:hover {
+  background-image: none;
+  background-color: var(--default-active-hover-background-color);
+  color: var(--default-active-font-color);
+  border: 2;
+} */
+
+.iconBtn {
+  display: inline;
+  border-radius: 15%;
+  padding: 0.3em;
+  height: 4em;
+  width: 4em;
 }

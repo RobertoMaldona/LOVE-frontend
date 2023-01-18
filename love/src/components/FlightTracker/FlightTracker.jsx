@@ -4,6 +4,7 @@ import MapFlightTracker from './MapFlightTracker';
 import Value from '../GeneralPurpose/SummaryPanel/Value';
 import Title from '../GeneralPurpose/SummaryPanel/Title';
 import StatusText from '../GeneralPurpose/StatusText/StatusText';
+import Button from '../GeneralPurpose/Button/Button';
 import isEqual, { remove } from 'lodash';
 import SimpleTable from 'components/GeneralPurpose/SimpleTable/SimpleTable';
 import ManagerInterface, { formatSecondsToDigital } from 'Utils';
@@ -36,7 +37,7 @@ export default class FlightTracker extends Component {
    * THis function uses Haversine formula.
    */
   planeDistance = (position) => {
-    const origin = [-30.2326, -70.7312];
+    const origin = [-30.240476801377167, -70.73709442008416];
     const earthRadius = 6371; // in km
     const angle1 = (origin[0] * Math.PI) / 180; // in radians
     const angle2 = (position[0] * Math.PI) / 180;
@@ -244,7 +245,6 @@ export default class FlightTracker extends Component {
     const dateNow = Date.now();
     const timerLength = Object.keys(this.state.timers).length ?? 0;
     const inRadius = timerLength > 0 ? 'warning' : 'ok';
-    const zoom = '200';
 
     return (
       <>
@@ -281,8 +281,20 @@ export default class FlightTracker extends Component {
         </div> */}
         <MapFlightTracker planes={tableData} zoom={this.state.zoom}></MapFlightTracker>
         <div className={styles.zoomDiv}>
-          <ZoomOut onClick={this.zoomIn}></ZoomOut>
-          <ZoomIn onClick={this.zoomOut}></ZoomIn>
+          <Button className={styles.iconBtn} title="Zoom" onClick={this.zoomOut} disabled={false} status="transparent">
+            <ZoomOut /*onClick={this.zoomIn}*/ className={styles.zoom}></ZoomOut>
+          </Button>
+          <Button
+            className={styles.iconBtn}
+            title="ZoomOut"
+            onClick={this.zoomIn}
+            disabled={false}
+            status="transparent"
+          >
+            <ZoomIn /*onClick={this.zoomIn}*/ className={styles.zoom}></ZoomIn>
+          </Button>
+          {/* <ZoomOut onClick={this.zoomIn} className={styles.zoom}></ZoomOut> */}
+          {/* <ZoomIn onClick={this.zoomOut} className={styles.zoom}></ZoomIn> */}
         </div>
         <br></br>
         <div className={styles.divElement}>
