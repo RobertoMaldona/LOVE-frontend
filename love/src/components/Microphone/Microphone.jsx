@@ -27,6 +27,10 @@ export default class Microphone extends Component {
       /* The id of the selected mic to show the info */
       selectedMic: null,
     };
+
+    const radiosLink = {
+      biobio: 'https://redirector.dps.live/biobiosantiago/mp3/icecast.audio',
+    };
   }
 
   componentDidMount = () => {
@@ -38,8 +42,34 @@ export default class Microphone extends Component {
   };
 
   render() {
-    return {
-      /*print */
-    };
+    return (
+      <audio autoplay controls="controls">
+        {' '}
+        <source src="http://listen.radionomy.com/abc-jazz" type="audio/ogg" />{' '}
+      </audio>
+    );
+    /*print */
+
+    /*
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Streaming de audio en HTML5</title>
+          <meta name="viewport" content="initial-scale=1.0">
+          <meta charset="utf-8">
+          <!--Importamos la librería-->
+          <script src="audiojs/audio.min.js"></script>
+          <script>
+            // Inicializando los audios
+            audiojs.events.ready(function() {
+              var as = audiojs.createAll();
+            });
+          </script>
+        </head>
+        <body>
+          <audio src="http://listen.radionomy.com/abc-jazz" preload="none"></audio>
+        </body>
+      </html> 
+       */
   }
 }

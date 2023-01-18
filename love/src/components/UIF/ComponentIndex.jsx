@@ -44,6 +44,16 @@ export const observatoryIndex = {
       },
     },
   },
+  Microphones: {
+    component: require('../Microphone/Microphone.container').default,
+    schema: {
+      ...require('../Microphone/Microphone.container').schema,
+      props: {
+        ...defaultSchemaProps,
+        ...require('../Microphone/Microphone.container').schema.props,
+      },
+    },
+  },
   CSCDetail: {
     component: require('../CSCSummary/CSCDetail/CSCDetail.container').default,
     schema: {
