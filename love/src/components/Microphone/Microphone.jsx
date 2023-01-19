@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ManagerInterface, { parseCommanderData } from 'Utils';
+import Button from '../GeneralPurpose/Button/Button';
 
 import styles from './Microphone.module.css';
 
@@ -37,39 +38,108 @@ export default class Microphone extends Component {
     //   this.props.subscribeToStreams();
   };
 
+  capabilitiesFunction() {}
+
   componentWillUnmount = () => {
     //   this.props.unsubscribeToStreams();
   };
 
+  streamFunction(tipo) {
+    // for cross browser
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+    // load some sound
+    const audioElement = document.getElementById('audioStream');
+    // const audioElement = new Audio();
+    // audioElement.type = "audio/ogg"
+    // audioElement.src = "http://localhost/audiostream"
+    // audioElement.controls = "controls"
+    // audioElement.autoplay = "true";
+    // audioElement.muted = "true";
+
+    const stream = audioContext.createMediaElementSource(audioElement);
+
+    stream.connect(audioContext.destination);
+
+    const playButton = document.getElementById('buttonPlayPause');
+
+    // if (audioContext.state === "suspended") {
+    //       audioContext.resume();
+    //     }
+
+    if (tipo === 'play') {
+      audioElement.play();
+    }
+
+    if (tipo === 'volume') {
+      const gainNode = audioContext.createGain();
+
+      track.connect(gainNode).connect(audioContext.destination);
+
+      const volumeControl = document.getElementbyId('volume');
+
+      gainNode.gain.value = 12;
+    }
+
+    // console.log(audioElement)
+
+    // // Play or pause track depending on state
+    // if (playButton?.getAttribute("dataplaying") === "false") {
+    //       audioElement?.play();
+    //       playButton?.setAttribute("dataplaying", "true");
+    // } else if (playButton?.getAttribute("dataplaying") === "true") {
+    //       audioElement?.pause();
+    //       playButton?.setAttribute("dataplaying", "false");
+    // };
+
+    // audioElement.addEventListener(
+    //   "ended",
+    //   () => {
+    //     playButton.dataset.playing = "false";
+    //   },
+    //   false
+    // );
+
+    // const gainNode = audioContext.createGain();
+
+    // track.connect(gainNode).connect(audioContext.destination);
+
+    // const volumeControl = document.querySelector("#volume");
+
+    // volumeControl.addEventListener(
+    //   "input",
+    //   () => {
+    //     gainNode.gain.value = volumeControl.value;
+    //   },
+    //   false
+    // );
+  }
+
   render() {
     return (
-      <audio autoplay controls="controls">
-        {' '}
-        <source src="http://listen.radionomy.com/abc-jazz" type="audio/ogg" />{' '}
-      </audio>
+      <>
+        <div>
+          <audio id="audioStream" src="http://localhost/audiostream" type="audio/ogg" controls="controls"></audio>
+        </div>
+        <div>
+          {/* onClick={() => {this.streamFunction()}} */}
+          <Button
+            id="buttonPlayPause"
+            onClick={() => {
+              this.streamFunction('play');
+            }}
+            dataplaying="false"
+            role="switch"
+            ariachecked="false"
+          >
+            <span>Run Web Audio API function</span>
+          </Button>
+          <br></br>
+          {/* <input onChange ={()=> {this.streamFunction("volume")}}
+         type="range" id="volume" min="0" max="2" value="1" step="0.01" /> */}
+        </div>
+        {/* <div>{this.streamFunction()}</div> */}
+      </>
     );
-    /*print */
-
-    /*
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Streaming de audio en HTML5</title>
-          <meta name="viewport" content="initial-scale=1.0">
-          <meta charset="utf-8">
-          <!--Importamos la librería-->
-          <script src="audiojs/audio.min.js"></script>
-          <script>
-            // Inicializando los audios
-            audiojs.events.ready(function() {
-              var as = audiojs.createAll();
-            });
-          </script>
-        </head>
-        <body>
-          <audio src="http://listen.radionomy.com/abc-jazz" preload="none"></audio>
-        </body>
-      </html> 
-       */
   }
 }
