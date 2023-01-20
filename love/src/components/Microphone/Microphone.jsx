@@ -44,49 +44,29 @@ export default class Microphone extends Component {
     //   this.props.unsubscribeToStreams();
   };
 
-  streamFunction(tipo) {
-    // for cross browser
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  streamFunction() {
+    // // for cross browser
+    const audioContext = new AudioContext();
 
-    // load some sound
-    const audioElement = document.getElementById('audioStream');
-    // const audioElement = new Audio();
-    // audioElement.type = "audio/ogg"
-    // audioElement.src = "http://localhost/audiostream"
-    // audioElement.controls = "controls"
-    // audioElement.autoplay = "true";
-    // audioElement.muted = "true";
+    // // load some sound
+    const stream = document.getElementById('audioStream');
 
-    const stream = audioContext.createMediaElementSource(audioElement);
+    const source = audioContext.createMediaStreamSource(stream);
 
-    stream.connect(audioContext.destination);
+    const gainNode = audioContext.createGain();
 
-    const playButton = document.getElementById('buttonPlayPause');
+    gainNode.gain.value = 0.5;
 
-    // if (audioContext.state === "suspended") {
-    //       audioContext.resume();
-    //     }
+    source.connect(gainNode).connect(audioContext.destination);
 
-    if (tipo === 'play') {
-      audioElement.play();
-    }
+    console.log(source);
 
-    if (tipo === 'volume') {
-      const gainNode = audioContext.createGain();
+    // audioElement.play()
 
-      track.connect(gainNode).connect(audioContext.destination);
-
-      const volumeControl = document.getElementbyId('volume');
-
-      gainNode.gain.value = 12;
-    }
-
-    // console.log(audioElement)
-
-    // // Play or pause track depending on state
+    // Play or pause track depending on state
     // if (playButton?.getAttribute("dataplaying") === "false") {
     //       audioElement?.play();
-    //       playButton?.setAttribute("dataplaying", "true");
+    //       playButton?.setAttribute("dataplaying", "true");}
     // } else if (playButton?.getAttribute("dataplaying") === "true") {
     //       audioElement?.pause();
     //       playButton?.setAttribute("dataplaying", "false");
@@ -115,30 +95,70 @@ export default class Microphone extends Component {
     // );
   }
 
+  streamFunction2() {
+    let audioCtx;
+    const audioElement = document.getElementById('audioStream');
+
+    audioElement?.addEventListener('play', () => {
+      audioCtx = new AudioContext();
+      // Create a MediaElementAudioSourceNode
+      // Feed the HTMLMediaElement into it
+      let source = new MediaElementAudioSourceNode(audioCtx, {
+        mediaElement: audioElement,
+      });
+
+      // Create a gain node
+      let gainNode = new GainNode(audioCtx);
+
+      // Create variables to store mouse pointer Y coordinate
+      // and HEIGHT of screen
+      let currentY;
+      let height = window.innerHeight;
+
+      console.log(source);
+
+      // Get new mouse pointer coordinates when mouse is moved
+      // then set new gain value
+
+      document.onmousemove = (e) => {
+        currentY = window.Event
+          ? e.pageY
+          : e.clientY +
+            (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
+
+        gainNode.gain.value = currentY / height;
+      };
+
+      // connect the AudioBufferSourceNode to the gainNode
+      // and the gainNode to the destination, so we can play the
+      // music and adjust the volume using the mouse cursor
+      source.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+    });
+  }
+
   render() {
     return (
       <>
         <div>
-          <audio id="audioStream" src="http://localhost/audiostream" type="audio/ogg" controls="controls"></audio>
+          <audio id="audioStream" controls="controls" src="http://localhost/audiostream" type="audio/ogg">
+            {' '}
+          </audio>
         </div>
         <div>
-          {/* onClick={() => {this.streamFunction()}} */}
           <Button
             id="buttonPlayPause"
             onClick={() => {
-              this.streamFunction('play');
+              this.streamFunction();
             }}
-            dataplaying="false"
-            role="switch"
-            ariachecked="false"
+            dataplaying="true"
           >
             <span>Run Web Audio API function</span>
           </Button>
-          <br></br>
           {/* <input onChange ={()=> {this.streamFunction("volume")}}
          type="range" id="volume" min="0" max="2" value="1" step="0.01" /> */}
+          {/* {this.streamFunction()} */}
         </div>
-        {/* <div>{this.streamFunction()}</div> */}
       </>
     );
   }
