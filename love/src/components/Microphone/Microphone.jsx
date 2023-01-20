@@ -73,6 +73,7 @@ export default class Microphone extends Component {
     // document.body.appendChild(script);
 
     this.song.crossOrigin = 'anonymous';
+    this.masterGain.gain.value = 0.5;
     this.songSource.connect(this.masterGain);
     this.masterGain.connect(this.audioContext.destination);
 
@@ -104,7 +105,7 @@ export default class Microphone extends Component {
   recorder;
   masterGain = this.audioContext.createGain();
   songPlaying = false;
-  song = new Audio('https://redirector.dps.live/biobiosantiago/mp3/icecast.audio');
+  song = new Audio('https://playerservices.streamtheworld.com/api/livestream-redirect/CORAZON_SC');
   songSource = this.audioContext.createMediaElementSource(this.song);
   node;
   blob = null;
