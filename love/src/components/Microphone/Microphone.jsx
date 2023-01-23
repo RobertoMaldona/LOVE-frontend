@@ -181,6 +181,27 @@ export default class Microphone extends Component {
     console.log(this.audioRecorder);
   }
 
+  async loadVMeter() {
+    try {
+      await this.audioContext.audioWorklet.addModule(process.env.PUBLIC_URL + '/worklets/vmeter.js');
+      console.log(`loaded module: vmeter-processor.js`);
+    } catch (e) {
+      console.log(`Failed to load module: vmeter-processor.js: `, e);
+    }
+    this.audioRecorder = new AudioWorkletNode(this.audioContext, 'vmeter-processor');
+
+    this.audioRecorder.port.onmessage = (event) => {
+      let _volume = 0;
+      let _sensibility = 5; // Just to add any sensibility to our ecuation
+      if (event.data.volume) _volume = event.data.volume;
+      console.log((_volume * 100) / _sensibility);
+    };
+    this.audioRecorder.port.start(); // <7>
+
+    this.songSource.connect(this.audioRecorder); // <8>
+    this.audioRecorder.connect(this.audioContext.destination);
+  }
+
   render() {
     const buuf = document.querySelector('audio') ? document.querySelector('audio').src : null;
 
@@ -211,6 +232,7 @@ export default class Microphone extends Component {
 
           <button
             onClick={async () => {
+              // await this.loadModule();
               await this.loadModule();
             }}
           >
@@ -250,6 +272,29 @@ export default class Microphone extends Component {
         <div>
           <p> GRABACION:</p>
           <audio controls id="audio"></audio>
+        </div>
+
+        <div className={styles.container}>
+          <span>Microphone</span>
+          <div className="volumen-wrapper">
+            <div className="led"></div>
+            <div className="led"></div>
+            <div className="led"></div>
+            <div className="led"></div>
+            <div className="led"></div>
+
+            <div className="led"></div>
+            <div className="led"></div>
+            <div className="led"></div>
+            <div className="led"></div>
+            <div className="led"></div>
+          </div>
+
+          <div className="control-audio-wrapper">
+            <div id="audio" className="audio-control">
+              &#127908;
+            </div>
+          </div>
         </div>
       </>
     );
