@@ -44,13 +44,13 @@ export const observatoryIndex = {
       },
     },
   },
-  Microphones: {
-    component: require('../Microphone/Microphone.container').default,
+  Mics: {
+    component: require('../Mics/Mics.container').default,
     schema: {
-      ...require('../Microphone/Microphone.container').schema,
+      ...require('../Mics/Mics.container').schema,
       props: {
         ...defaultSchemaProps,
-        ...require('../Microphone/Microphone.container').schema.props,
+        ...require('../Mics/Mics.container').schema.props,
       },
     },
   },

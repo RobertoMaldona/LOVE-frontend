@@ -6,7 +6,6 @@ import Recorder from 'recorder-js';
 // import Recorder from 'recorderjs';
 // import WebAudioRecorder from 'web-audio-recorder-js';
 import styles from './Microphone.module.css';
-
 export default class Microphone extends Component {
   static propTypes = {
     /* Mics's id  */
@@ -27,46 +26,42 @@ export default class Microphone extends Component {
       /* If exists an alarm asociated to mic */
       alarms: {},
 
-      /* The id of the selected mic to show the info */
-      selectedMic: null,
-
-      linkRadio: 'https://redirector.dps.live/biobiosantiago/mp3/icecast.audio',
-      namesRadio: 'biobio',
       play: false,
     };
+    // ========================================================
+    // Audio Setup
+    // ========================================================
+    const { source } = props;
+    this.source = source;
+    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    this.masterGain = this.audioContext.createGain();
+    this.songPlaying = false;
+    this.song = new Audio(source);
+    this.songSource = this.audioContext.createMediaElementSource(this.song);
+    this.audioRecorder;
+    this.buffers;
+
+    // this.audioContext2 = new (window.AudioContext || window.webkitAudioContext)();
+    // this.masterGain2 = this.audioContext2.createGain();
+    // this.song2 = new Audio(RADIOSLINK.adn);
+    // this.songSource2 = this.audioContext2.createMediaElementSource(this.song2);
   }
-
-  static radiosLink = {
-    biobio: 'https://redirector.dps.live/biobiosantiago/mp3/icecast.audio',
-    carolina:
-      'https://jireh-1-hls-audio-us-isp.dps.live/hls-audio/716888c72e2079612211a7130f67a27d/carolina/playlist/manifest/gotardisz/audio/now/livestream1.m3u8?dpssid=b2191543965963287cd50987a&sid=ba5t1l1xb287782483663287cd509878',
-    futuro: 'https://playerservices.streamtheworld.com/api/livestream-redirect/FUTUROAAC_SC',
-    corazon: 'https://playerservices.streamtheworld.com/api/livestream-redirect/CORAZON_SC',
-    adn:
-      'https://24383.live.streamtheworld.com/ADN_SC?DIST=TuneIn&TGT=TuneIn&maxServers=2&gdpr=0&us_privacy=1YNY&partnertok=eyJhbGciOiJIUzI1NiIsImtpZCI6InR1bmVpbiIsInR5cCI6IkpXVCJ9.eyJ0cnVzdGVkX3BhcnRuZXIiOnRydWUsImlhdCI6MTYzMzM5MjExNiwiaXNzIjoidGlzcnYifQ.apBDljw5PC4GQwEls0GoHYCMKg91TAZrYLziiqLdh1U',
-  };
-
-  // ========================================================
-  // Audio Setup
-  // ========================================================
-
-  audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  masterGain = this.audioContext.createGain();
-  songPlaying = false;
-  song = new Audio('https://redirector.dps.live/biobiosantiago/mp3/icecast.audio');
-  audioHTML = document.querySelector('#radio');
-  songSource = this.audioContext.createMediaElementSource(this.song);
-  audioRecorder;
-  buffers;
-  oscillator;
 
   componentDidMount = () => {
     // this.props.subscribeToStreams();
 
     this.song.crossOrigin = 'anonymous';
-    this.masterGain.gain.value = 0.5;
+    this.masterGain.gain.value = 0;
     this.songSource.connect(this.masterGain);
     this.masterGain.connect(this.audioContext.destination);
+    this.loadVMeter(this.audioContext, this.songSource);
+    this.loadModule(this.audioContext, this.songSource);
+
+    // this.song2.crossOrigin = 'anonymous';
+    // this.masterGain2.gain.value = 0.75;
+    // this.songSource2.connect(this.masterGain2);
+    // this.masterGain2.connect(this.audioContext2.destination);
+    // this.loadModule(this.audioContext2, this.songSource2);
 
     // this.audioContext.audioWorklet.addModule('audio-recorder.js')
     //   .catch(function (err) {
@@ -107,6 +102,11 @@ export default class Microphone extends Component {
     this.songSource.connect(this.masterGain);
     this.masterGain.connect(this.audioContext.destination);
     this.loadModule();
+  }
+
+  changeVolume(id) {
+    const volumeControl = document.getElementById(id);
+    return volumeControl.value;
   }
 
   encodeAudio(buffers) {
@@ -160,14 +160,14 @@ export default class Microphone extends Component {
     return new Blob([dataView], { type: 'audio/wav' });
   }
 
-  async loadModule() {
+  async loadModule(ctx, source) {
     try {
-      await this.audioContext.audioWorklet.addModule(process.env.PUBLIC_URL + '/worklets/bypassProcessor.js');
+      await ctx.audioWorklet.addModule(process.env.PUBLIC_URL + '/worklets/bypassProcessor.js');
       console.log(`loaded module: bypass-processor.js`);
     } catch (e) {
       console.log(`Failed to load module: bypass-processor.js: `, e);
     }
-    this.audioRecorder = new AudioWorkletNode(this.audioContext, 'bypassProcessor');
+    this.audioRecorder = new AudioWorkletNode(ctx, 'bypassProcessor');
     this.buffers = [];
 
     this.audioRecorder.port.addEventListener('message', (event) => {
@@ -176,68 +176,101 @@ export default class Microphone extends Component {
     });
     this.audioRecorder.port.start(); // <7>
 
-    this.songSource.connect(this.audioRecorder); // <8>
-    this.audioRecorder.connect(this.audioContext.destination);
+    source.connect(this.audioRecorder); // <8>
+    this.audioRecorder.connect(ctx.destination);
     console.log(this.audioRecorder);
   }
 
-  async loadVMeter() {
+  async loadVMeter(ctx, source) {
     try {
-      await this.audioContext.audioWorklet.addModule(process.env.PUBLIC_URL + '/worklets/vmeter.js');
+      await ctx.audioWorklet.addModule(process.env.PUBLIC_URL + '/worklets/vmeter.js');
       console.log(`loaded module: vmeter-processor.js`);
     } catch (e) {
       console.log(`Failed to load module: vmeter-processor.js: `, e);
     }
-    this.audioRecorder = new AudioWorkletNode(this.audioContext, 'vmeter-processor');
+    this.audioRecorder = new AudioWorkletNode(ctx, 'vmeter-processor');
 
     this.audioRecorder.port.onmessage = (event) => {
       let _volume = 0;
       let _sensibility = 5; // Just to add any sensibility to our ecuation
       if (event.data.volume) _volume = event.data.volume;
+      this.leds((_volume * 100) / _sensibility);
       console.log((_volume * 100) / _sensibility);
     };
     this.audioRecorder.port.start(); // <7>
 
-    this.songSource.connect(this.audioRecorder); // <8>
-    this.audioRecorder.connect(this.audioContext.destination);
+    source.connect(this.audioRecorder); // <8>
+    this.audioRecorder.connect(ctx.destination);
+  }
+
+  leds(vol) {
+    const ledColor = [
+      '#064dac',
+      '#064dac',
+      '#064dac',
+      '#06ac5b',
+      '#15ac06',
+      '#4bac06',
+      '#80ac06',
+      '#acaa06',
+      '#ac8b06',
+      '#ac5506',
+    ];
+
+    let leds = [...document.getElementsByClassName('Microphone_led__ULJam')];
+    let range = leds.slice(0, Math.round(vol));
+
+    for (var i = 0; i < leds.length; i++) {
+      leds[i].style.boxShadow = '-2px -2px 4px 0px #a7a7a73d, 2px 2px 4px 0px #0a0a0e5e';
+      leds[i].style.height = '22px';
+    }
+
+    for (var i = 0; i < range.length; i++) {
+      range[
+        i
+      ].style.boxShadow = `5px 2px 5px 0px #0a0a0e5e inset, -2px -2px 1px 0px #a7a7a73d inset, -2px -2px 30px 0px ${ledColor[i]} inset`;
+      range[i].style.height = '25px';
+    }
   }
 
   render() {
-    const buuf = document.querySelector('audio') ? document.querySelector('audio').src : null;
-
     // let song = new Audio('https://redirector.dps.live/biobiosantiago/mp3/icecast.audio');
 
-    // console.log(buuf);
     return (
       <>
         <div>
           <div>
-            <p> Play Radio:</p>
-            <audio controls id="radio"></audio>
+            <input
+              onChange={() => {
+                this.masterGain.gain.value = this.changeVolume(this.props.id);
+              }}
+              type="range"
+              id={this.props.id}
+              min="0"
+              max="2"
+              step="0.2"
+              value={this.masterGain.gain.value}
+            />
           </div>
           <button
-            onClick={() => {
-              if (!this.state.play) {
-                this.audioContext.resume();
-                this.song.play();
-                this.setState({ play: true });
-              } else {
-                this.song.pause();
-                this.setState({ play: false });
+            onClick={
+              /*async*/ () => {
+                if (!this.state.play) {
+                  this.audioContext.resume();
+                  this.song.play();
+                  this.setState({ play: true });
+                  // await this.loadVMeter();
+                } else {
+                  this.masterGain.gain.value = 0;
+                  // this.song.pause();
+                  this.setState({ play: false });
+                }
               }
-            }}
+            }
           >
-            Play Radio
+            Play Radio / Muted
           </button>
 
-          <button
-            onClick={async () => {
-              // await this.loadModule();
-              await this.loadModule();
-            }}
-          >
-            loadModule
-          </button>
           <button
             onClick={() => {
               const parameter = this.audioRecorder.parameters.get('isRecording');
@@ -256,42 +289,94 @@ export default class Microphone extends Component {
               console.log(this.buffers);
               const blob = this.encodeAudio(this.buffers); // <11>
               const url = URL.createObjectURL(blob);
-              console.log('Stop Recording');
-              const audio = document.querySelector('#audio');
+              leds((_volume * 100) / _sensibility);
               audio.src = url;
             }}
           >
             stop Record
           </button>
-          {/* <p>{this.state.namesRadio}</p>
-        <audio autoPlay controls="controls">
-          {' '}
-          <source src={this.state.linkRadio} type="audio/ogg"/>{' '}
-        </audio> */}
         </div>
+
+        {/* RADIO 2 */}
+
+        {/* <div>
+          <div>
+            <input
+              onChange={() => {
+                this.masterGain2.gain.value = this.changeVolume("volume2");
+              }}
+              type="range"
+              id="volume2"
+              min="0"
+              max="2"
+              step="0.2"
+              value={this.masterGain2.gain.value}
+            />
+          </div>
+          <button
+            onClick={() => {
+              if (!this.state.play) {
+                this.audioContext2.resume();
+                this.song2.play();
+                this.setState({ play: true });
+              } else {
+                this.masterGain2.gain.value = 0;
+                this.setState({ play: false });
+              }
+            }}
+          >
+            Play Radio / Muted
+          </button>
+
+          <button
+            onClick={() => {
+              const parameter = this.audioRecorder.parameters.get('isRecording');
+              parameter.setValueAtTime(1, this.audioContext2.currentTime); // <9>
+              this.buffers.splice(0, this.buffers.length);
+              console.log('start Recording');
+            }}
+          >
+            start Record
+          </button>
+
+          <button
+            onClick={() => {
+              const parameter = this.audioRecorder.parameters.get('isRecording');
+              parameter.setValueAtTime(0, this.audioContext2.currentTime);
+              console.log(this.buffers);
+              const blob = this.encodeAudio(this.buffers); // <11>
+              const url = URL.createObjectURL(blob);leds((_volume * 100) / _sensibility)
+              audio.src = url;
+            }}
+          >
+            stop Record
+          </button>
+        </div> */}
+
         <div>
+          Untitled view
           <p> GRABACION:</p>
           <audio controls id="audio"></audio>
         </div>
 
         <div className={styles.container}>
           <span>Microphone</span>
-          <div className="volumen-wrapper">
-            <div className="led"></div>
-            <div className="led"></div>
-            <div className="led"></div>
-            <div className="led"></div>
-            <div className="led"></div>
+          <div className={styles.volumenWrapper}>
+            <div id="led" className={styles.led}></div>
+            <div id="led" className={styles.led}></div>
+            <div id="led" className={styles.led}></div>
+            <div id="led" className={styles.led}></div>
+            <div id="led" className={styles.led}></div>
 
-            <div className="led"></div>
-            <div className="led"></div>
-            <div className="led"></div>
-            <div className="led"></div>
-            <div className="led"></div>
+            <div id="led" className={styles.led}></div>
+            <div id="led" className={styles.led}></div>
+            <div id="led" className={styles.led}></div>
+            <div id="led" className={styles.led}></div>
+            <div id="led" className={styles.led}></div>
           </div>
 
-          <div className="control-audio-wrapper">
-            <div id="audio" className="audio-control">
+          <div className={styles.controlAudioWrapper}>
+            <div id="audio" className={styles.audioControl}>
               &#127908;
             </div>
           </div>
