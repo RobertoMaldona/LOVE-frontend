@@ -56,7 +56,9 @@
     "vega-lib": "^4.4.0",
     "vega-lite": "^5.2.0",
     "websocket-playback": "^1.0.0",
-    "yaml": "^2.0.1"
+    "yaml": "^2.0.1",
+    "recorder-js": "^1.0.7",
+    "web-audio-recorder-js": "^0.0.2"
   },
   "scripts": {
     "start": "npx react-scripts start",
