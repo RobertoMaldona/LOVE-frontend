@@ -1,4 +1,4 @@
-const SMOOTHING_FACTOR = 0.8;
+const SMOOTHING_FACTOR = 0.9;
 const MINIMUM_VALUE = 0.00001;
 
 // This is the way to register an AudioWorkletProcessor
@@ -12,7 +12,7 @@ class VMeter extends AudioWorkletProcessor {
   constructor() {
     super();
     this._volume = 0;
-    this._updateIntervalInMS = 25;
+    this._updateIntervalInMS = 1000;
     this._nextUpdateFrame = this._updateIntervalInMS;
     this.port.onmessage = (event) => {
       if (event.data.updateIntervalInMS) this._updateIntervalInMS = event.data.updateIntervalInMS;

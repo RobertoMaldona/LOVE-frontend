@@ -22,7 +22,7 @@ span {
   color: #ffffff;
 }
 
-.volumen-wrapper {
+.volumenWrapper {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -39,7 +39,7 @@ span {
   margin: 0 5px;
 }
 
-.audio-control {
+.audioControl {
   cursor: pointer;
   color: #fff;
 

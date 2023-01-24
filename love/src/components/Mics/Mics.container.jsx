@@ -1,6 +1,6 @@
 import React from 'react';
 import SubscriptionTableContainer from '../GeneralPurpose/SubscriptionTable/SubscriptionTable.container';
-import Microphone from './Microphone';
+import Mics from './Mics';
 
 export const schema = {
   description: 'Component that displays the data coming from a weather station',
@@ -27,8 +27,8 @@ export const schema = {
   },
 };
 
-const MicrophoneContainer = ({ ...props }) => {
-  return <Microphone {...props} />;
+const MicsContainer = ({ ...props }) => {
+  return <Mics {...props} />;
 };
 
-export default MicrophoneContainer;
+export default MicsContainer;
