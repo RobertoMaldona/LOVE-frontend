@@ -10,7 +10,7 @@ export const schema = {
       type: 'string',
       description: 'Name diplayed in the title bar (if visible)',
       isPrivate: false,
-      default: 'Weather station component',
+      default: 'Microphones Component',
     },
     salindex: {
       type: 'number',
