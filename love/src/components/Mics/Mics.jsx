@@ -197,19 +197,19 @@ export default class Mics extends Component {
         <div className={styles.component}>
           {/* Mic Table */}
           <div className={styles.mics}>
-            <table className={styles.table}>
-              <tr className={styles.headTable}>
+            <table>
+              <tr>
                 <th>
-                  <h2>MAIN TELESCOPE</h2>
+                  <span className={styles.locationMic}>MAIN TELESCOPE</span>
                 </th>
                 <th>
-                  <p>MIC STATUS</p>
+                  <span className={styles.headers}> MIC STATUS </span>
                 </th>
                 <th>
-                  <p>NOTIFICATIONS</p>
+                  <span className={styles.headers}>NOTIFICATIONS</span>
                 </th>
                 <th>
-                  <p>ALARM</p>
+                  <span className={styles.headers}>ALARM</span>
                 </th>
               </tr>
               <Microphone

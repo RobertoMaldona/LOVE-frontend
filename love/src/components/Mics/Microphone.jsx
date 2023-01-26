@@ -6,7 +6,7 @@ import Recorder from 'recorder-js';
 // import Recorder from 'recorderjs';
 // import WebAudioRecorder from 'web-audio-recorder-js';
 import styles from './Microphone.module.css';
-import StatusText from 'components/GeneralPurpose/AlarmLabelText/AlarmLabelText';
+import StatusText from 'components/GeneralPurpose/StatusText/StatusText';
 import Value from 'components/GeneralPurpose/SummaryPanel/Value';
 export default class Microphone extends Component {
   static propTypes = {
@@ -228,24 +228,17 @@ export default class Microphone extends Component {
     };
     return (
       <tr onClick={() => this.props.selectMic(mic)}>
-        <th>
-          <div className={styles.trLeft}>
-            <h3>{id}</h3>
-          </div>
-        </th>
-        <th>
-          <div className={styles.tr}>
-            <StatusText status="ok" title="MicStatus" small>
-              Enabled
-            </StatusText>
-          </div>
-        </th>
-        <th>
-          <div className={styles.tr}> notifications</div>
-        </th>
-        <th>
-          <div className={styles.trRight}>alarms</div>
-        </th>
+        <td>
+          <span className={styles.idMic}>{id}</span>
+          <span className={styles.idMic}>{id}</span>
+        </td>
+        <td>
+          <StatusText status="ok" title="MicStatus" small>
+            Enabled
+          </StatusText>
+        </td>
+        <td>notifications</td>
+        <td>alarms</td>
       </tr>
       // <div>
       //   <button onClick={()=> this.props.selectMic(mic)}> Select mic {id}</button>
