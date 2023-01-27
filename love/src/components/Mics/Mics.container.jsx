@@ -27,8 +27,8 @@ export const schema = {
   },
 };
 
-const MicsContainer = ({ ...props }) => {
-  return <Mics {...props} />;
+const MicsContainer = ({ dbLimit }) => {
+  return <Mics dbLimit={dbLimit} />;
 };
 
 export default MicsContainer;

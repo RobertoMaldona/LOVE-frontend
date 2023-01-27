@@ -28,6 +28,7 @@ class VMeter extends AudioWorkletProcessor {
 
     // Note that the input will be down-mixed to mono; however, if no inputs are
     // connected then zero channels will be passed in.
+
     if (input.length > 0) {
       const samples = input[0];
       let sum = 0;

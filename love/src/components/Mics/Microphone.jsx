@@ -8,6 +8,7 @@ import Input from '../GeneralPurpose/Input/Input';
 // import WebAudioRecorder from 'web-audio-recorder-js';
 import styles from './Microphone.module.css';
 import { VegaLite } from 'react-vega';
+import { DateTime } from 'luxon';
 
 export default class Microphone extends Component {
   static propTypes = {
@@ -30,54 +31,52 @@ export default class Microphone extends Component {
       alarms: {},
 
       play: false,
+      first: true,
 
       spec: {
-        width: 500,
-        height: 500,
-        mark: 'line',
+        width: 700,
+        height: 200,
+        mark: { type: 'line', color: 'red' },
         encoding: {
-          y: { field: 'dB', type: 'quantitative', axis: { title: 'Decibels' } },
-          x: { field: 't', type: 'quantitative', axis: { title: 'Time' } },
+          x: { field: 't', type: 'temporal', axis: { title: 'Time', format: '%H:%M:%S', tickCount: 3 } },
+          y: { field: 'dB', type: 'quantitative', axis: { title: 'Decibels' }, scale: { domain: [0, 1] } },
         },
         data: { name: 'table' },
+        autosize: { resize: 'true' },
       },
 
-      autosize: {
-        type: 'fit',
-        contains: 'padding',
-      },
+      data: { table: [] },
 
-      data: {
-        table: [
-          { t: 1, dB: 28 },
-          { t: 2, dB: 55 },
-          { t: 3, dB: 43 },
-          { t: 4, dB: 91 },
-        ],
-      },
+      actualDb: 0,
+      initialTime: '',
+      dbLimit: 0.1,
+      timeArray: [],
+
+      counter: 0,
     };
+
     // ========================================================
     // Audio Setup
     // ========================================================
     const { source } = props;
+    const { dbLimit } = props;
     this.source = source;
     this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
     this.masterGain = this.audioContext.createGain();
     this.songPlaying = false;
     this.song = new Audio(source);
     this.songSource = this.audioContext.createMediaElementSource(this.song);
+    this.analyser = this.audioContext.createAnalyser();
+    this.analyser.fftSize = 2048;
+    this.bufferLength = this.analyser.frequencyBinCount;
+    this.dataArray = new Float32Array(this.bufferLength);
     this.audioRecorder;
+    this.audioVolume;
     this.buffers;
-
-    // this.audioContext2 = new (window.AudioContext || window.webkitAudioContext)();
-    // this.masterGain2 = this.audioContext2.createGain();
-    // this.song2 = new Audio(RADIOSLINK.adn);
-    // this.songSource2 = this.audioContext2.createMediaElementSource(this.song2);
+    this.countPollingIterval;
   }
 
   componentDidMount = () => {
-    // this.props.subscribeToStreams();
-
     this.song.crossOrigin = 'anonymous';
     this.masterGain.gain.value = 0;
     this.songSource.connect(this.masterGain);
@@ -85,33 +84,158 @@ export default class Microphone extends Component {
     this.loadVMeter(this.audioContext, this.songSource);
     this.loadModule(this.audioContext, this.songSource);
 
-    // this.song2.crossOrigin = 'anonymous';
-    // this.masterGain2.gain.value = 0.75;
-    // this.songSource2.connect(this.masterGain2);
-    // this.masterGain2.connect(this.audioContext2.destination);
-    // this.loadModule(this.audioContext2, this.songSource2);
+    // setting initial time.
+    // this.setState({initialTime: initialTime});
+    // this.setState({data: { table: [{ t:  initialTime, dB: this.state.actualDb}]}});
 
-    // this.audioContext.audioWorklet.addModule('audio-recorder.js')
-    //   .catch(function (err) {
-    //       console.log(err);
-    //   }).then(() => {
-    //     this.node = new AudioWorkletNode(this.audioContext, 'audio-recorder');
-    //   }).catch(function(e) {console.log(e)});
+    const changeStateData = (prev, actTime) => {
+      if (!prev.data.table) {
+        return {};
+      }
+      let dataCopy = { table: [] };
+      dataCopy.table = prev.data.table;
 
-    // var options = {
-    //   type: 'audio',
-    //   numberOfAudioChannels: 2,
-    //   checkForInactiveTracks: true,
-    //   bufferSize: 16384,
-    //   onAnalysed: (data) => console.log(data),
-    // };
-    // this.recorder = new Recorder(this.songSource, options);
+      let newTimeArray;
+      newTimeArray = this.state.timeArray;
+      newTimeArray.push(actTime);
+      this.setState({ timeArray: newTimeArray });
+
+      if (this.state.timeArray.length === 1) {
+        this.setState({ initialTime: actTime });
+      }
+
+      let newInitialTime;
+      newInitialTime = this.state.initialTime;
+
+      const dBprom = this.state.actualDb; //this.state.counter;
+      //this.setState({counter: this.state.counter +0.01});
+
+      dataCopy.table.push({ t: actTime, dBprom: dBprom, dBlimit: this.state.dbLimit });
+
+      if (this.state.timeArray.length === 1) {
+        dataCopy.table.push({ t: actTime, dBprom: dBprom, dBlimit: this.state.dbLimit });
+      }
+
+      if (this.state.timeArray.length === 5) {
+        let dat2 = dataCopy.table.shift();
+        let newt = newTimeArray.shift();
+        this.setState({ timeArray: newTimeArray });
+        newInitialTime = newTimeArray[0];
+      }
+
+      const result = {
+        spec: {
+          width: 700,
+          height: 200,
+          mark: { type: 'line' },
+          transform: [{ fold: ['dBprom', 'dBlimit'] }],
+          encoding: {
+            x: { type: 'temporal' },
+            y: { type: 'quantitative' },
+            color: {
+              type: 'nominal',
+              scale: { domain: ['dB prom', 'dB limit'], range: ['#3E707B', '#F0E400'] },
+            },
+          },
+          layer: [
+            {
+              mark: { type: 'line', color: '#3E707B', strokeWidth: 2 },
+              encoding: {
+                x: {
+                  field: 't',
+                  type: 'temporal',
+                  axis: {
+                    title: 'Time',
+                    titleColor: '#C1CED2',
+                    titleFontSize: 15,
+                    titleFontStyle: 'Montserrat',
+                    titleFontWeight: 'bold',
+                    titlePadding: 10,
+                    format: '%H:%M:%S',
+                    tickCount: 4,
+                    tickSize: 8,
+                    tickOffset: 8,
+                    labelColor: '#C1CED2',
+                    labelFontSize: 12,
+                    labelPadding: 5,
+                    grid: false,
+                  },
+                  scale: { domain: [newInitialTime, actTime] },
+                },
+                y: {
+                  field: 'dBprom',
+                  type: 'quantitative',
+                  axis: {
+                    title: 'Decibels',
+                    titleColor: '#C1CED2',
+                    titleFontSize: 15,
+                    titlePadding: 10,
+                    titleFontStyle: 'Montserrat',
+                    titleFontWeight: 'bold',
+                    tickCount: 8,
+                    tickSize: 8,
+                    labelColor: '#C1CED2',
+                    labelFontSize: 12,
+                    labelPadding: 5,
+                    gridColor: '#C0CDD1',
+                    gridOpacity: 0.1,
+                  },
+                  scale: { domain: [-0.1, 1] },
+                },
+                color: { datum: 'dB prom' },
+              },
+            },
+            {
+              mark: { type: 'line', color: '#F0E400', strokeWidth: 0.5, strokeDash: 8.8 },
+              encoding: {
+                x: {
+                  field: 't',
+                  type: 'temporal',
+                  axis: { title: 'Time', format: '%H:%M:%S', domainColor: 'black' },
+                  scale: { domain: [newInitialTime, actTime] },
+                },
+                y: {
+                  field: 'dBlimit',
+                  type: 'quantitative',
+                  axis: { title: 'Decibels' },
+                  scale: { domain: [-0.1, 1] },
+                },
+                color: {
+                  datum: 'dB limit',
+                  offset: 0,
+                  legend: { labelColor: '#C1CED2', labelFontSize: 12, labelFontStyle: 'montserrat' },
+                },
+              },
+            },
+          ],
+
+          data: { name: 'table' },
+          background: '#1A2D37',
+          view: { fill: '#111F27', stroke: '#111F27', cornerRadius: 10, stroke: '#2B3F4A', strokeWidth: 7 },
+          padding: { left: 15, top: 15, right: 15, bottom: 15 },
+          autosize: { resize: 'true' },
+        },
+        data: dataCopy,
+      };
+
+      return result;
+    };
+
+    if (this.countPollingIterval) clearInterval(this.countPollingIterval);
+    this.countPollingIterval = setInterval(() => {
+      this.setState(
+        (prevState) =>
+          // {
+          // if (this.state.play){
+
+          changeStateData(prevState, this.getTime()),
+        // }
+        // }
+      );
+    }, 1000);
   };
 
-  componentDidUpdate = () => {
-    //   this.props.unsubscribeToStreams();
-    this.setState({});
-  };
+  componentDidUpdate = () => {};
 
   initAudio() {
     this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -189,7 +313,9 @@ export default class Microphone extends Component {
       console.log(`loaded module: bypass-processor.js`);
     } catch (e) {
       console.log(`Failed to load module: bypass-processor.js: `, e);
-    }
+    } // getTime(){
+    //   return DateTime.local().c.hour.toString()+":"+ DateTime.local().c.minute.toString()+ ":"+DateTime.local().c.second.toString()
+    // }
     this.audioRecorder = new AudioWorkletNode(ctx, 'bypassProcessor');
     this.buffers = [];
 
@@ -211,19 +337,39 @@ export default class Microphone extends Component {
     } catch (e) {
       console.log(`Failed to load module: vmeter-processor.js: `, e);
     }
-    this.audioRecorder = new AudioWorkletNode(ctx, 'vmeter-processor');
+    this.audioVolume = new AudioWorkletNode(ctx, 'vmeter-processor');
 
-    this.audioRecorder.port.onmessage = (event) => {
+    this.audioVolume.port.onmessage = (event) => {
       let _volume = 0;
       let _sensibility = 5; // Just to add any sensibility to our ecuation
       if (event.data.volume) _volume = event.data.volume;
       // this.leds((_volume * 100) / _sensibility);
-      console.log(_volume);
-    };
-    this.audioRecorder.port.start(); // <7>
+      // console.log(_volume);
+      this.setState({ actualDb: _volume });
 
-    source.connect(this.audioRecorder); // <8>
-    this.audioRecorder.connect(ctx.destination);
+      // source.connect(this.analyser);
+      // this.analyser.connect(ctx.destination);
+      // this.analyser.getFloatFrequencyData(this.dataArray);
+      // console.log(this.dataArray);
+    };
+    this.audioVolume.port.start(); // <7>
+
+    source.connect(this.audioVolume); // <8>
+    this.audioVolume.connect(ctx.destination);
+  }
+
+  getTime() {
+    const date = new Date();
+    var now_utc = Date.UTC(
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate(),
+      DateTime.local().c.hour,
+      DateTime.local().c.minute,
+      DateTime.local().c.second,
+    );
+
+    return new Date(now_utc).toISOString().substring(0, 19);
   }
 
   leds(vol) {
@@ -257,11 +403,31 @@ export default class Microphone extends Component {
   }
 
   render() {
-    // const { spec, data } = this.state;
     return (
       <>
-        <div>
+        <div className={styles.alarmContainer}>
+          <div className={styles.infoMonserratFontContainer}>
+            <div className={styles.infoMonserratFont}>
+              <div> Live values </div>
+              <div className={styles.dBLiveValue}> {this.state.actualDb.toString().substring(0, 5)}dB</div>
+            </div>
+            <div className={styles.infoMonserratFont}>
+              <div> Limit </div>
+              <div className={styles.dBLimitValue}> {this.state.dbLimit}dB</div>
+            </div>
+          </div>
+          <br></br>
+
+          <div className={styles.monserratFontTitle}> ALARM STORY</div>
           <div>
+            <div className={styles.inputMonserratFont}>
+              <div width="10%">Insert dB limit : </div>
+              <div>
+                {' '}
+                <Input onChange={(e) => this.setState({ dbLimit: e.target.value })} />{' '}
+              </div>
+            </div>
+            <br></br>
             <VegaLite
               style={{
                 display: 'flex',
@@ -269,9 +435,9 @@ export default class Microphone extends Component {
               renderer="svg"
               spec={this.state.spec}
               data={this.state.data}
-              // className={[styles.plotContainer, this.props.className].join(' ')}
-              // actions={false}
             />
+            <br></br>
+            <div></div>
           </div>
 
           <div>
@@ -299,7 +465,7 @@ export default class Microphone extends Component {
                 } else {
                   this.masterGain.gain.value = 0;
                   // this.song.pause();
-                  this.setState({ play: false });
+                  // this.setState({ play: false });
                 }
               }
             }

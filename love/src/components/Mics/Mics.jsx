@@ -37,11 +37,12 @@ export default class Mics extends Component {
   }
 
   render() {
+    const dbLimit = this.props.dbLimit;
     return (
       <>
         <div className={styles.mics}>
           <div className={styles.micX}>
-            <Microphone source={RADIOSLINK.biobio} show={false} id={'mic1'}></Microphone>
+            <Microphone source={RADIOSLINK.biobio} show={false} id={'mic1'} dbLimit={dbLimit}></Microphone>
           </div>
           {/* <div className={styles.micX}>
             <Microphone source={RADIOSLINK.adn} show={false} id={'mic2'}></Microphone>

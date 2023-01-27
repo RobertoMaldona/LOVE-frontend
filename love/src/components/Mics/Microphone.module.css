@@ -49,3 +49,47 @@ span {
   font-size: 25px;
   border-radius: 50%;
 }
+
+.alarmContainer {
+  width: 700px;
+}
+.infoMonserratFontContainer {
+  display: flex;
+  justify-content: space-around;
+}
+
+.infoMonserratFont {
+  flex-wrap: wrap;
+  font-family: 'Montserrat', sans-serif;
+  margin: 0em;
+  font-weight: 300;
+  font-size: 20px;
+}
+
+.dBLimitValue {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 20px;
+}
+
+.dBLiveValue {
+  color: #f0e400;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 20px;
+}
+
+.monserratFontTitle {
+  display: flex;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900;
+  font-size: 25px;
+}
+
+.inputMonserratFont {
+  display: flex;
+  width: 400px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 15px;
+}
