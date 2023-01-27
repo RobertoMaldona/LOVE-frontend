@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Recording" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36.37 15.15">
+  <defs>
+    <style>
+      .cls-stop1, .cls-stop2 {
+        stroke: #af3222;
+        stroke-miterlimit: 10;
+      }
+
+      .cls-stop3 {
+        letter-spacing: 0em;
+      }
+
+      .cls-stop2 {
+        fill: #af3222;
+        stroke-width: 3px;
+      }
+
+      .cls-stop4 {
+        fill: #c1ced2;
+        font-family: Montserrat-Bold, Montserrat;
+        font-size: 7.93px;
+        font-weight: 700;
+      }
+    </style>
+  </defs>
+  <rect class="cls-stop1" x=".5" y=".5" width="35.37" height="14.15" rx="6.36" ry="6.36"/>
+  <text class="cls-stop4" transform="translate(15.53 10.1) scale(.82 1)"><tspan x="0" y="0">R</tspan><tspan class="cls-stop3" x="5.83" y="0">E</tspan><tspan x="11.13" y="0">C</tspan></text>
+  <rect class="cls-stop2" x="8.1" y="5.3" width="4.03" height="4.03"/>
+</svg>

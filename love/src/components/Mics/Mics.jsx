@@ -5,6 +5,10 @@ import styles from './Microphone.module.css';
 import Microphone from './Microphone';
 import Button from 'components/GeneralPurpose/Button/Button';
 import Record from './Record';
+import { ReactComponent as StartRec } from './SVG/start_recording.svg';
+import { ReactComponent as StopRec } from './SVG/stop_recording.svg';
+import { ReactComponent as Play } from './SVG/play.svg';
+import { ReactComponent as Pause } from './SVG/pause.svg';
 
 const RADIOSLINK = {
   biobio: 'https://redirector.dps.live/biobiosantiago/mp3/icecast.audio',
@@ -145,6 +149,10 @@ export default class Mics extends Component {
   };
 
   selectMic = (mic) => {
+    if (this.state.currentMic) {
+      if (this.state.isRecording) this.record();
+      if (this.state.play) this.play();
+    }
     this.setState({ currentMic: mic, viewInfo: true });
   };
 
@@ -155,39 +163,55 @@ export default class Mics extends Component {
   };
 
   closeMicDetails = () => {
-    this.setState({ viewInfo: false });
+    console.log('closed');
+    if (this.state.isRecording) this.record();
+    if (this.state.play) this.play();
+    this.setState({ viewInfo: false, currentMic: null });
   };
 
-  record = (aCtx, aRcr, bufs, id) => {
-    if (!this.state.isRecording) {
-      const parameter = aRcr.parameters.get('isRecording');
-      parameter?.setValueAtTime(1, aCtx.currentTime); // <9>
-      bufs?.splice(0, bufs.length);
-      console.log('start Recording');
-      this.setState({ isRecording: true });
-    } else {
-      const parameter = aRcr.parameters.get('isRecording');
-      const currentTime = aCtx.currentTime;
-      parameter.setValueAtTime(0, currentTime);
+  record = () => {
+    if (!this.state.currentMic) return;
 
-      this.setState({ isRecording: false });
-      console.log('stop Recording');
+    const { isRecording } = this.state;
+    this.setState({ isRecording: !isRecording });
+    this.state.currentMic?.recordFunc();
+  };
 
-      const blob = this.encodeAudio(bufs); // <11>
-      const url = URL.createObjectURL(blob);
+  recordPush = (id, currentTime, url) => {
+    this.setState((prevState) => {
+      let prevRecords = prevState.records;
+      prevRecords.push({ nameFile: id + currentTime.toString() + '.wav', url: url });
+      return { records: prevRecords };
+    });
+  };
 
-      this.setState((prevState) => {
-        let prevRecords = prevState.records;
-        prevRecords.push({ nameFile: id + currentTime.toString(), url: url });
-        return { records: prevRecords };
-      });
-    }
+  play = () => {
+    if (!this.state.currentMic) return;
+
+    const { play } = this.state;
+    this.setState({ play: !play });
+    this.state.currentMic.playFunc();
+  };
+
+  setVolume = () => {
+    if (!this.state.currentMic) return;
+    const volumeControl = document.getElementById('volume');
+    this.state.currentMic.volumeFunc(volumeControl.value);
   };
 
   render() {
-    const finishedScriptListClass = this.state.viewInfo ? '' : styles.collapsedScriptList;
     const peelableDetail = this.state.viewInfo ? styles.micDetails : styles.collapsedMicDetail;
-    // const peelableMics = this.state.viewInfo ? styles.collapsedMics : styles.mics;
+    const svgRec = this.state.isRecording ? (
+      <StopRec className={styles.recSVG}></StopRec>
+    ) : (
+      <StartRec className={styles.recSVG}></StartRec>
+    );
+    const svgPLay = this.state.play ? (
+      <Pause className={styles.recSVG}></Pause>
+    ) : (
+      <Play className={styles.recSVG}></Play>
+    );
+    let volume = this.state.currentMic ? this.state.currentMic.masterGain.value : 0;
     let print = [];
     if (this.state.currentMic) {
       print = ['x'];
@@ -215,23 +239,24 @@ export default class Mics extends Component {
               <Microphone
                 source={RADIOSLINK.futuro}
                 show={false}
-                id={'mic1'}
+                id={'Microphone 1'}
                 selectMic={(mic) => this.selectMic(mic)}
                 ledsFunction={(vol) => this.leds(vol)}
+                recordPush={(id, currentTime, url) => this.recordPush(id, currentTime, url)}
               ></Microphone>
               <Microphone
                 source={RADIOSLINK.biobio}
                 show={false}
-                id={'mic2'}
+                id={'Microphone 2'}
                 selectMic={(mic) => this.selectMic(mic)}
                 ledsFunction={(vol) => this.leds(vol)}
+                recordPush={(id, currentTime, url) => this.recordPush(id, currentTime, url)}
               ></Microphone>
             </table>
           </div>
 
           {/* Mic Detail peelable */}
           <div className={peelableDetail}>
-            {/* HOLAAAAAAAAAAAAA */}
             <div className={styles.divDetails}>
               <div className={styles.listTitleWrapper}>
                 <div
@@ -243,7 +268,42 @@ export default class Mics extends Component {
                 </div>
               </div>
 
-              {print.map((value) => {
+              <div>PLOT</div>
+              <div className={styles.audioStream}>
+                <span className={[styles.detailsTitle, styles.headers].join(' ')}>AUDIO STREAMING</span>
+                <div className={styles.aStreamContent}>
+                  <span onClick={() => this.play()} className={styles.recSpan}>
+                    {svgPLay}
+                  </span>
+                  <input
+                    onChange={() => this.setVolume()}
+                    type="range"
+                    id="volume"
+                    min="0"
+                    max="2"
+                    step="0.2"
+                    value={volume}
+                  />
+                  <span
+                    className={styles.recSpan}
+                    onClick={() => {
+                      this.record();
+                    }}
+                  >
+                    {svgRec}
+                  </span>
+                </div>
+                <div className={styles.recordsDiv}>
+                  <span className={[styles.detailsTitle, styles.headers].join(' ')}>RECORDED AUDIOS</span>
+                  <div id="downloads" className={styles.records}>
+                    {this.state.records.map((rec) => {
+                      return <Record url={rec.url} nameFile={rec.nameFile}></Record>;
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* {print.map((value) => {
                 const { audioContext, masterGain, audioRecorder, song, buffers, id } = this.state.currentMic ?? {};
                 return (
                   <>
@@ -277,16 +337,13 @@ export default class Mics extends Component {
                       >
                         Play Radio / Muted
                       </button>
-
-                      <button
-                        onClick={() => {
-                          if (this.state.currentMic) {
-                            this.record(audioContext, audioRecorder, buffers, id);
-                          }
-                        }}
+                      
+                     
+                      <span className={styles.recSpan}
+                        onClick={() => {this.record()}}
                       >
-                        Record
-                      </button>
+                        {svgRec}
+                      </span>
                     </div>
 
                     <div id="downloads" className={styles.records}>
@@ -314,135 +371,12 @@ export default class Mics extends Component {
                     </div>
                   </>
                 );
-              })}
+              })} */}
             </div>
           </div>
+          {/* Mic Detail peelable END*/}
         </div>
       </div>
     );
-
-    /*
-    return (
-      <>
-        <div className={styles.component}> 
-            <div className={styles.mics}>
-                <table className={styles.table}>
-                    <tr className={styles.headTable}>
-                        <th><h2>MAIN TELESCOPE</h2></th>
-                        <th><p>MIC STATUS</p></th>
-                        <th><p>NOTIFICATIONS</p></th>
-                        <th><p>ALARM</p></th>
-                    </tr>
-                    <Microphone source={RADIOSLINK.futuro} show={false} id={'mic1'} 
-                    selectMic = {(mic) => this.selectMic(mic) } ledsFunction = {(vol) => this.leds(vol)} ></Microphone>
-                    <Microphone source={RADIOSLINK.biobio} show={false} id={'mic2'} 
-                    selectMic = {(mic) => this.selectMic(mic)} ledsFunction = {(vol) => this.leds(vol)}></Microphone>
-                </table>
-            
-            </div>
-            <div className={[styles.collapsableScriptList, finishedScriptListClass].join(' ')}>
-                <div className={[styles.finishedScriptList, styles.scriptList].join(' ')}>
-                <div
-                    className={[styles.collapsedScriptListLabelWrapper].join(' ')}
-                    onClick={this.openFinishedList}
-                    title="Open finished script list"
-                >
-                    <div className={[styles.collapsedScriptListLabel].join(' ')}>&#8853;</div>
-                </div>
-
-                <div className={styles.collapsableScriptListContent}>
-                    <div className={styles.divDetails}>
-                        <div className={styles.listTitleWrapper}>
-                            <div
-                                className={styles.collapseScriptListButton}
-                                onClick={this.closeMicDetails}
-                                title="Close available script list"
-                            >
-                                <span style={{ width: '100%' }}>&#8854;</span>
-                            </div>
-                        </div>
-                    
-                    {print.map((value)=> {
-                        const {audioContext, masterGain, audioRecorder, song, buffers, id} = this.state.currentMic ?? {};
-                        return (
-                            <>
-                        <div>
-                        <div>
-                            <input
-                            onChange={() => {
-                                if(masterGain) masterGain.gain.value = this.changeVolume('volume');
-                            }}
-                            type="range"
-                            id='volume'
-                            min="0"
-                            max="2"
-                            step="0.2"
-                            value={masterGain?.gain?.value}
-                            />
-                        </div>
-                        <button
-                            onClick={() => {
-                              if(this.state.currentMic){
-                                if (!this.state.play) {
-                                    audioContext.resume();
-                                    song.play();
-                                    this.setState({ play: true });
-                                } else {
-                                    masterGain.gain.value = 0;
-                                    this.setState({ play: false });
-                                }
-                            }}}
-                        >
-                            Play Radio / Muted
-                        </button>
-
-                        <button
-                            onClick={() => {
-                                if(this.state.currentMic){
-                                    this.record(audioContext,audioRecorder,buffers, id);
-                                }
-                            }}
-                        >
-                            Record
-                        </button>
-
-                    </div>
-
-                    <div id='downloads' className={styles.records}>
-                    <p> GRABACION:</p>
-                    {this.state.records.map((rec)=>{
-                        return(
-                            <Record url={rec.url} nameFile={rec.nameFile}></Record>
-                        );
-                    })}
-                    </div>
-
-                    <div className={styles.container}>
-                        <span>Microphone</span>
-                        <div className={styles.volumenWrapper}>
-                            <div id={"led"} className={styles.led}></div>
-                            <div id={"led"} className={styles.led}></div>
-                            <div id={"led"} className={styles.led}></div>
-                            <div id={"led"} className={styles.led}></div>
-                            <div id={"led"} className={styles.led}></div>
-
-                            <div id={"led"} className={styles.led}></div>
-                            <div id={"led"} className={styles.led}></div>
-                            <div id={"led"} className={styles.led}></div>
-                            <div id={"led"} className={styles.led}></div>
-                            <div id={"led"} className={styles.led}></div>
-                        </div>
-                    </div>
-                    </>
-                        );
-                    })}
-                    </div>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-      </>
-    );*/
   }
 }

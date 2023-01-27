@@ -16,12 +16,6 @@
   height: 75px;
 }
 
-/* span {
-  font-size: 20px;
-  font-weight: bold;
-  color: #ffffff;
-} */
-
 .volumenWrapper {
   /* display: flex; */
   flex-direction: row;
@@ -50,38 +44,10 @@
   border-radius: 50%;
 }
 
-/* .mics{
-  flex-basis: 100%;
-  border-radius: 20px;
-  display: flex;
-  margin: 10px;
-} */
-
-.micX {
-  padding: 20px;
-}
-
 .component {
   grid-area: body;
   display: flex;
 }
-
-/* .collapsableScriptList {
-  flex-basis: 100%;
-  position: relative;
-  transition: all 300ms ease-in-out;
-  margin: 10px;
-}
-
-.collapsedScriptList {
-  flex-basis: 50px;
-  flex-shrink: 0;
-  overflow: hidden;
-}
-
-.collapsedScriptList .collapsableScriptListContent {
-  left: 50px; 
-}*/
 
 /*No Tocar*/
 .collapseScriptListButton {
@@ -90,63 +56,15 @@
   cursor: pointer;
 }
 
-/* .collapsedScriptList .collapsedScriptListLabelWrapper {
-  opacity: 1;
-}
-
-.finishedScriptList {
-  overflow-y: hidden;
-  display: flex;
-  align-items: stretch;
-} */
-
 /*No Tocar*/
 .listTitleWrapper {
   display: flex;
   padding: 0.5em;
 }
 
-/* .scriptList {
-  display: grid;
-  grid-template-rows: min-content 1fr;
-  margin: 0 0.5em;
-  text-align: left;
-  flex-grow: 1;
-  flex-basis: 100%;
-  transition: all 500ms ease-in-out;
-  background: var(--second-primary-background-color);
-  height: 100%;
-}
-
-.collapsableScriptListContent {
-  display: grid;
-  grid-template-rows: min-content 1fr;
-  position: absolute;
-  left: 0px;
-  width: 100%;
-  height: 100%;
-  transition: left 300ms ease-in-out;
-  background: var(--second-primary-background-color);
-  justify-items: center;
-}
-
-.collapsedScriptListLabelWrapper {
-  position: absolute;
-  display: flex;
-  height: 100%;
-  background: var(--second-secondary-background-color);
-  cursor: pointer;
-  opacity: 1;
-  z-index: 0;
-} */
-
-.records {
-  justify-items: center;
-}
-
 table {
   width: 100%;
-  background-color: var(--tertiary-background-color);
+  background-color: var(--second-quaternary-background-dimmed-color);
   border-radius: 4px;
   color: var(--base-font-color);
   padding: 7px;
@@ -156,42 +74,33 @@ table {
 .headTable {
   margin-top: 10px;
   margin-bottom: 10px;
-  background-color: var(--tertiary-background-color);
+  background-color: var(--second-quaternary-background-dimmed-color);
 }
 
 th {
   /* height: 4em; */
-  background-color: var(--tertiary-background-color);
+  background-color: var(--second-quaternary-background-dimmed-color);
 }
 
 tr {
   /* margin: 10px; */
   background-color: var(--second-primary-background-color);
   border-radius: 4px;
+  cursor: pointer;
 }
 
 .divDetails {
-  background-color: var(--tertiary-background-color);
-  border-radius: 15px;
+  background-color: var(--second-quaternary-background-dimmed-color);
+  border-radius: 4px;
+  padding-inline: 0.5em;
 }
-/* .tr .trLeft .trRight{
-  margin-top: 1px;
-  margin-bottom: 1px;
-  background-color: var(--base-background-color);
-}
-.trLeft{
-  margin-left: 3px;
-}
-
-.trRight{
-  margin-right: 3px;
-} */
 
 .micDetails {
-  width: 30%;
+  width: 40%;
   overflow-x: hidden;
   transition: 0.4s;
   margin: 2px;
+  padding-inline: 0.5em;
 }
 
 .mics {
@@ -199,6 +108,7 @@ tr {
   /* border-radius: 20px; */
   transition: 0.4s;
   margin: 2px;
+  padding-inline: 0.5em;
 }
 
 .collapsedMicDetail {
@@ -209,6 +119,7 @@ tr {
 
 .component {
   display: flex;
+  margin-inline: -0.25em;
 }
 
 .container {
@@ -224,8 +135,10 @@ tr {
 
 .headers {
   vertical-align: sub;
-  font-family: Montserrat;
+  font-family: 'Montserrat', sans-serif;
   font-size: small;
+  color: var(--base-font-color);
+  font-weight: normal;
 }
 
 td {
@@ -235,6 +148,146 @@ td {
 
 .idMic {
   display: table-cell;
-  font-family: Montserrat;
+  font-family: 'Montserrat', sans-serif;
   font-weight: normal;
+  vertical-align: sub;
+  /* font-size: medium; */
+  padding-left: 0.5em;
+}
+
+.firstRow {
+  display: inherit;
+}
+
+.svgTable {
+  height: 1.5em;
+}
+
+.svgView {
+  height: 1em;
+}
+
+.recSVG {
+  height: 1em;
+  scale: 1.5;
+}
+
+.recSpan {
+  cursor: pointer;
+  padding-inline: 1em;
+}
+
+.tdViewSVG {
+  display: inline-flex;
+  padding-inline: 0.6em;
+  padding-block: 0.4em;
+}
+
+.records {
+  justify-items: center;
+  margin: 2em;
+}
+
+.aStreamContent {
+  display: inline-flex;
+  padding: 0.3em;
+}
+
+.detailsTitle {
+  display: flex;
+  margin: 0.5em;
+}
+
+.recordsDiv {
+  margin-top: 0.5em;
+  padding-block: 0.5em;
+}
+
+/* input volume*/
+input[type='range'] {
+  height: 1em;
+  appearance: none;
+  scale: 0.5;
+  width: 100%;
+  background: inherit;
+}
+input[type='range']:focus {
+  outline: none;
+}
+input[type='range']::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 7px;
+  cursor: pointer;
+  box-shadow: 0px 0px 0px #000000;
+  background: #e3e3e3;
+  border-radius: 20px;
+  border: 0px solid #000000;
+}
+input[type='range']::-webkit-slider-thumb {
+  box-shadow: 0px 0px 0px #000000;
+  border: 2px solid #ffffff;
+  height: 18px;
+  width: 18px;
+  border-radius: 25px;
+  background: #000000;
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: -6.5px;
+}
+/* input[type=range]:focus::-webkit-slider-runnable-track {
+  background: #E3E3E3;
+} */
+input[type='range']::-moz-range-track {
+  width: 100%;
+  height: 7px;
+  cursor: pointer;
+  box-shadow: 0px 0px 0px #000000;
+  background: #e3e3e3;
+  border-radius: 20px;
+  border: 0px solid #000000;
+}
+input[type='range']::-moz-range-thumb {
+  box-shadow: 0px 0px 0px #000000;
+  border: 2px solid #ffffff;
+  height: 18px;
+  width: 18px;
+  border-radius: 25px;
+  background: #000000;
+  cursor: pointer;
+}
+input[type='range']::-ms-track {
+  width: 100%;
+  height: 7px;
+  cursor: pointer;
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
+}
+input[type='range']::-ms-fill-lower {
+  background: #e3e3e3;
+  border: 0px solid #000000;
+  border-radius: 40px;
+  box-shadow: 0px 0px 0px #000000;
+}
+input[type='range']::-ms-fill-upper {
+  background: #e3e3e3;
+  border: 0px solid #000000;
+  border-radius: 40px;
+  box-shadow: 0px 0px 0px #000000;
+}
+input[type='range']::-ms-thumb {
+  margin-top: 1px;
+  box-shadow: 0px 0px 0px #000000;
+  border: 2px solid #ffffff;
+  height: 18px;
+  width: 18px;
+  border-radius: 25px;
+  background: #000000;
+  cursor: pointer;
+}
+input[type='range']:focus::-ms-fill-lower {
+  background: #e3e3e3;
+}
+input[type='range']:focus::-ms-fill-upper {
+  background: #e3e3e3;
 }

@@ -2,12 +2,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Bypasser from './bypasserNode';
 import ManagerInterface, { parseCommanderData } from 'Utils';
-import Recorder from 'recorder-js';
-// import Recorder from 'recorderjs';
-// import WebAudioRecorder from 'web-audio-recorder-js';
 import styles from './Microphone.module.css';
+import { ReactComponent as ViewSVG } from './SVG/view.svg';
+import { ReactComponent as AlarmNSVG } from './SVG/alarm_no.svg';
+import { ReactComponent as AlarmYSVG } from './SVG/alarm_yes.svg';
+import { ReactComponent as NotificationOn } from './SVG/notification_on.svg';
+import { ReactComponent as NotificationOff } from './SVG/notification_off.svg';
+
 import StatusText from 'components/GeneralPurpose/StatusText/StatusText';
-import Value from 'components/GeneralPurpose/SummaryPanel/Value';
 export default class Microphone extends Component {
   static propTypes = {
     /* Mics's id  */
@@ -31,6 +33,8 @@ export default class Microphone extends Component {
       alarms: {},
 
       play: false,
+
+      isRecording: false,
     };
     // ========================================================
     // Audio Setup
@@ -45,18 +49,13 @@ export default class Microphone extends Component {
     this.audioRecorder;
     this.vMeter;
     this.buffers;
-
-    // this.audioContext2 = new (window.AudioContext || window.webkitAudioContext)();
-    // this.masterGain2 = this.audioContext2.createGain();
-    // this.song2 = new Audio(RADIOSLINK.adn);
-    // this.songSource2 = this.audioContext2.createMediaElementSource(this.song2);
   }
 
   componentDidMount = () => {
     // this.props.subscribeToStreams();
 
     this.song.crossOrigin = 'anonymous';
-    this.masterGain.gain.value = 0;
+    this.masterGain.gain.value = 0.4;
     this.songSource.connect(this.masterGain);
     this.masterGain.connect(this.audioContext.destination);
     this.loadVMeter(this.audioContext, this.songSource);
@@ -140,7 +139,6 @@ export default class Microphone extends Component {
   async loadModule(ctx, source) {
     try {
       await ctx.audioWorklet.addModule(process.env.PUBLIC_URL + '/worklets/bypassProcessor.js');
-      console.log(`loaded module: bypass-processor.js`);
     } catch (e) {
       console.log(`Failed to load module: bypass-processor.js: `, e);
     }
@@ -160,7 +158,6 @@ export default class Microphone extends Component {
   async loadVMeter(ctx, source) {
     try {
       await ctx.audioWorklet.addModule(process.env.PUBLIC_URL + '/worklets/vmeter.js');
-      console.log(`loaded module: vmeter-processor.js`);
     } catch (e) {
       console.log(`Failed to load module: vmeter-processor.js: `, e);
     }
@@ -178,8 +175,6 @@ export default class Microphone extends Component {
 
     source.connect(this.vMeter); // <8>
     this.vMeter.connect(ctx.destination);
-
-    console.log(this.vMeter);
   }
 
   leds(vol) {
@@ -213,6 +208,50 @@ export default class Microphone extends Component {
     }
   }
 
+  play = () => {
+    const { audioContext, song, masterGain } = this;
+    if (!this.state.play) {
+      audioContext.resume();
+      masterGain.gain.value = 0.5;
+      song.play();
+      console.log('play');
+      this.setState({ play: true });
+    } else {
+      masterGain.gain.value = 0;
+      console.log('paused');
+      this.setState({ play: false });
+    }
+  };
+
+  record = () => {
+    const { audioContext, audioRecorder, buffers } = this;
+    const { id, recordPush } = this.props;
+
+    if (!this.state.isRecording) {
+      const parameter = audioRecorder.parameters.get('isRecording');
+      parameter.setValueAtTime(1, audioContext.currentTime); // <9>
+      buffers.splice(0, buffers.length);
+      console.log('start Recording');
+      this.setState({ isRecording: true });
+    } else {
+      const parameter = audioRecorder.parameters.get('isRecording');
+      const currentTime = audioContext.currentTime;
+      parameter.setValueAtTime(0, currentTime);
+
+      this.setState({ isRecording: false });
+      console.log('stop Recording');
+
+      const blob = this.encodeAudio(buffers); // <11>
+      const url = URL.createObjectURL(blob);
+      recordPush(id, currentTime, url);
+    }
+  };
+
+  changeVolume = (vol) => {
+    this.masterGain.gain.value = vol;
+    console.log(this.masterGain.value);
+  };
+
   render() {
     // let song = new Audio('https://redirector.dps.live/biobiosantiago/mp3/icecast.audio');
     const { id } = this.props;
@@ -225,11 +264,18 @@ export default class Microphone extends Component {
       buffers: this.buffers,
       vMeter: this.vMeter,
       id: id,
+      function: this.testFunc,
+      recordFunc: this.record,
+      playFunc: this.play,
+      volumeFunc: this.changeVolume,
     };
     return (
       <tr onClick={() => this.props.selectMic(mic)}>
-        <td>
-          <span className={styles.idMic}>{id}</span>
+        <td className={styles.firstRow}>
+          <td className={styles.tdViewSVG}>
+            <ViewSVG className={styles.svgView}></ViewSVG>
+          </td>
+
           <span className={styles.idMic}>{id}</span>
         </td>
         <td>
@@ -237,8 +283,12 @@ export default class Microphone extends Component {
             Enabled
           </StatusText>
         </td>
-        <td>notifications</td>
-        <td>alarms</td>
+        <td>
+          <NotificationOff className={styles.svgTable}></NotificationOff>
+        </td>
+        <td>
+          <AlarmYSVG className={styles.svgTable}></AlarmYSVG>
+        </td>
       </tr>
       // <div>
       //   <button onClick={()=> this.props.selectMic(mic)}> Select mic {id}</button>

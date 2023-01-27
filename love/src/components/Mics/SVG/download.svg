@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Recording" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23.1 20.38">
+  <defs>
+    <style>
+      .cls-dwl1 {
+        fill: #788e9a;
+      }
+
+      .cls-dwl2 {
+        fill: none;
+        stroke: #788e9a;
+        stroke-miterlimit: 10;
+        stroke-width: 2px;
+      }
+    </style>
+  </defs>
+  <polyline class="cls-dwl2" points="22.1 15.79 22.1 19.38 1 19.38 1 15.79"/>
+  <polygon class="cls-dwl" points="13.26 7.91 13.26 0 9.85 0 9.85 7.91 7.05 7.91 9.3 11.29 11.55 14.68 13.8 11.29 16.06 7.91 13.26 7.91"/>
+</svg>
