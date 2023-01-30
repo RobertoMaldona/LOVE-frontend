@@ -34,24 +34,116 @@ export default class Microphone extends Component {
       first: true,
 
       spec: {
-        width: 700,
+        width: 1000,
         height: 200,
-        mark: { type: 'line', color: 'red' },
+        mark: { type: 'line' },
+        transform: [{ fold: ['dBprom', 'dBlimit'] }],
         encoding: {
-          x: { field: 't', type: 'temporal', axis: { title: 'Time', format: '%H:%M:%S', tickCount: 3 } },
-          y: { field: 'dB', type: 'quantitative', axis: { title: 'Decibels' }, scale: { domain: [0, 1] } },
+          x: { type: 'temporal' },
+          y: { type: 'quantitative' },
+          color: {
+            type: 'nominal',
+            scale: { domain: ['dB prom', 'dB upper limit'], range: ['#3E707B', '#F0E400'] },
+          },
         },
+        layer: [
+          {
+            encoding: {
+              x: {
+                field: 't',
+                type: 'temporal',
+                axis: {
+                  title: 'Time',
+                  titleColor: '#C1CED2',
+                  titleFontSize: 15,
+                  titleFontWeight: 'bold',
+                  titlePadding: 10,
+                  format: '%H:%M:%S',
+                  tickCount: 5,
+                  tickSize: 8,
+                  labelColor: '#C1CED2',
+                  labelFontSize: 12,
+                  labelPadding: 5,
+                  grid: false,
+                },
+              },
+              y: {
+                field: 'dBprom',
+                type: 'quantitative',
+                axis: {
+                  title: 'Decibels',
+                  titleColor: '#C1CED2',
+                  titleFontSize: 15,
+                  titlePadding: 10,
+                  titleFontWeight: 'bold',
+                  tickCount: 5,
+                  tickSize: 8,
+                  labelColor: '#C1CED2',
+                  labelFontSize: 12,
+                  labelPadding: 5,
+                  gridColor: '#C0CDD1',
+                  gridOpacity: 0.1,
+                },
+                scale: { domain: [-0.1, 1] },
+              },
+            },
+          },
+          {
+            mark: { type: 'line', color: '#F0E400', strokeWidth: 0.5, strokeDash: 8.8 },
+            encoding: {
+              x: {
+                field: 't',
+                type: 'temporal',
+                axis: { title: 'Time', format: '%H:%M:%S', domainColor: 'black' },
+              },
+              y: {
+                field: 'dBlimit',
+                type: 'quantitative',
+                axis: { title: 'Decibels' },
+                scale: { domain: [-0.1, 1] },
+              },
+              color: {
+                datum: 'dB upper limit',
+                legend: { labelColor: '#C1CED2', labelFontSize: 15, symbolStrokeWidth: 7, symbolSize: 10 },
+              },
+            },
+          },
+        ],
+        data: { name: 'table' },
+        background: '#1A2D37',
+        view: { fill: '#111F27', stroke: '#111F27', cornerRadius: 10, stroke: '#2B3F4A', strokeWidth: 10 },
+        padding: { left: 15, top: 15, right: 15, bottom: 15 },
+        autosize: { resize: 'true' },
         data: { name: 'table' },
         autosize: { resize: 'true' },
       },
-
       data: { table: [] },
+
+      spec3D: {
+        width: 700,
+        height: 700,
+        mark: { type: 'rect' },
+        data: { name: 'table' },
+        encoding: {
+          x: { field: 't', type: 'temporal', axis: { title: 'Time', format: '%H:%M:%S', tickCount: 5 } },
+          y: {
+            field: 'f',
+            type: 'quantitative',
+            axis: {
+              title: 'Frequency [Hz]',
+            },
+            scale: { domain: [0, 1024] },
+          },
+          color: { type: 'quantitative', field: 'amp' },
+        },
+      },
+      data3D: { table: [] },
 
       actualDb: 0,
       initialTime: '',
       dbLimit: 0.1,
+      ampArray: [],
       timeArray: [],
-
       counter: 0,
     };
 
@@ -74,21 +166,22 @@ export default class Microphone extends Component {
     this.audioVolume;
     this.buffers;
     this.countPollingIterval;
+    this.frequencyData = Array.from({ length: this.analyser.fftSize / 2 }, (_, index) => index + 1);
   }
 
   componentDidMount = () => {
     this.song.crossOrigin = 'anonymous';
     this.masterGain.gain.value = 0;
-    this.songSource.connect(this.masterGain);
+
+    this.songSource.connect(this.analyser);
+    this.analyser.connect(this.masterGain);
     this.masterGain.connect(this.audioContext.destination);
+
     this.loadVMeter(this.audioContext, this.songSource);
     this.loadModule(this.audioContext, this.songSource);
 
-    // setting initial time.
-    // this.setState({initialTime: initialTime});
-    // this.setState({data: { table: [{ t:  initialTime, dB: this.state.actualDb}]}});
-
-    const changeStateData = (prev, actTime) => {
+    // PLOT 2D;
+    const getdbPromData = (prev, actTime) => {
       if (!prev.data.table) {
         return {};
       }
@@ -107,16 +200,16 @@ export default class Microphone extends Component {
       let newInitialTime;
       newInitialTime = this.state.initialTime;
 
-      const dBprom = this.state.actualDb; //this.state.counter;
+      const dBprom = this.state.actualDb; //this.state.counter; //
       //this.setState({counter: this.state.counter +0.01});
 
       dataCopy.table.push({ t: actTime, dBprom: dBprom, dBlimit: this.state.dbLimit });
 
-      if (this.state.timeArray.length === 1) {
-        dataCopy.table.push({ t: actTime, dBprom: dBprom, dBlimit: this.state.dbLimit });
-      }
+      // if (this.state.timeArray.length === 1) {
+      //   dataCopy.table.push({ t: actTime, dBprom: dBprom, dBlimit: this.state.dbLimit });
+      // }
 
-      if (this.state.timeArray.length === 5) {
+      if (this.state.timeArray.length === 6) {
         let dat2 = dataCopy.table.shift();
         let newt = newTimeArray.shift();
         this.setState({ timeArray: newTimeArray });
@@ -125,7 +218,7 @@ export default class Microphone extends Component {
 
       const result = {
         spec: {
-          width: 700,
+          width: 1000,
           height: 200,
           mark: { type: 'line' },
           transform: [{ fold: ['dBprom', 'dBlimit'] }],
@@ -134,12 +227,12 @@ export default class Microphone extends Component {
             y: { type: 'quantitative' },
             color: {
               type: 'nominal',
-              scale: { domain: ['dB prom', 'dB limit'], range: ['#3E707B', '#F0E400'] },
+              scale: { domain: ['dB prom', 'dB upper limit'], range: ['#3E707B', '#F0E400'] },
             },
           },
           layer: [
             {
-              mark: { type: 'line', color: '#3E707B', strokeWidth: 2 },
+              mark: { type: 'point', color: '#3E707B', strokeWidth: 5 },
               encoding: {
                 x: {
                   field: 't',
@@ -152,9 +245,9 @@ export default class Microphone extends Component {
                     titleFontWeight: 'bold',
                     titlePadding: 10,
                     format: '%H:%M:%S',
-                    tickCount: 4,
+                    tickCount: 5,
                     tickSize: 8,
-                    tickOffset: 8,
+                    tickOffset: 0,
                     labelColor: '#C1CED2',
                     labelFontSize: 12,
                     labelPadding: 5,
@@ -172,7 +265,7 @@ export default class Microphone extends Component {
                     titlePadding: 10,
                     titleFontStyle: 'Montserrat',
                     titleFontWeight: 'bold',
-                    tickCount: 8,
+                    tickCount: 5,
                     tickSize: 8,
                     labelColor: '#C1CED2',
                     labelFontSize: 12,
@@ -182,7 +275,10 @@ export default class Microphone extends Component {
                   },
                   scale: { domain: [-0.1, 1] },
                 },
-                color: { datum: 'dB prom' },
+                color: {
+                  datum: 'dB prom',
+                  condition: { test: `datum.dBprom > ${this.state.dbLimit}`, value: '#F0E400' },
+                },
               },
             },
             {
@@ -201,9 +297,8 @@ export default class Microphone extends Component {
                   scale: { domain: [-0.1, 1] },
                 },
                 color: {
-                  datum: 'dB limit',
-                  offset: 0,
-                  legend: { labelColor: '#C1CED2', labelFontSize: 12, labelFontStyle: 'montserrat' },
+                  datum: 'dB upper limit',
+                  legend: { labelColor: '#C1CED2', labelFontSize: 15, symbolStrokeWidth: 7, symbolSize: 10 },
                 },
               },
             },
@@ -211,7 +306,7 @@ export default class Microphone extends Component {
 
           data: { name: 'table' },
           background: '#1A2D37',
-          view: { fill: '#111F27', stroke: '#111F27', cornerRadius: 10, stroke: '#2B3F4A', strokeWidth: 7 },
+          view: { fill: '#111F27', stroke: '#111F27', cornerRadius: 10, stroke: '#2B3F4A', strokeWidth: 10 },
           padding: { left: 15, top: 15, right: 15, bottom: 15 },
           autosize: { resize: 'true' },
         },
@@ -220,18 +315,82 @@ export default class Microphone extends Component {
 
       return result;
     };
+    // if (this.countPollingIterval) clearInterval(this.countPollingIterval);
+    // this.countPollingIterval = setInterval(() => {
+    //   this.setState(
+    //     (prevState) =>
+    //       getdbPromData(prevState, this.getTime()));
+    // }, 1000);
+
+    // PLOT 3D;
+    const getdbFrequencyData = (prev, actTime) => {
+      this.analyser.getFloatFrequencyData(this.dataArray);
+      let ampArray = this.dataArray;
+
+      if (!prev.data.table || ampArray[0] === -Infinity) {
+        return {};
+      }
+      let dataCopy = { table: [] };
+      dataCopy.table = prev.data.table;
+
+      let newTimeArray;
+      newTimeArray = this.state.timeArray;
+      newTimeArray.push(actTime);
+      this.setState({ timeArray: newTimeArray });
+
+      if (this.state.timeArray.length === 1) {
+        this.setState({ initialTime: actTime });
+      }
+
+      let newInitialTime;
+      newInitialTime = this.state.initialTime;
+
+      let freqAmpArray = this.frequencyData.map(function (freq, i) {
+        return { t: actTime, f: freq, amp: ampArray[i] };
+      });
+
+      dataCopy.table = [...dataCopy.table, ...freqAmpArray];
+
+      if (this.state.timeArray.length === 6) {
+        dataCopy.table = dataCopy.table.splice(0, 1024);
+        let newt = newTimeArray.shift();
+        this.setState({ timeArray: newTimeArray });
+        newInitialTime = newTimeArray[0];
+      }
+
+      const result = {
+        spec3D: {
+          width: 700,
+          height: 700,
+          mark: { type: 'rect' },
+          data: { name: 'table' },
+          encoding: {
+            x: {
+              field: 't',
+              type: 'temporal',
+              axis: { title: 'Time', format: '%H:%M:%S', tickCount: 5 },
+              scale: { domain: [newInitialTime, actTime] },
+            },
+            y: {
+              field: 'f',
+              type: 'quantitative',
+              axis: {
+                title: 'Frequency [Hz]',
+              },
+              scale: { domain: [0, 1024] },
+            },
+            color: { type: 'quantitative', field: 'amp' },
+          },
+        },
+        data3D: dataCopy,
+      };
+
+      return result;
+    };
 
     if (this.countPollingIterval) clearInterval(this.countPollingIterval);
     this.countPollingIterval = setInterval(() => {
-      this.setState(
-        (prevState) =>
-          // {
-          // if (this.state.play){
-
-          changeStateData(prevState, this.getTime()),
-        // }
-        // }
-      );
+      this.setState((prevState) => getdbFrequencyData(prevState, this.getTime()));
     }, 1000);
   };
 
@@ -372,6 +531,18 @@ export default class Microphone extends Component {
     return new Date(now_utc).toISOString().substring(0, 19);
   }
 
+  appearInputdBLimit() {
+    const input = document.getElementById('hideInputdBLimit');
+    const display = document.getElementById('InitialdBLimit');
+    if (input.style.display === 'none') {
+      input.style.display = 'block';
+      display.style.display = 'none';
+    } else {
+      input.style.display = 'none';
+      display.style.display = 'block';
+    }
+  }
+
   leds(vol) {
     const ledColor = [
       '#064dac',
@@ -403,6 +574,7 @@ export default class Microphone extends Component {
   }
 
   render() {
+    // console.log(this.state.data)
     return (
       <>
         <div className={styles.alarmContainer}>
@@ -411,33 +583,61 @@ export default class Microphone extends Component {
               <div> Live values </div>
               <div className={styles.dBLiveValue}> {this.state.actualDb.toString().substring(0, 5)}dB</div>
             </div>
+
             <div className={styles.infoMonserratFont}>
-              <div> Limit </div>
-              <div className={styles.dBLimitValue}> {this.state.dbLimit}dB</div>
+              <div className={styles.buttondBLimit}>
+                Limit
+                <Button
+                  className={styles.editButtondBLimit}
+                  onClick={() => {
+                    this.appearInputdBLimit();
+                  }}
+                >
+                  <svg width="20" height="20" viewBox="10 0 10 20">
+                    <line className={styles.svgEdit} x1="8.34" y1="2.09" x2="7.58" y2="1.38" />
+                    <line className={styles.svgEdit} x1="8.72" y1="1.73" x2="7.96" y2="1.02" />
+                    <polyline className={styles.svgEdit} points="4.16 1.66 .15 1.66 .15 9.48 7.97 9.48 7.97 5.49" />
+                    <path
+                      fill="white"
+                      d="m8.69.3h0,0m0,0l.68.67-4.79,4.8-.68-.67,4-4,.79-.79m0-.3c-.07,0-.15.03-.21.09l-.8.8-4,4c-.11.11-.11.3,0,.41l.68.68c.06.06.13.09.21.09s.15-.03.21-.09L9.58,1.18c.11-.11.11-.3,0-.41l-.68-.68c-.06-.06-.13-.09-.21-.09h0Z"
+                    />
+                    <polyline className={styles.svgEdit} points="3.63 5.13 2.93 6.74 4.58 6" />
+                  </svg>
+                </Button>
+              </div>
+              <div className={styles.inputdBLimit}>
+                <div className={styles.hideInputDiv}>
+                  <Input
+                    id="hideInputdBLimit"
+                    className={styles.hideInput}
+                    onChange={(e) => this.setState({ dbLimit: e.target.value })}
+                  />
+                </div>
+                <div id="InitialdBLimit" display="flex">
+                  {' '}
+                  {this.state.dbLimit}
+                </div>
+                <div>dB</div>
+              </div>
             </div>
           </div>
           <br></br>
 
+          <div></div>
+
           <div className={styles.monserratFontTitle}> ALARM STORY</div>
+
+          {/* Vega 2D plot: dB prom vs t*/}
+          {/* <div> 
+            <br></br>
+              <VegaLite style={{ display: 'flex',}} renderer="svg" spec={this.state.spec} data={this.state.data}/>
+            <br></br>
+          </div> */}
+          {/* Vega 3D plot: dB vs F vs t */}
           <div>
-            <div className={styles.inputMonserratFont}>
-              <div width="10%">Insert dB limit : </div>
-              <div>
-                {' '}
-                <Input onChange={(e) => this.setState({ dbLimit: e.target.value })} />{' '}
-              </div>
-            </div>
             <br></br>
-            <VegaLite
-              style={{
-                display: 'flex',
-              }}
-              renderer="svg"
-              spec={this.state.spec}
-              data={this.state.data}
-            />
+            <VegaLite style={{ display: 'flex' }} renderer="svg" spec={this.state.spec3D} data={this.state.data3D} />
             <br></br>
-            <div></div>
           </div>
 
           <div>
