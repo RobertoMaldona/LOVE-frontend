@@ -34,8 +34,8 @@ export default class Mics extends Component {
       /* The current microphone to show details */
       currentMic: null,
 
-      /* Notifications ON or OFF */
-      notifications: {},
+      /* List of Mics with the respective id, src and location*/
+      mics: [],
 
       /* If exists an alarm asociated to mic */
       alarms: {},
@@ -82,63 +82,18 @@ export default class Mics extends Component {
     }
   };
 
-  changeVolume(id) {
-    const volumeControl = document.getElementById(id);
-    return volumeControl.value;
-  }
+  componentDidMount = () => {
+    let mic1 = { id: 'Microphone 1', loc: 'mainTelescope', src: RADIOSLINK.biobio };
+    let mic2 = { id: 'Microphone 2', loc: 'mainTelescope', src: RADIOSLINK.carolina };
+    let mic3 = { id: 'Microphone 3', loc: 'auxilaryTelescope', src: RADIOSLINK.futuro };
+    let mic4 = { id: 'Microphone 4', loc: 'auxilaryTelescope', src: RADIOSLINK.corazon };
+    let mic5 = { id: 'Microphone 5', loc: 'summitFacility', src: RADIOSLINK.adn };
+    let mic6 = { id: 'Microphone 6', loc: 'summitFacility', src: RADIOSLINK.biobio };
 
-  encodeAudio(buffers) {
-    const sampleCount = buffers.reduce((memo, buffer) => {
-      return memo + buffer.length;
-    }, 0);
+    const mics = [mic1, mic2, mic3, mic4, mic5, mic6];
 
-    const bytesPerSample = 16 / 8;
-    const bitsPerByte = 8;
-    const dataLength = sampleCount * bytesPerSample;
-    const sampleRate = this.state.currentMic ? this.state.currentMic.audioContext.sampleRate : 0;
-
-    const arrayBuffer = new ArrayBuffer(44 + dataLength);
-    const dataView = new DataView(arrayBuffer);
-
-    dataView.setUint8(0, 'R'.charCodeAt(0)); // <10>
-    dataView.setUint8(1, 'I'.charCodeAt(0));
-    dataView.setUint8(2, 'F'.charCodeAt(0));
-    dataView.setUint8(3, 'F'.charCodeAt(0));
-    dataView.setUint32(4, 36 + dataLength, true);
-    dataView.setUint8(8, 'W'.charCodeAt(0));
-    dataView.setUint8(9, 'A'.charCodeAt(0));
-    dataView.setUint8(10, 'V'.charCodeAt(0));
-    dataView.setUint8(11, 'E'.charCodeAt(0));
-    dataView.setUint8(12, 'f'.charCodeAt(0));
-    dataView.setUint8(13, 'm'.charCodeAt(0));
-    dataView.setUint8(14, 't'.charCodeAt(0));
-    dataView.setUint8(15, ' '.charCodeAt(0));
-    dataView.setUint32(16, 16, true);
-    dataView.setUint16(20, 1, true);
-    dataView.setUint16(22, 1, true);
-    dataView.setUint32(24, sampleRate, true);
-    dataView.setUint32(28, sampleRate * 2, true);
-    dataView.setUint16(32, bytesPerSample, true);
-    dataView.setUint16(34, bitsPerByte * bytesPerSample, true);
-    dataView.setUint8(36, 'd'.charCodeAt(0));
-    dataView.setUint8(37, 'a'.charCodeAt(0));
-    dataView.setUint8(38, 't'.charCodeAt(0));
-    dataView.setUint8(39, 'a'.charCodeAt(0));
-    dataView.setUint32(40, dataLength, true);
-
-    let index = 44;
-
-    for (const buffer of buffers) {
-      for (const value of buffer) {
-        dataView.setInt16(index, value * 0x7fff, true);
-        index += 2;
-      }
-    }
-
-    return new Blob([dataView], { type: 'audio/wav' });
-  }
-
-  ///
+    this.setState({ mics: mics });
+  };
 
   componentDidUpdate = (prevProps, prevState) => {
     // if(this.state.currentMic !== prevState.currentMic){
@@ -150,10 +105,12 @@ export default class Mics extends Component {
 
   selectMic = (mic) => {
     if (this.state.currentMic) {
-      if (this.state.isRecording) this.record();
-      if (this.state.play) this.play();
+      let { id } = this.state.currentMic;
+      this.closeMicDetails();
+      if (id === mic.id) return;
     }
     this.setState({ currentMic: mic, viewInfo: true });
+    mic.selectMe();
   };
 
   openFinishedList = () => {
@@ -166,6 +123,7 @@ export default class Mics extends Component {
     console.log('closed');
     if (this.state.isRecording) this.record();
     if (this.state.play) this.play();
+    this.state.currentMic.selectMe();
     this.setState({ viewInfo: false, currentMic: null });
   };
 
@@ -177,12 +135,12 @@ export default class Mics extends Component {
     this.state.currentMic?.recordFunc();
   };
 
-  recordPush = (id, currentTime, url) => {
-    this.setState((prevState) => {
-      let prevRecords = prevState.records;
-      prevRecords.push({ nameFile: id + currentTime.toString() + '.wav', url: url });
+  recordPush = (id, currentTime, url, blob) => {
+    const newRecord = (prevRecords) => {
+      prevRecords.push({ nameFile: id + currentTime.toString() + '.wav', url: url, blob: blob });
       return { records: prevRecords };
-    });
+    };
+    this.setState((prevState) => newRecord(prevState.records));
   };
 
   play = () => {
@@ -202,61 +160,136 @@ export default class Mics extends Component {
   render() {
     const peelableDetail = this.state.viewInfo ? styles.micDetails : styles.collapsedMicDetail;
     const svgRec = this.state.isRecording ? (
-      <StopRec className={styles.recSVG}></StopRec>
+      <StopRec className={[styles.recSVG, styles.verticalSpace].join(' ')}></StopRec>
     ) : (
-      <StartRec className={styles.recSVG}></StartRec>
+      <StartRec className={[styles.recSVG, styles.verticalSpace].join(' ')}></StartRec>
     );
     const svgPLay = this.state.play ? (
-      <Pause className={styles.recSVG}></Pause>
+      <Pause className={[styles.playSVG, styles.verticalSpace].join(' ')}></Pause>
     ) : (
-      <Play className={styles.recSVG}></Play>
+      <Play className={[styles.playSVG, styles.verticalSpace].join(' ')}></Play>
     );
-    let volume = this.state.currentMic ? this.state.currentMic.masterGain.value : 0;
-    let print = [];
-    if (this.state.currentMic) {
-      print = ['x'];
-    }
+    let { volume } = this.state.currentMic ?? {};
+    let textPlay = this.state.play ? 'PAUSE' : 'PLAY';
+    let textRec = this.state.isRecording ? 'STOP REC' : 'START REC';
     return (
       <div>
         <div className={styles.component}>
           {/* Mic Table */}
           <div className={styles.mics}>
+            <div className={styles.divTitleSection}>
+              <span className={styles.locationMic}> AVAILABLE MICROPHONES</span>
+            </div>
             <table>
+              <colgroup span="2" />
+              <col />
+              <col />
+              <col />
               <tr>
-                <th>
+                <th colSpan="2" scope="colgroup" className={styles.thLocMic}>
                   <span className={styles.locationMic}>MAIN TELESCOPE</span>
                 </th>
-                <th>
+
+                <th scope="col">
                   <span className={styles.headers}> MIC STATUS </span>
                 </th>
-                <th>
+                <th scope="col">
                   <span className={styles.headers}>NOTIFICATIONS</span>
                 </th>
-                <th>
+                <th scope="col">
                   <span className={styles.headers}>ALARM</span>
                 </th>
               </tr>
-              <Microphone
-                source={RADIOSLINK.futuro}
-                show={false}
-                id={'Microphone 1'}
-                selectMic={(mic) => this.selectMic(mic)}
-                ledsFunction={(vol) => this.leds(vol)}
-                recordPush={(id, currentTime, url) => this.recordPush(id, currentTime, url)}
-              ></Microphone>
-              <Microphone
-                source={RADIOSLINK.biobio}
-                show={false}
-                id={'Microphone 2'}
-                selectMic={(mic) => this.selectMic(mic)}
-                ledsFunction={(vol) => this.leds(vol)}
-                recordPush={(id, currentTime, url) => this.recordPush(id, currentTime, url)}
-              ></Microphone>
+              {this.state.mics.map((m) => {
+                if (m.loc === 'mainTelescope') {
+                  return (
+                    <>
+                      <Microphone
+                        source={m.src}
+                        id={m.id}
+                        selectMic={(mic) => this.selectMic(mic)}
+                        recordPush={(id, currentTime, url, blob) => this.recordPush(id, currentTime, url, blob)}
+                      ></Microphone>
+                    </>
+                  );
+                }
+              })}
+
+              <br />
+
+              <colgroup span="2" />
+              <col />
+              <col />
+              <col />
+              <tr>
+                <th colSpan="2" scope="colgroup" className={styles.thLocMic}>
+                  <span className={styles.locationMic}>AUXIALARY TELESCOPE</span>
+                </th>
+
+                <th scope="col">
+                  <span className={styles.headers}> MIC STATUS </span>
+                </th>
+                <th scope="col">
+                  <span className={styles.headers}>NOTIFICATIONS</span>
+                </th>
+                <th scope="col">
+                  <span className={styles.headers}>ALARM</span>
+                </th>
+              </tr>
+              {this.state.mics.map((m) => {
+                if (m.loc === 'auxilaryTelescope') {
+                  return (
+                    <Microphone
+                      source={m.src}
+                      id={m.id}
+                      selectMic={(mic) => this.selectMic(mic)}
+                      recordPush={(id, currentTime, url, blob) => this.recordPush(id, currentTime, url, blob)}
+                    ></Microphone>
+                  );
+                }
+              })}
+
+              <br />
+
+              <colgroup span="2" />
+              <col />
+              <col />
+              <col />
+              <tr>
+                <th colSpan="2" scope="colgroup" className={styles.thLocMic}>
+                  <span className={styles.locationMic}>SUMMIT FACILITY</span>
+                </th>
+
+                <th scope="col">
+                  <span className={styles.headers}> MIC STATUS </span>
+                </th>
+                <th scope="col">
+                  <span className={styles.headers}>NOTIFICATIONS</span>
+                </th>
+                <th scope="col">
+                  <span className={styles.headers}>ALARM</span>
+                </th>
+              </tr>
+              {this.state.mics.map((m) => {
+                if (m.loc === 'summitFacility') {
+                  return (
+                    <Microphone
+                      source={m.src}
+                      id={m.id}
+                      selectMic={(mic) => this.selectMic(mic)}
+                      recordPush={(id, currentTime, url, blob) => this.recordPush(id, currentTime, url, blob)}
+                    ></Microphone>
+                  );
+                }
+              })}
             </table>
           </div>
 
           {/* Mic Detail peelable */}
           <div className={peelableDetail}>
+            <div className={styles.divTitleSection}>
+              <span className={styles.spanIdDetails}> {this.state.currentMic?.id}</span>
+            </div>
             <div className={styles.divDetails}>
               <div className={styles.listTitleWrapper}>
                 <div
@@ -274,6 +307,8 @@ export default class Mics extends Component {
                 <div className={styles.aStreamContent}>
                   <span onClick={() => this.play()} className={styles.recSpan}>
                     {svgPLay}
+                    <br />
+                    <span className={styles.oneLine}>{textPlay}</span>
                   </span>
                   <input
                     onChange={() => this.setVolume()}
@@ -281,8 +316,8 @@ export default class Mics extends Component {
                     id="volume"
                     min="0"
                     max="2"
-                    step="0.2"
-                    value={volume}
+                    step="0.1"
+                    value={volume?.value}
                   />
                   <span
                     className={styles.recSpan}
@@ -291,90 +326,20 @@ export default class Mics extends Component {
                     }}
                   >
                     {svgRec}
+                    <br />
+                    <span className={styles.oneLine}>{textRec}</span>
                   </span>
                 </div>
-                <div className={styles.recordsDiv}>
-                  <span className={[styles.detailsTitle, styles.headers].join(' ')}>RECORDED AUDIOS</span>
-                  <div id="downloads" className={styles.records}>
-                    {this.state.records.map((rec) => {
-                      return <Record url={rec.url} nameFile={rec.nameFile}></Record>;
-                    })}
-                  </div>
+
+                <span className={[styles.detailsTitle, styles.headers].join(' ')}>RECORDED AUDIOS</span>
+                <div id="downloads" className={styles.recordsDiv}>
+                  {this.state.records.map((rec) => {
+                    return <Record url={rec.url} nameFile={rec.nameFile} blob={rec.blob}></Record>;
+                  })}
                 </div>
               </div>
-
-              {/* {print.map((value) => {
-                const { audioContext, masterGain, audioRecorder, song, buffers, id } = this.state.currentMic ?? {};
-                return (
-                  <>
-                    <div>
-                      <div>
-                        <input
-                          onChange={() => {
-                            if (masterGain) masterGain.gain.value = this.changeVolume('volume');
-                          }}
-                          type="range"
-                          id="volume"
-                          min="0"
-                          max="2"
-                          step="0.2"
-                          value={masterGain?.gain?.value}
-                        />
-                      </div>
-                      <button
-                        onClick={() => {
-                          if (this.state.currentMic) {
-                            if (!this.state.play) {
-                              audioContext.resume();
-                              song.play();
-                              this.setState({ play: true });
-                            } else {
-                              masterGain.gain.value = 0;
-                              this.setState({ play: false });
-                            }
-                          }
-                        }}
-                      >
-                        Play Radio / Muted
-                      </button>
-                      
-                     
-                      <span className={styles.recSpan}
-                        onClick={() => {this.record()}}
-                      >
-                        {svgRec}
-                      </span>
-                    </div>
-
-                    <div id="downloads" className={styles.records}>
-                      <p> GRABACION:</p>
-                      {this.state.records.map((rec) => {
-                        return <Record url={rec.url} nameFile={rec.nameFile}></Record>;
-                      })}
-                    </div>
-
-                    <div className={styles.container}>
-                      <span>Microphone</span>
-                      <div className={styles.volumenWrapper}>
-                        <div id={'led'} className={styles.led}></div>
-                        <div id={'led'} className={styles.led}></div>
-                        <div id={'led'} className={styles.led}></div>
-                        <div id={'led'} className={styles.led}></div>
-                        <div id={'led'} className={styles.led}></div>
-
-                        <div id={'led'} className={styles.led}></div>
-                        <div id={'led'} className={styles.led}></div>
-                        <div id={'led'} className={styles.led}></div>
-                        <div id={'led'} className={styles.led}></div>
-                        <div id={'led'} className={styles.led}></div>
-                      </div>
-                    </div>
-                  </>
-                );
-              })} */}
             </div>
           </div>
-          {/* Mic Detail peelable END*/}
         </div>
       </div>
     );

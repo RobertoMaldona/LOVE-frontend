@@ -32,9 +32,13 @@ class VMeter extends AudioWorkletProcessor {
       const samples = input[0];
       let sum = 0;
       let rms = 0;
+      let max = 0;
 
       // Calculated the squared-sum.
-      for (let i = 0; i < samples.length; ++i) sum += samples[i] * samples[i];
+      for (let i = 0; i < samples.length; ++i) {
+        sum += samples[i] * samples[i];
+        if (samples[i] > max) max = samples[i];
+      }
 
       // Calculate the RMS level and update the volume.
       rms = Math.sqrt(sum / samples.length);
@@ -44,7 +48,7 @@ class VMeter extends AudioWorkletProcessor {
       this._nextUpdateFrame -= samples.length;
       if (this._nextUpdateFrame < 0) {
         this._nextUpdateFrame += this.intervalInFrames;
-        this.port.postMessage({ volume: this._volume });
+        this.port.postMessage({ volume: this._volume, max: max });
       }
     }
 

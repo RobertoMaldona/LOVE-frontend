@@ -4,6 +4,7 @@
     <style>
       .cls-alarmNo {
         fill: #bad3e1;
+        opacity: .3;
       }
     </style>
   </defs>

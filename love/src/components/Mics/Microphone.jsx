@@ -4,10 +4,13 @@ import Bypasser from './bypasserNode';
 import ManagerInterface, { parseCommanderData } from 'Utils';
 import styles from './Microphone.module.css';
 import { ReactComponent as ViewSVG } from './SVG/view.svg';
+import { ReactComponent as ViewSVGSelect } from './SVG/viewSelect.svg';
 import { ReactComponent as AlarmNSVG } from './SVG/alarm_no.svg';
 import { ReactComponent as AlarmYSVG } from './SVG/alarm_yes.svg';
 import { ReactComponent as NotificationOn } from './SVG/notification_on.svg';
+import { ReactComponent as NotificationOnSelect } from './SVG/notification_onSelect.svg';
 import { ReactComponent as NotificationOff } from './SVG/notification_off.svg';
+import { ReactComponent as NotificationOffSelect } from './SVG/notification_offSelect.svg';
 
 import StatusText from 'components/GeneralPurpose/StatusText/StatusText';
 export default class Microphone extends Component {
@@ -23,68 +26,58 @@ export default class Microphone extends Component {
     //   this.temperaturePlotRef = React.createRef();
 
     this.state = {
-      /* Active or Descative */
-      micsState: {},
+      /* If this mic is selected to show info detail by the Mics Component*/
+      isSelected: false,
 
       /* Notifications ON or OFF */
-      notifications: {},
+      notifications: true,
 
       /* If exists an alarm asociated to mic */
-      alarms: {},
+      alarm: false,
 
       play: false,
 
       isRecording: false,
     };
+
     // ========================================================
     // Audio Setup
     // ========================================================
-    const { source } = props;
-    this.source = source;
-    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    this.masterGain = this.audioContext.createGain();
-    this.songPlaying = false;
-    this.song = new Audio(source);
-    this.songSource = this.audioContext.createMediaElementSource(this.song);
+    this.audioContext;
+    this.masterGain;
+    this.song;
+    this.songSource;
     this.audioRecorder;
     this.vMeter;
     this.buffers;
   }
 
   componentDidMount = () => {
-    // this.props.subscribeToStreams();
+    this.initAudio();
+  };
 
+  /* Method to set up the audio variables*/
+  initAudio() {
+    //Source is the url of stream
+    const { source } = this.props;
+    this.source = source;
+
+    //Init the AudioContext, masterGain to controlate the volume and AudioNode
+    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    this.masterGain = this.audioContext.createGain();
+    this.song = new Audio(source);
+    this.songSource = this.audioContext.createMediaElementSource(this.song);
+
+    //Set the init gain, connect the nodes and load the AudioWorklets
     this.song.crossOrigin = 'anonymous';
     this.masterGain.gain.value = 0.4;
     this.songSource.connect(this.masterGain);
     this.masterGain.connect(this.audioContext.destination);
     this.loadVMeter(this.audioContext, this.songSource);
     this.loadModule(this.audioContext, this.songSource);
-  };
-
-  componentDidUpdate = () => {
-    //   this.props.unsubscribeToStreams();
-  };
-
-  initAudio() {
-    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    this.masterGain = this.audioContext.createGain();
-    this.songPlaying = false;
-    this.song = new Audio('https://redirector.dps.live/biobiosantiago/mp3/icecast.audio');
-
-    this.songSource = this.audioContext.createMediaElementSource(this.song);
-    this.song.crossOrigin = 'anonymous';
-    this.masterGain.gain.value = 0.5;
-    this.songSource.connect(this.masterGain);
-    this.masterGain.connect(this.audioContext.destination);
-    this.loadModule();
   }
 
-  changeVolume(id) {
-    const volumeControl = document.getElementById(id);
-    return volumeControl.value;
-  }
-
+  /* Method to encode the audio when is record*/
   encodeAudio(buffers) {
     const sampleCount = buffers.reduce((memo, buffer) => {
       return memo + buffer.length;
@@ -136,6 +129,7 @@ export default class Microphone extends Component {
     return new Blob([dataView], { type: 'audio/wav' });
   }
 
+  /* Load Audio Worklet to Record */
   async loadModule(ctx, source) {
     try {
       await ctx.audioWorklet.addModule(process.env.PUBLIC_URL + '/worklets/bypassProcessor.js');
@@ -155,6 +149,7 @@ export default class Microphone extends Component {
     this.audioRecorder.connect(ctx.destination);
   }
 
+  /* Load Audio Worklet to calculate desibels */
   async loadVMeter(ctx, source) {
     try {
       await ctx.audioWorklet.addModule(process.env.PUBLIC_URL + '/worklets/vmeter.js');
@@ -167,9 +162,10 @@ export default class Microphone extends Component {
       let _volume = 0;
       let _sensibility = 5; // Just to add any sensibility to our ecuation
       if (event.data.volume) _volume = event.data.volume;
-
-      this.props.ledsFunction((_volume * 100) / _sensibility);
-      // this.leds((_volume * 100) / _sensibility);
+      if (event.data.max > 0.7) {
+        console.log(event.data.max);
+        if (this.state.notifications && !this.state.isSelected) this.setState({ alarm: true });
+      }
     };
     this.vMeter.port.start(); // <7>
 
@@ -177,37 +173,7 @@ export default class Microphone extends Component {
     this.vMeter.connect(ctx.destination);
   }
 
-  leds(vol) {
-    const ledColor = [
-      '#064dac',
-      '#064dac',
-      '#064dac',
-      '#06ac5b',
-      '#15ac06',
-      '#4bac06',
-      '#80ac06',
-      '#acaa06',
-      '#ac8b06',
-      '#ac5506',
-    ];
-
-    // let leds = [...document.getElementsByClassName('Microphone_led__ULJam')];
-    let leds = [...document.querySelectorAll(`[id=led${this.props.id}]`)];
-    let range = leds.slice(0, Math.round(vol));
-
-    for (var i = 0; i < leds.length; i++) {
-      leds[i].style.boxShadow = '-2px -2px 4px 0px #a7a7a73d, 2px 2px 4px 0px #0a0a0e5e';
-      leds[i].style.height = '22px';
-    }
-
-    for (var i = 0; i < range.length; i++) {
-      range[
-        i
-      ].style.boxShadow = `5px 2px 5px 0px #0a0a0e5e inset, -2px -2px 1px 0px #a7a7a73d inset, -2px -2px 30px 0px ${ledColor[i]} inset`;
-      range[i].style.height = '25px';
-    }
-  }
-
+  /* Method to play o pause the microphone stream. this function is used by the mics component*/
   play = () => {
     const { audioContext, song, masterGain } = this;
     if (!this.state.play) {
@@ -223,6 +189,7 @@ export default class Microphone extends Component {
     }
   };
 
+  /* Method to start record o stop record the microphone stream. this function is used by the mics component*/
   record = () => {
     const { audioContext, audioRecorder, buffers } = this;
     const { id, recordPush } = this.props;
@@ -234,48 +201,78 @@ export default class Microphone extends Component {
       console.log('start Recording');
       this.setState({ isRecording: true });
     } else {
-      const parameter = audioRecorder.parameters.get('isRecording');
-      const currentTime = audioContext.currentTime;
-      parameter.setValueAtTime(0, currentTime);
-
       this.setState({ isRecording: false });
-      console.log('stop Recording');
-
       const blob = this.encodeAudio(buffers); // <11>
       const url = URL.createObjectURL(blob);
-      recordPush(id, currentTime, url);
+      console.log('blob by record function', blob);
+
+      recordPush(id, audioContext.currentTime, url, blob);
     }
   };
 
+  /* Method to change the volume of the microphone stream. this function is used by the mics component*/
   changeVolume = (vol) => {
     this.masterGain.gain.value = vol;
-    console.log(this.masterGain.value);
+  };
+
+  /* Method to change the isSelected state, by the mics component*/
+  selectMe = () => {
+    let { isSelected } = this.state;
+    if (!isSelected) {
+      this.setState({ isSelected: true, alarm: false });
+    }
+    this.setState({ isSelected: !isSelected });
+  };
+
+  turnNotifications = () => {
+    const { notifications } = this.state;
+    if (notifications) this.setState({ notifications: false, alarm: false });
+    else this.setState({ notifications: true });
   };
 
   render() {
-    // let song = new Audio('https://redirector.dps.live/biobiosantiago/mp3/icecast.audio');
+    let classSelectedMic = this.state.isSelected ? styles.selectedMic : '';
+
+    let ntfSVG = this.state.isSelected ? (
+      this.state.notifications ? (
+        <NotificationOnSelect className={styles.svgTable} />
+      ) : (
+        <NotificationOffSelect className={styles.svgTable} />
+      )
+    ) : this.state.notifications ? (
+      <NotificationOn className={styles.svgTable} />
+    ) : (
+      <NotificationOff className={styles.svgTable} />
+    );
+
+    let viewSvg = this.state.isSelected ? (
+      <ViewSVGSelect className={styles.svgView} />
+    ) : (
+      <ViewSVG className={styles.svgView} />
+    );
+
+    let alarm = this.state.alarm ? (
+      <AlarmYSVG className={styles.svgTable}></AlarmYSVG>
+    ) : (
+      <AlarmNSVG className={styles.svgTable}></AlarmNSVG>
+    );
+
     const { id } = this.props;
-    const audio = document.getElementById('audio' + id);
     const mic = {
-      audioContext: this.audioContext,
-      masterGain: this.masterGain,
-      audioRecorder: this.audioRecorder,
-      song: this.song,
-      buffers: this.buffers,
-      vMeter: this.vMeter,
       id: id,
-      function: this.testFunc,
       recordFunc: this.record,
       playFunc: this.play,
       volumeFunc: this.changeVolume,
+      selectMe: this.selectMe,
+      volume: this.masterGain?.gain,
     };
-    return (
-      <tr onClick={() => this.props.selectMic(mic)}>
-        <td className={styles.firstRow}>
-          <td className={styles.tdViewSVG}>
-            <ViewSVG className={styles.svgView}></ViewSVG>
-          </td>
 
+    return (
+      <tr className={classSelectedMic}>
+        <td onClick={() => this.props.selectMic(mic)} className={styles.tdView}>
+          {viewSvg}
+        </td>
+        <td onClick={() => this.props.selectMic(mic)} className={styles.tdIdMic}>
           <span className={styles.idMic}>{id}</span>
         </td>
         <td>
@@ -283,107 +280,9 @@ export default class Microphone extends Component {
             Enabled
           </StatusText>
         </td>
-        <td>
-          <NotificationOff className={styles.svgTable}></NotificationOff>
-        </td>
-        <td>
-          <AlarmYSVG className={styles.svgTable}></AlarmYSVG>
-        </td>
+        <td onClick={() => this.turnNotifications()}>{ntfSVG}</td>
+        <td>{alarm}</td>
       </tr>
-      // <div>
-      //   <button onClick={()=> this.props.selectMic(mic)}> Select mic {id}</button>
-      // </div>
     );
-    /*
-    return (
-      <>
-        <div>
-          <div>
-            <input
-              onChange={() => {
-                this.masterGain.gain.value = this.changeVolume(id);
-              }}
-              type="range"
-              id={id}
-              min="0"
-              max="2"
-              step="0.2"
-              value={this.masterGain.gain.value}
-            />
-          </div>
-          <button
-            onClick={
-              () => {
-                if (!this.state.play) {
-                  this.audioContext.resume();
-                  this.song.play();
-                  this.setState({ play: true });
-                } else {
-                  this.masterGain.gain.value = 0;
-                  // this.song.pause();
-                  this.setState({ play: false });
-                }
-              }}
-            > Play Radio / Muted </button>
-
-          <button
-            onClick={() => {
-              const parameter = this.audioRecorder.parameters.get('isRecording');
-              parameter.setValueAtTime(1, this.audioContext.currentTime); // <9>
-              this.buffers.splice(0, this.buffers.length);
-              console.log('start Recording');
-            }}
-          >
-            start Record
-          </button>
-
-          <button
-            onClick={() => {
-              const parameter = this.audioRecorder.parameters.get('isRecording');
-              parameter.setValueAtTime(0, this.audioContext.currentTime);
-              console.log(this.buffers);
-              const blob = this.encodeAudio(this.buffers); // <11>
-              const url = URL.createObjectURL(blob);
-              audio.src = url;
-              
-              const a = document.getElementById('download'+id);
-              a.href = url;
-              a.download= 'output.wav';
-              // var link = document.createElement('a');
-              // link.href = url;
-              // link.download ='output.wav';
-              // link.click();
-            }}
-          >
-            stop Record
-          </button>
-        </div>
-
-        <div>
-          Untitled view
-          <p> GRABACION:</p>
-          <audio controls id={'audio'+id}></audio>
-
-          <a href="" download={'audioReocrd.wav'} id={'download'+id}>download recorder</a>
-        </div>
-
-        <div className={styles.container}>
-          <span>Microphone</span>
-          <div className={styles.volumenWrapper}>
-            <div id={"led"+id} className={styles.led}></div>
-            <div id={"led"+id} className={styles.led}></div>
-            <div id={"led"+id} className={styles.led}></div>
-            <div id={"led"+id} className={styles.led}></div>
-            <div id={"led"+id} className={styles.led}></div>
-
-            <div id={"led"+id} className={styles.led}></div>
-            <div id={"led"+id} className={styles.led}></div>
-            <div id={"led"+id} className={styles.led}></div>
-            <div id={"led"+id} className={styles.led}></div>
-            <div id={"led"+id} className={styles.led}></div>
-          </div>
-        </div>
-      </>
-    );*/
   }
 }
