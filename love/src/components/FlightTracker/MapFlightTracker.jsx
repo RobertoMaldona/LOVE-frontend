@@ -3,14 +3,13 @@ import PropTypes from 'prop-types';
 import { transform } from 'lodash';
 import styles from './FlightTracker.module.css';
 import * as d3 from 'd3';
-import CoquimboURL from './Coquimbo.geojson';
-import ValparaisoURL from './Valparaiso.geojson';
-import AtacamaURL from './Atacama.geojson';
-import Button from 'components/GeneralPurpose/Button/Button';
-import TelescopeURL from './telescope.svg';
-import { ReactComponent as Map200 } from './Map200.svg';
-import { ReactComponent as Map160 } from './Map160.svg';
-import { ReactComponent as Map100 } from './Map100.svg';
+import CoquimboURL from './GeoJson/Coquimbo.geojson';
+import ValparaisoURL from './GeoJson/Valparaiso.geojson';
+import AtacamaURL from './GeoJson/Atacama.geojson';
+import TelescopeURL from './Svg/telescope.svg';
+import { ReactComponent as Map200 } from './Svg//Map200.svg';
+import { ReactComponent as Map160 } from './Svg//Map160.svg';
+import { ReactComponent as Map100 } from './Svg//Map100.svg';
 import { Document } from 'yaml';
 import * as ReactDOM from 'react-dom';
 import { style, svg, zoom } from 'd3';
@@ -328,10 +327,6 @@ export default class MapFlightTracker extends Component {
 
     return (
       <>
-        {/* <div id="telescopeDiv"> */}
-        {/* <Map id="mapTelescope"></Map> */}
-        {/* </div> */}
-
         {this.renderMap(zoom)}
 
         {this.insertTooltip()}
@@ -393,16 +388,6 @@ export default class MapFlightTracker extends Component {
             })}
           </svg>
           </div> */}
-
-        {/* this is for generate the static map */}
-        {/* <div>{this.getRegionSvg()}</div>
-        <div id="telescopeDiv">
-          <svg id="Paths" className={styles.CoquimboSvg}></svg>
-        </div> */}
-        {/* run this for load the static map */}
-        {/* <div id="TelescopeDiv">
-          <Map></Map>
-        </div> */}
       </>
     );
   }

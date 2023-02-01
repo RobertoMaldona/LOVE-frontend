@@ -4,6 +4,10 @@
   height: fit-content;
   justify-content: center;
 }
+.ftComponent {
+  padding-block: 2em;
+  padding-inline: 1em;
+}
 
 .Div {
   background-color: var(--secondary-background-color);
@@ -95,7 +99,14 @@ td.statusColumn {
 
 .divElement {
   width: 100%;
-  margin-top: 15px;
+  margin-block: 15px;
+  overflow-y: scroll;
+  max-height: 10em;
+}
+.mapContainer {
+  height: 50%;
+  width: 50%;
+  display: inline-flex;
 }
 
 .zoomDiv {
