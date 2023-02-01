@@ -5,9 +5,8 @@
  * @extends AudioWorkletProcessor
  */
 
-class BypassProcessor extends AudioWorkletProcessor {
+class RecordProcessor extends AudioWorkletProcessor {
   static get parameterDescriptors() {
-    // <1>
     return [
       {
         name: 'isRecording',
@@ -24,17 +23,16 @@ class BypassProcessor extends AudioWorkletProcessor {
 
     for (let t = 0; t < inputs[0][channel].length; t += 1) {
       if (parameters.isRecording[0] === 1) {
-        // <2>
         buffer.push(inputs[0][channel][t]);
       }
     }
 
     if (buffer.length >= 1) {
-      this.port.postMessage({ buffer }); // <3>
+      this.port.postMessage({ buffer });
     }
 
     return true;
   }
 }
 
-registerProcessor('bypassProcessor', BypassProcessor);
+registerProcessor('recordProcessor', RecordProcessor);

@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ManagerInterface from 'Utils';
-import { ReactComponent as Play } from './SVG/play.svg';
-import { ReactComponent as Pause } from './SVG/pause.svg';
-import { ReactComponent as Download } from './SVG/download.svg';
-import { source } from 'react-uid/dist/es5/context';
-import styles from './Microphone.module.css';
+import { ReactComponent as Play } from './../SVG/play.svg';
+import { ReactComponent as Pause } from './../SVG/pause.svg';
+import { ReactComponent as Download } from './../SVG/download.svg';
+import styles from './PeleableMicDetail.module.css';
 
 export default class Record extends Component {
   static propTypes = {
@@ -68,7 +67,7 @@ export default class Record extends Component {
         </span>
         <span className={styles.spanNameFiles}>{nameFile}</span>
         <a onClick={() => this.auxFunc(blob)} href={url} download={nameFile} className={styles.download}>
-          <Download className={styles.recSVG}></Download>
+          <Download className={styles.downloadSvg}></Download>
         </a>
       </div>
     );

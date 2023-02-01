@@ -155,6 +155,14 @@ export default class ManagerInterface {
     localStorage.removeItem('LOVE-TOKEN');
   }
 
+  static setStyle(style) {
+    localStorage.setItem('STYLE', style);
+  }
+
+  static getStyle() {
+    return localStorage.getItem('STYLE');
+  }
+
   static requestConfigValidation(config, schema) {
     return fetch(`${ManagerInterface.getApiBaseUrl()}validate-config-schema/`, {
       method: 'POST',

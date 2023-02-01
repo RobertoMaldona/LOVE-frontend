@@ -1,16 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Bypasser from './bypasserNode';
 import ManagerInterface, { parseCommanderData } from 'Utils';
-import styles from './Microphone.module.css';
-import { ReactComponent as ViewSVG } from './SVG/view.svg';
-import { ReactComponent as ViewSVGSelect } from './SVG/viewSelect.svg';
-import { ReactComponent as AlarmNSVG } from './SVG/alarm_no.svg';
-import { ReactComponent as AlarmYSVG } from './SVG/alarm_yes.svg';
-import { ReactComponent as NotificationOn } from './SVG/notification_on.svg';
-import { ReactComponent as NotificationOnSelect } from './SVG/notification_onSelect.svg';
-import { ReactComponent as NotificationOff } from './SVG/notification_off.svg';
-import { ReactComponent as NotificationOffSelect } from './SVG/notification_offSelect.svg';
+import styles from './Table.module.css';
+import { ReactComponent as ViewSVG } from './../SVG/view.svg';
+import { ReactComponent as ViewSVGSelect } from './../SVG/viewSelect.svg';
+import { ReactComponent as AlarmNSVG } from './../SVG/alarm_no.svg';
+import { ReactComponent as AlarmYSVG } from './../SVG/alarm_yes.svg';
+import { ReactComponent as NotificationOn } from './../SVG/notification_on.svg';
+import { ReactComponent as NotificationOnSelect } from './../SVG/notification_onSelect.svg';
+import { ReactComponent as NotificationOff } from './../SVG/notification_off.svg';
+import { ReactComponent as NotificationOffSelect } from './../SVG/notification_offSelect.svg';
 
 import StatusText from 'components/GeneralPurpose/StatusText/StatusText';
 export default class Microphone extends Component {
@@ -132,11 +131,11 @@ export default class Microphone extends Component {
   /* Load Audio Worklet to Record */
   async loadModule(ctx, source) {
     try {
-      await ctx.audioWorklet.addModule(process.env.PUBLIC_URL + '/worklets/bypassProcessor.js');
+      await ctx.audioWorklet.addModule(process.env.PUBLIC_URL + '/worklets/recordProcessor.js');
     } catch (e) {
-      console.log(`Failed to load module: bypass-processor.js: `, e);
+      console.log(`Failed to load module: record-processor.js: `, e);
     }
-    this.audioRecorder = new AudioWorkletNode(ctx, 'bypassProcessor');
+    this.audioRecorder = new AudioWorkletNode(ctx, 'recordProcessor');
     this.buffers = [];
 
     this.audioRecorder.port.addEventListener('message', (event) => {

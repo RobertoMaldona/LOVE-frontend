@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import ManagerInterface, { parseCommanderData } from 'Utils';
 import styles from './Microphone.module.css';
-import Microphone from './Microphone';
-import Button from 'components/GeneralPurpose/Button/Button';
-import Record from './Record';
+// import styles2 from './palette2.css'
 import { ReactComponent as StartRec } from './SVG/start_recording.svg';
 import { ReactComponent as StopRec } from './SVG/stop_recording.svg';
 import { ReactComponent as Play } from './SVG/play.svg';
 import { ReactComponent as Pause } from './SVG/pause.svg';
+import PeleableMicDetail from './PeleableMicDetail/PeleableMicDetail';
+import Table from './Table/Table';
+import ManagerInterface from 'Utils';
 
 const RADIOSLINK = {
   biobio: 'https://redirector.dps.live/biobiosantiago/mp3/icecast.audio',
@@ -50,39 +50,20 @@ export default class Mics extends Component {
     };
   }
 
+  // //THEME FUNCTION PRUEBAS.. LUEGO QUITAR
+  // changeTheme = () => {
+  //   import('./palette2.css').then(console.log('LIGHT THEME'));
+  //   ManagerInterface.setStyle("LIGHT");
+  // }
+
   //Functions to microphone. /////
-  leds = (vol) => {
-    const ledColor = [
-      '#064dac',
-      '#064dac',
-      '#064dac',
-      '#06ac5b',
-      '#15ac06',
-      '#4bac06',
-      '#80ac06',
-      '#acaa06',
-      '#ac8b06',
-      '#ac5506',
-    ];
-
-    // let leds = [...document.getElementsByClassName('Microphone_led__ULJam')];
-    let leds = [...document.querySelectorAll(`[id=led]`)];
-    let range = leds.slice(0, Math.round(vol));
-
-    for (var i = 0; i < leds.length; i++) {
-      leds[i].style.boxShadow = '-2px -2px 4px 0px #a7a7a73d, 2px 2px 4px 0px #0a0a0e5e';
-      leds[i].style.height = '22px';
-    }
-
-    for (var i = 0; i < range.length; i++) {
-      range[
-        i
-      ].style.boxShadow = `5px 2px 5px 0px #0a0a0e5e inset, -2px -2px 1px 0px #a7a7a73d inset, -2px -2px 30px 0px ${ledColor[i]} inset`;
-      range[i].style.height = '25px';
-    }
-  };
 
   componentDidMount = () => {
+    // const theme = ManagerInterface.getStyle();
+    // if(theme=== 'LIGHT'){
+    //   import('./palette2.css').then(console.log('LIGHT THEME'));
+    // }
+
     let mic1 = { id: 'Microphone 1', loc: 'mainTelescope', src: RADIOSLINK.biobio };
     let mic2 = { id: 'Microphone 2', loc: 'mainTelescope', src: RADIOSLINK.carolina };
     let mic3 = { id: 'Microphone 3', loc: 'auxilaryTelescope', src: RADIOSLINK.futuro };
@@ -93,14 +74,6 @@ export default class Mics extends Component {
     const mics = [mic1, mic2, mic3, mic4, mic5, mic6];
 
     this.setState({ mics: mics });
-  };
-
-  componentDidUpdate = (prevProps, prevState) => {
-    // if(this.state.currentMic !== prevState.currentMic){
-    //     const {vMeter} = this.state.currentMic;
-    //     console.log(vMeter);
-    //     vMeter.port.start();
-    // }
   };
 
   selectMic = (mic) => {
@@ -151,10 +124,9 @@ export default class Mics extends Component {
     this.state.currentMic.playFunc();
   };
 
-  setVolume = () => {
+  setVolume = (value) => {
     if (!this.state.currentMic) return;
-    const volumeControl = document.getElementById('volume');
-    this.state.currentMic.volumeFunc(volumeControl.value);
+    this.state.currentMic.volumeFunc(value);
   };
 
   render() {
@@ -172,15 +144,17 @@ export default class Mics extends Component {
     let { volume } = this.state.currentMic ?? {};
     let textPlay = this.state.play ? 'PAUSE' : 'PLAY';
     let textRec = this.state.isRecording ? 'STOP REC' : 'START REC';
+
     return (
       <div>
         <div className={styles.component}>
           {/* Mic Table */}
           <div className={styles.mics}>
             <div className={styles.divTitleSection}>
-              <span className={styles.locationMic}> AVAILABLE MICROPHONES</span>
+              <span className={styles.spanMicAvailable}> AVAILABLE MICROPHONES</span>
             </div>
-            <table>
+            <Table mics={this.state.mics} selectMic={this.selectMic} recordPush={this.recordPush}></Table>
+            {/* <table>
               <colgroup span="2" />
               <col />
               <col />
@@ -282,65 +256,30 @@ export default class Mics extends Component {
                   );
                 }
               })}
-            </table>
+            </table> */}
           </div>
 
-          {/* Mic Detail peelable */}
-          <div className={peelableDetail}>
-            <div className={styles.divTitleSection}>
-              <span className={styles.spanIdDetails}> {this.state.currentMic?.id}</span>
-            </div>
-            <div className={styles.divDetails}>
-              <div className={styles.listTitleWrapper}>
-                <div
-                  className={styles.collapseScriptListButton}
-                  onClick={this.closeMicDetails}
-                  title="Close available script list"
-                >
-                  <span style={{ width: '100%' }}>&#8854;</span>
-                </div>
-              </div>
-
-              <div>PLOT</div>
-              <div className={styles.audioStream}>
-                <span className={[styles.detailsTitle, styles.headers].join(' ')}>AUDIO STREAMING</span>
-                <div className={styles.aStreamContent}>
-                  <span onClick={() => this.play()} className={styles.recSpan}>
-                    {svgPLay}
-                    <br />
-                    <span className={styles.oneLine}>{textPlay}</span>
-                  </span>
-                  <input
-                    onChange={() => this.setVolume()}
-                    type="range"
-                    id="volume"
-                    min="0"
-                    max="2"
-                    step="0.1"
-                    value={volume?.value}
-                  />
-                  <span
-                    className={styles.recSpan}
-                    onClick={() => {
-                      this.record();
-                    }}
-                  >
-                    {svgRec}
-                    <br />
-                    <span className={styles.oneLine}>{textRec}</span>
-                  </span>
-                </div>
-
-                <span className={[styles.detailsTitle, styles.headers].join(' ')}>RECORDED AUDIOS</span>
-                <div id="downloads" className={styles.recordsDiv}>
-                  {this.state.records.map((rec) => {
-                    return <Record url={rec.url} nameFile={rec.nameFile} blob={rec.blob}></Record>;
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
+          <PeleableMicDetail
+            peelableDetailCss={peelableDetail}
+            currentMic={this.state.currentMic}
+            closeMicDetails={this.closeMicDetails}
+            play={this.play}
+            setVolume={this.setVolume}
+            volume={volume}
+            isPlay={this.state.play}
+            record={this.record}
+            records={this.state.records}
+            svgPLay={svgPLay}
+            svgRec={svgRec}
+            textPlay={textPlay}
+            textRec={textRec}
+          ></PeleableMicDetail>
         </div>
+
+        {/* THEME... LUEGO QUITAR  */}
+        {/* <div>
+          <button onClick={async () => this.changeTheme()}>Change Theme</button>
+        </div> */}
       </div>
     );
   }
