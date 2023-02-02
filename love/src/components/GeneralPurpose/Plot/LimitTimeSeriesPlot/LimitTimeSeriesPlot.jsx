@@ -23,16 +23,9 @@ export default class Microphone extends Component {
     //   this.temperaturePlotRef = React.createRef();
 
     this.state = {
-      /* Active or Descative */
-      micsState: {}, // aquí deberíamos agregar dB limit y dB range.
-
-      /* Notifications ON or OFF */
-      notifications: {},
-
-      /* If exists an alarm asociated to mic */
-      alarms: {},
-
       play: false,
+
+      first: true,
 
       actualDb: 0,
 
@@ -46,127 +39,94 @@ export default class Microphone extends Component {
 
       timeArray: [],
 
-      // spec: {
-      //   width: 1000,
-      //   height: 200,
-      //   mark: { type: 'line' },
-      //   transform: [{ fold: ['dBprom', 'dBlimit'] }],
-      //   encoding: {
-      //     x: { type: 'temporal' },
-      //     y: { type: 'quantitative' },
-      //     color: {
-      //       type: 'nominal',
-      //       scale: { domain: ['dB prom', 'dB upper limit'], range: ['#3E707B', '#F0E400'] },
-      //     },
-      //   },
-      //   layer: [
-      //     {
-      //       encoding: {
-      //         x: {
-      //           field: 't',
-      //           type: 'temporal',
-      //           axis: {
-      //             title: 'Time',
-      //             titleColor: '#C1CED2',
-      //             titleFontSize: 15,
-      //             titleFontWeight: 'bold',
-      //             titlePadding: 10,
-      //             format: '%H:%M:%S',
-      //             tickCount: 5,
-      //             tickSize: 8,
-      //             labelColor: '#C1CED2',
-      //             labelFontSize: 12,
-      //             labelPadding: 5,
-      //             grid: false,
-      //           },
-      //         },
-      //         y: {
-      //           field: 'dBprom',
-      //           type: 'quantitative',
-      //           axis: {
-      //             title: 'Decibels',
-      //             titleColor: '#C1CED2',
-      //             titleFontSize: 15,
-      //             titlePadding: 10,
-      //             titleFontWeight: 'bold',
-      //             tickCount: 5,
-      //             tickSize: 8,
-      //             labelColor: '#C1CED2',
-      //             labelFontSize: 12,
-      //             labelPadding: 5,
-      //             gridColor: '#C0CDD1',
-      //             gridOpacity: 0.1,
-      //           },
-      //           scale: { domain: [-0.1, 1] },
-      //         },
-      //       },
-      //     },
-      //     {
-      //       mark: { type: 'line', color: '#F0E400', strokeWidth: 0.5, strokeDash: 8.8 },
-      //       encoding: {
-      //         x: {
-      //           field: 't',
-      //           type: 'temporal',
-      //           axis: { title: 'Time', format: '%H:%M:%S', domainColor: 'black' },
-      //         },
-      //         y: {
-      //           field: 'dBlimit',
-      //           type: 'quantitative',
-      //           axis: { title: 'Decibels' },
-      //           scale: { domain: [-0.1, 1] },
-      //         },
-      //         color: {
-      //           datum: 'dB upper limit',
-      //           legend: { labelColor: '#C1CED2', labelFontSize: 15, symbolStrokeWidth: 7, symbolSize: 10 },
-      //         },
-      //       },
-      //     },
-      //   ],
-      //   data: { name: 'table' },
-      //   background: '#1A2D37',
-      //   view: { fill: '#111F27', stroke: '#111F27', cornerRadius: 10, stroke: '#2B3F4A', strokeWidth: 10 },
-      //   padding: { left: 15, top: 15, right: 15, bottom: 15 },
-      //   data: { name: 'table' },
-      //   autosize: { resize: 'true' },
-      // },
-
-      // data: { table: [] },
-
-      spec3D: {
-        width: 500,
-        height: 500,
-        data: { name: 'table' },
-        mark: { type: 'rect' },
+      spec: {
+        width: 1000,
+        height: 200,
+        mark: { type: 'line' },
+        transform: [{ fold: ['dBprom', 'dBlimit'] }],
         encoding: {
-          x: { field: 't', type: 'temporal', axis: { title: 'TIME', format: '%H:%M:%S', grid: true } },
-          y: {
-            field: 'f',
-            type: 'quantitative',
-            axis: { title: 'FREQ [Hz]', grid: true },
-            scale: { domain: [0, this.bufferLength + 1] },
-          },
+          x: { type: 'temporal' },
+          y: { type: 'quantitative' },
           color: {
-            type: 'quantitative',
-            field: 'amp',
-            scale: { scheme: 'spectral' },
-            legend: { labelColor: '#ddd', labelFontSize: 14, titleColor: '#ddd', title: 'dB', gradientLength: 450 },
+            type: 'nominal',
+            scale: { domain: ['dB prom', 'dB upper limit'], range: ['#3E707B', '#F0E400'] },
           },
         },
-        config: {
-          background: null,
-          axis: {
-            gridColor: '#424242',
-            tickColor: null,
-            titleColor: '#ddd',
-            labelColor: '#ddd',
-            titleFontWeight: 750,
-            labelFontWeight: 750,
-            titlePadding: 16,
+        layer: [
+          {
+            encoding: {
+              x: {
+                field: 't',
+                type: 'temporal',
+                axis: {
+                  title: 'Time',
+                  titleColor: '#C1CED2',
+                  titleFontSize: 15,
+                  titleFontWeight: 'bold',
+                  titlePadding: 10,
+                  format: '%H:%M:%S',
+                  tickCount: 5,
+                  tickSize: 8,
+                  labelColor: '#C1CED2',
+                  labelFontSize: 12,
+                  labelPadding: 5,
+                  grid: false,
+                },
+              },
+              y: {
+                field: 'dBprom',
+                type: 'quantitative',
+                axis: {
+                  title: 'Decibels',
+                  titleColor: '#C1CED2',
+                  titleFontSize: 15,
+                  titlePadding: 10,
+                  titleFontWeight: 'bold',
+                  tickCount: 5,
+                  tickSize: 8,
+                  labelColor: '#C1CED2',
+                  labelFontSize: 12,
+                  labelPadding: 5,
+                  gridColor: '#C0CDD1',
+                  gridOpacity: 0.1,
+                },
+                scale: { domain: [-0.1, 1] },
+              },
+            },
           },
-        },
+          {
+            mark: { type: 'line', color: '#F0E400', strokeWidth: 0.5, strokeDash: 8.8 },
+            encoding: {
+              x: {
+                field: 't',
+                type: 'temporal',
+                axis: { title: 'Time', format: '%H:%M:%S', domainColor: 'black' },
+              },
+              y: {
+                field: 'dBlimit',
+                type: 'quantitative',
+                axis: { title: 'Decibels' },
+                scale: { domain: [-0.1, 1] },
+              },
+              color: {
+                datum: 'dB upper limit',
+                legend: { labelColor: '#C1CED2', labelFontSize: 15, symbolStrokeWidth: 7, symbolSize: 10 },
+              },
+            },
+          },
+        ],
+        data: { name: 'table' },
+        background: '#1A2D37',
+        view: { fill: '#111F27', stroke: '#111F27', cornerRadius: 10, stroke: '#2B3F4A', strokeWidth: 10 },
+        padding: { left: 15, top: 15, right: 15, bottom: 15 },
+        data: { name: 'table' },
+        autosize: { resize: 'true' },
       },
+      data: { table: [] },
 
-      data3D: { table: [] },
+      counter: 0,
+
+      first: true,
     };
 
     // ========================================================
@@ -205,146 +165,148 @@ export default class Microphone extends Component {
     this.analyser.connect(this.masterGain);
     this.masterGain.connect(this.audioContext.destination);
 
-    // this.loadVMeter(this.audioContext, this.songSource);
+    this.loadVMeter(this.audioContext, this.songSource);
     this.loadModule(this.audioContext, this.songSource);
 
-    // // PLOT 2D;
-    // const getdbPromData = (prev, actTime) => {
-    //   if (!prev.data.table) {
-    //     return {};
-    //   }
-    //   let dataCopy = { table: [] };
-    //   dataCopy.table = prev.data.table;
+    // PLOT 2D;
+    const getdbPromData = (prev, actTime) => {
+      if (!prev.data.table) {
+        return {};
+      }
+      let dataCopy = { table: [] };
+      dataCopy.table = prev.data.table;
 
-    //   let newTimeArray;
-    //   newTimeArray = this.state.timeArray;
-    //   newTimeArray.push(actTime);
-    //   this.setState({ timeArray: newTimeArray });
+      let newTimeArray;
+      newTimeArray = this.state.timeArray;
+      newTimeArray.push(actTime);
+      this.setState({ timeArray: newTimeArray });
 
-    //   if (this.state.timeArray.length === 1) {
-    //     this.setState({ initialTime: actTime });
-    //   }
+      if (this.state.timeArray.length === 1) {
+        this.setState({ initialTime: actTime });
+      }
 
-    //   let newInitialTime;
-    //   newInitialTime = this.state.initialTime;
+      let newInitialTime;
+      newInitialTime = this.state.initialTime;
 
-    //   const dBprom = this.state.actualDb;
+      const dBprom = this.state.actualDb;
 
-    //   dataCopy.table.push({ t: actTime, dBprom: dBprom, dBlimit: this.state.dbLimit });
+      dataCopy.table.push({ t: actTime, dBprom: dBprom, dBlimit: this.state.dbLimit });
 
-    //   if (this.state.timeArray.length === 6) {
-    //     let dat2 = dataCopy.table.shift();
-    //     let newt = newTimeArray.shift();
-    //     this.setState({ timeArray: newTimeArray });
-    //     newInitialTime = newTimeArray[0];
-    //   }
+      // if (this.state.timeArray.length === 1) {
+      //   dataCopy.table.push({ t: actTime, dBprom: dBprom, dBlimit: this.state.dbLimit });
+      // }
 
-    //   const result = {
-    //     spec: {
-    //       width: 1000,
-    //       height: 200,
-    //       mark: { type: 'line' },
-    //       transform: [{ fold: ['dBprom', 'dBlimit'] }],
-    //       encoding: {
-    //         x: { type: 'temporal' },
-    //         y: { type: 'quantitative' },
-    //         color: {
-    //           type: 'nominal',
-    //           scale: { domain: ['dB prom', 'dB upper limit'], range: ['#3E707B', '#F0E400'] },
-    //         },
-    //       },
-    //       layer: [
-    //         {
-    //           mark: { type: 'point', color: '#3E707B', strokeWidth: 5 },
-    //           encoding: {
-    //             x: {
-    //               field: 't',
-    //               type: 'temporal',
-    //               axis: {
-    //                 title: 'Time',
-    //                 titleColor: '#C1CED2',
-    //                 titleFontSize: 15,
-    //                 titleFontStyle: 'Montserrat',
-    //                 titleFontWeight: 'bold',
-    //                 titlePadding: 10,
-    //                 format: '%H:%M:%S',
-    //                 tickCount: 5,
-    //                 tickSize: 8,
-    //                 tickOffset: 0,
-    //                 labelColor: '#C1CED2',
-    //                 labelFontSize: 12,
-    //                 labelPadding: 5,
-    //                 grid: false,
-    //               },
-    //               scale: { domain: [newInitialTime, actTime] },
-    //             },
-    //             y: {
-    //               field: 'dBprom',
-    //               type: 'quantitative',
-    //               axis: {
-    //                 title: 'Decibels',
-    //                 titleColor: '#C1CED2',
-    //                 titleFontSize: 15,
-    //                 titlePadding: 10,
-    //                 titleFontStyle: 'Montserrat',
-    //                 titleFontWeight: 'bold',
-    //                 tickCount: 5,
-    //                 tickSize: 8,
-    //                 labelColor: '#C1CED2',
-    //                 labelFontSize: 12,
-    //                 labelPadding: 5,
-    //                 gridColor: '#C0CDD1',
-    //                 gridOpacity: 0.1,
-    //               },
-    //               scale: { domain: [-0.1, 1] },
-    //             },
-    //             color: {
-    //               datum: 'dB prom',
-    //               condition: { test: `datum.dBprom > ${this.state.dbLimit}`, value: '#F0E400' },
-    //             },
-    //           },
-    //         },
-    //         {
-    //           mark: { type: 'line', color: '#F0E400', strokeWidth: 0.5, strokeDash: 8.8 },
-    //           encoding: {
-    //             x: {
-    //               field: 't',
-    //               type: 'temporal',
-    //               axis: { title: 'Time', format: '%H:%M:%S', domainColor: 'black' },
-    //               scale: { domain: [newInitialTime, actTime] },
-    //             },
-    //             y: {
-    //               field: 'dBlimit',
-    //               type: 'quantitative',
-    //               axis: { title: 'Decibels' },
-    //               scale: { domain: [-0.1, 1] },
-    //             },
-    //             color: {
-    //               datum: 'dB upper limit',
-    //               legend: { labelColor: '#C1CED2', labelFontSize: 15, symbolStrokeWidth: 7, symbolSize: 10 },
-    //             },
-    //           },
-    //         },
-    //       ],
+      if (this.state.timeArray.length === 6) {
+        let dat2 = dataCopy.table.shift();
+        let newt = newTimeArray.shift();
+        this.setState({ timeArray: newTimeArray });
+        newInitialTime = newTimeArray[0];
+      }
 
-    //       data: { name: 'table' },
-    //       background: '#1A2D37',
-    //       view: { fill: '#111F27', stroke: '#111F27', cornerRadius: 10, stroke: '#2B3F4A', strokeWidth: 10 },
-    //       padding: { left: 15, top: 15, right: 15, bottom: 15 },
-    //       autosize: { resize: 'true' },
-    //     },
-    //     data: dataCopy,
-    //   };
+      const result = {
+        spec: {
+          width: 1000,
+          height: 200,
+          mark: { type: 'line' },
+          transform: [{ fold: ['dBprom', 'dBlimit'] }],
+          encoding: {
+            x: { type: 'temporal' },
+            y: { type: 'quantitative' },
+            color: {
+              type: 'nominal',
+              scale: { domain: ['dB prom', 'dB upper limit'], range: ['#3E707B', '#F0E400'] },
+            },
+          },
+          layer: [
+            {
+              mark: { type: 'point', color: '#3E707B', strokeWidth: 5 },
+              encoding: {
+                x: {
+                  field: 't',
+                  type: 'temporal',
+                  axis: {
+                    title: 'Time',
+                    titleColor: '#C1CED2',
+                    titleFontSize: 15,
+                    titleFontStyle: 'Montserrat',
+                    titleFontWeight: 'bold',
+                    titlePadding: 10,
+                    format: '%H:%M:%S',
+                    tickCount: 5,
+                    tickSize: 8,
+                    tickOffset: 0,
+                    labelColor: '#C1CED2',
+                    labelFontSize: 12,
+                    labelPadding: 5,
+                    grid: false,
+                  },
+                  scale: { domain: [newInitialTime, actTime] },
+                },
+                y: {
+                  field: 'dBprom',
+                  type: 'quantitative',
+                  axis: {
+                    title: 'Decibels',
+                    titleColor: '#C1CED2',
+                    titleFontSize: 15,
+                    titlePadding: 10,
+                    titleFontStyle: 'Montserrat',
+                    titleFontWeight: 'bold',
+                    tickCount: 5,
+                    tickSize: 8,
+                    labelColor: '#C1CED2',
+                    labelFontSize: 12,
+                    labelPadding: 5,
+                    gridColor: '#C0CDD1',
+                    gridOpacity: 0.1,
+                  },
+                  scale: { domain: [-0.1, 1] },
+                },
+                color: {
+                  datum: 'dB prom',
+                  condition: { test: `datum.dBprom > ${this.state.dbLimit}`, value: '#F0E400' },
+                },
+              },
+            },
+            {
+              mark: { type: 'line', color: '#F0E400', strokeWidth: 0.5, strokeDash: 8.8 },
+              encoding: {
+                x: {
+                  field: 't',
+                  type: 'temporal',
+                  axis: { title: 'Time', format: '%H:%M:%S', domainColor: 'black' },
+                  scale: { domain: [newInitialTime, actTime] },
+                },
+                y: {
+                  field: 'dBlimit',
+                  type: 'quantitative',
+                  axis: { title: 'Decibels' },
+                  scale: { domain: [-0.1, 1] },
+                },
+                color: {
+                  datum: 'dB upper limit',
+                  legend: { labelColor: '#C1CED2', labelFontSize: 15, symbolStrokeWidth: 7, symbolSize: 10 },
+                },
+              },
+            },
+          ],
 
-    //   return result;
-    // };
+          data: { name: 'table' },
+          background: '#1A2D37',
+          view: { fill: '#111F27', stroke: '#111F27', cornerRadius: 10, stroke: '#2B3F4A', strokeWidth: 10 },
+          padding: { left: 15, top: 15, right: 15, bottom: 15 },
+          autosize: { resize: 'true' },
+        },
+        data: dataCopy,
+      };
 
-    // if (this.countPollingIterval) clearInterval(this.countPollingIterval);
-    // this.countPollingIterval = setInterval(() => {
-    //   this.setState(
-    //     (prevState) =>
-    //       getdbPromData(prevState, this.getTime()));
-    // }, 1000);
+      return result;
+    };
+
+    if (this.countPollingIterval) clearInterval(this.countPollingIterval);
+    this.countPollingIterval = setInterval(() => {
+      this.setState((prevState) => getdbPromData(prevState, this.getTime()));
+    }, 1000);
 
     const getdbFrequencyData = (prev, actTimeUTC) => {
       let actTime = actTimeUTC.toISOString().substring(0, 19);
@@ -354,11 +316,13 @@ export default class Microphone extends Component {
 
       let ampArray = this.dataArray;
 
-      if (!prev.data3D.table || ampArray[0] === -Infinity) {
+      if (!prev.data.table || ampArray[0] === -Infinity) {
         return {};
       }
 
       const halfSR = this.audioContext.sampleRate / 2;
+
+      this.setState({ counter: this.counter + 1 });
 
       // data.
       let dataCopy = { table: [] };
@@ -457,10 +421,10 @@ export default class Microphone extends Component {
       return result;
     };
 
-    if (this.countPollingIterval) clearInterval(this.countPollingIterval);
-    this.countPollingIterval = setInterval(() => {
-      this.setState((prevState) => getdbFrequencyData(prevState, this.getTimeUTCformat()));
-    }, 1000);
+    // if (this.countPollingIterval) clearInterval(this.countPollingIterval);
+    // this.countPollingIterval = setInterval(() => {
+    //   this.setState((prevState) => getdbFrequencyData(prevState, this.getTimeUTCformat()));
+    // }, 1000);
   };
 
   componentDidUpdate = () => {};
@@ -477,6 +441,11 @@ export default class Microphone extends Component {
     this.songSource.connect(this.masterGain);
     this.masterGain.connect(this.audioContext.destination);
     this.loadModule();
+  }
+
+  changeVolume(id) {
+    const volumeControl = document.getElementById(id);
+    return volumeControl.value;
   }
 
   encodeAudio(buffers) {
@@ -553,37 +522,32 @@ export default class Microphone extends Component {
     console.log(this.audioRecorder);
   }
 
-  // async loadVMeter(ctx, source) {
-  //   try {
-  //     await ctx.audioWorklet.addModule(process.env.PUBLIC_URL + '/worklets/vmeter.js');
-  //     console.log(`loaded module: vmeter-processor.js`);
-  //   } catch (e) {
-  //     console.log(`Failed to load module: vmeter-processor.js: `, e);
-  //   }
-  //   this.audioVolume = new AudioWorkletNode(ctx, 'vmeter-processor');
+  async loadVMeter(ctx, source) {
+    try {
+      await ctx.audioWorklet.addModule(process.env.PUBLIC_URL + '/worklets/vmeter.js');
+      console.log(`loaded module: vmeter-processor.js`);
+    } catch (e) {
+      console.log(`Failed to load module: vmeter-processor.js: `, e);
+    }
+    this.audioVolume = new AudioWorkletNode(ctx, 'vmeter-processor');
 
-  //   this.audioVolume.port.onmessage = (event) => {
-  //     let _volume = 0;
-  //     let _sensibility = 5; // Just to add any sensibility to our ecuation
-  //     if (event.data.volume) _volume = event.data.volume;
-  //     // this.leds((_volume * 100) / _sensibility);
-  //     // console.log(_volume);
-  //     this.setState({ actualDb: _volume });
+    this.audioVolume.port.onmessage = (event) => {
+      let _volume = 0;
+      let _sensibility = 5; // Just to add any sensibility to our ecuation
+      if (event.data.volume) _volume = event.data.volume;
+      // this.leds((_volume * 100) / _sensibility);
+      // console.log(_volume);
+      this.setState({ actualDb: _volume });
 
-  //     // source.connect(this.analyser);
-  //     // this.analyser.connect(ctx.destinaticonsoleon);
-  //     // this.analyser.getFloatFrequencyData(this.dataArray);
-  //     // console.log(this.dataArray);
-  //   };
-  //   this.audioVolume.port.start(); // <7>
+      // source.connect(this.analyser);
+      // this.analyser.connect(ctx.destinaticonsoleon);
+      // this.analyser.getFloatFrequencyData(this.dataArray);
+      // console.log(this.dataArray);
+    };
+    this.audioVolume.port.start(); // <7>
 
-  //   source.connect(this.audioVolume); // <8>
-  //   this.audioVolume.connect(ctx.destination);
-  // }
-
-  changeVolume(id) {
-    const volumeControl = document.getElementById(id);
-    return volumeControl.value;
+    source.connect(this.audioVolume); // <8>
+    this.audioVolume.connect(ctx.destination);
   }
 
   appearInputdBLimit() {
@@ -689,22 +653,21 @@ export default class Microphone extends Component {
           <div className={styles.monserratFontTitle}> ALARM STORY</div>
 
           {/* Vega 2D plot: dB prom vs t*/}
-          {/* <div> 
+          <div>
             <br></br>
-              <VegaLite style={{ display: 'flex',}} renderer="svg" spec={this.state.spec} data={this.state.data}/>
+            <VegaLite style={{ display: 'flex' }} renderer="svg" spec={this.state.spec} data={this.state.data} />
             <br></br>
-          </div> */}
+          </div>
 
           {/* Vega 3D plot: dB vs F vs t */}
-
+          {/* 
           <div>
             <br></br>
             <VegaLite style={{ display: 'flex' }} renderer="svg" spec={this.state.spec3D} data={this.state.data3D} />
             <br></br>
-          </div>
+          </div> */}
 
           {/* HASTA ACÁ */}
-
           <div>
             <input
               onChange={() => {
