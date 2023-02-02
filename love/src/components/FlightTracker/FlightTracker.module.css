@@ -5,8 +5,8 @@
   justify-content: center;
 }
 .ftComponent {
-  padding-block: 2em;
-  padding-inline: 1em;
+  padding-top: 2em;
+  padding-inline: 0.25em;
 }
 
 .Div {
@@ -38,6 +38,7 @@ td.statusColumn {
 .divLastUp {
   text-align: left;
   font-size: 80%;
+  margin-block: 1em;
 }
 
 .mapDiv {
@@ -99,25 +100,29 @@ td.statusColumn {
 
 .divElement {
   width: 100%;
-  margin-block: 15px;
-  overflow-y: scroll;
-  max-height: 10em;
+  display: grid;
+  justify-content: center;
 }
 .mapContainer {
-  height: 50%;
-  width: 50%;
-  display: inline-flex;
+  width: 80%;
+  display: inline-grid;
 }
 
 .zoomDiv {
   display: flex;
-  width: 7.5%;
+  position: relative;
+  margin-top: -4em;
 }
 
 .zoom {
   box-shadow: 0.5% 1% 2px 1px rgba(100, 112, 115, 0.444);
   touch-action: manipulation;
   cursor: pointer;
+}
+
+.table {
+  overflow-y: scroll;
+  max-height: 10em;
 }
 
 /* DEFAULT */
@@ -153,6 +158,6 @@ td.statusColumn {
   display: inline;
   border-radius: 15%;
   padding: 0.3em;
-  height: 4em;
-  width: 4em;
+  height: 3.5em;
+  width: 3.5em;
 }

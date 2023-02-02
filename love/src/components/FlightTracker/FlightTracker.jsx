@@ -26,6 +26,7 @@ export default class FlightTracker extends Component {
       lastUpdate: 0,
       planesDistance: {},
       zoom: '200',
+      renderPlanes: null,
     };
   }
 
@@ -48,6 +49,10 @@ export default class FlightTracker extends Component {
 
     const d = earthRadius * c; // in km
     return d;
+  };
+
+  getRenderPlanes = (funct) => {
+    this.setState({ renderPlanes: funct });
   };
 
   componentDidUpdate = (prevProps, prevState) => {
@@ -203,10 +208,16 @@ export default class FlightTracker extends Component {
       {
         field: 'latitude',
         title: 'Latitude',
+        render: (value) => {
+          return Math.round(value * 100) / 100;
+        },
       },
       {
         field: 'longitude',
         title: 'Longitude',
+        render: (value) => {
+          return Math.round(value * 1000) / 1000;
+        },
       },
       {
         field: 'distance',
@@ -240,6 +251,7 @@ export default class FlightTracker extends Component {
         distance: [Math.round(this.state.planesDistance[id]) ?? 'undefined', this.state.planesState[id] ?? 'undefined'],
       });
     });
+    this.state.renderPlanes !== null ? this.state.renderPlanes(tableData) : '';
 
     const dateNow = Date.now();
     let timerLength = 0;
@@ -253,7 +265,6 @@ export default class FlightTracker extends Component {
 
     return (
       <div className={styles.ftComponent}>
-        <div className={styles.divLastUp}>Last Update: {Math.round((dateNow - this.state.lastUpdate) / 1000)}seg</div>
         <div className={styles.container}>
           <div className={styles.statusDiv}>
             <div className={styles.statusDivElement}>
@@ -282,26 +293,38 @@ export default class FlightTracker extends Component {
         </div>
         <br></br>
         <div className={styles.mapContainer}>
-          <MapFlightTracker planes={tableData} zoom={this.state.zoom}></MapFlightTracker>
-        </div>
-
-        <div className={styles.zoomDiv}>
-          <Button className={styles.iconBtn} title="Zoom" onClick={this.zoomOut} disabled={false} status="transparent">
-            <ZoomOut /*onClick={this.zoomIn}*/ className={styles.zoom}></ZoomOut>
-          </Button>
-          <Button
-            className={styles.iconBtn}
-            title="ZoomOut"
-            onClick={this.zoomIn}
-            disabled={false}
-            status="transparent"
-          >
-            <ZoomIn /*onClick={this.zoomIn}*/ className={styles.zoom}></ZoomIn>
-          </Button>
+          <MapFlightTracker
+            planes={tableData}
+            zoom={this.state.zoom}
+            getRenderPlanes={this.getRenderPlanes}
+          ></MapFlightTracker>
+          <div className={styles.zoomDiv}>
+            <Button
+              className={styles.iconBtn}
+              title="Zoom"
+              onClick={this.zoomOut}
+              disabled={false}
+              status="transparent"
+            >
+              <ZoomOut /*onClick={this.zoomIn}*/ className={styles.zoom}></ZoomOut>
+            </Button>
+            <Button
+              className={styles.iconBtn}
+              title="ZoomOut"
+              onClick={this.zoomIn}
+              disabled={false}
+              status="transparent"
+            >
+              <ZoomIn /*onClick={this.zoomIn}*/ className={styles.zoom}></ZoomIn>
+            </Button>
+          </div>
         </div>
         <br></br>
         <div className={styles.divElement}>
-          <SimpleTable headers={headers} data={tableData} className={styles.table}></SimpleTable>
+          <div className={styles.table}>
+            <SimpleTable headers={headers} data={tableData}></SimpleTable>
+          </div>
+          <div className={styles.divLastUp}>LAST UPDATE: {Math.round((dateNow - this.state.lastUpdate) / 1000)}SEC</div>
         </div>
       </div>
     );
