@@ -9,6 +9,8 @@ import Input from '../GeneralPurpose/Input/Input';
 import styles from './Microphone.module.css';
 import { VegaLite } from 'react-vega';
 import { DateTime } from 'luxon';
+import { act } from 'react-dom/test-utils';
+import moment from 'moment';
 
 export default class Microphone extends Component {
   static propTypes = {
@@ -31,7 +33,22 @@ export default class Microphone extends Component {
       alarms: {},
 
       play: false,
+
       first: true,
+
+      actualDb: 0,
+
+      actualFreq: 0,
+
+      initialTime: '',
+
+      dbLimit: 0.1,
+
+      ampArray: [],
+
+      timeArray: [],
+
+      counter: 0,
 
       spec: {
         width: 1000,
@@ -113,38 +130,33 @@ export default class Microphone extends Component {
         background: '#1A2D37',
         view: { fill: '#111F27', stroke: '#111F27', cornerRadius: 10, stroke: '#2B3F4A', strokeWidth: 10 },
         padding: { left: 15, top: 15, right: 15, bottom: 15 },
-        autosize: { resize: 'true' },
         data: { name: 'table' },
         autosize: { resize: 'true' },
       },
       data: { table: [] },
 
       spec3D: {
-        width: 700,
-        height: 700,
-        mark: { type: 'rect' },
+        width: 500,
+        height: 500,
         data: { name: 'table' },
+        mark: { type: 'bar' },
         encoding: {
-          x: { field: 't', type: 'temporal', axis: { title: 'Time', format: '%H:%M:%S', tickCount: 5 } },
+          x: { field: 't', type: 'temporal', axis: { title: 'Time', format: '%H:%M:%S', tickCount: 5, grid: true } },
           y: {
             field: 'f',
             type: 'quantitative',
-            axis: {
-              title: 'Frequency [Hz]',
-            },
-            scale: { domain: [0, 1024] },
+            axis: { title: 'Frequency [Hz]', grid: true },
+            scale: { domain: [0, this.bufferLength + 1] },
           },
-          color: { type: 'quantitative', field: 'amp' },
+          color: { type: 'quantitative', field: 'amp', scale: { scheme: 'plasma' } },
         },
       },
+
       data3D: { table: [] },
 
-      actualDb: 0,
-      initialTime: '',
-      dbLimit: 0.1,
-      ampArray: [],
-      timeArray: [],
       counter: 0,
+
+      first: true,
     };
 
     // ========================================================
@@ -158,15 +170,18 @@ export default class Microphone extends Component {
     this.songPlaying = false;
     this.song = new Audio(source);
     this.songSource = this.audioContext.createMediaElementSource(this.song);
+
     this.analyser = this.audioContext.createAnalyser();
-    this.analyser.fftSize = 2048;
-    this.bufferLength = this.analyser.frequencyBinCount;
+    this.analyser.fftSize = 1024; // sampling rate.
+    this.bufferLength = this.analyser.frequencyBinCount; // frequency band.
     this.dataArray = new Float32Array(this.bufferLength);
+    this.windowTimePlot = 30;
+    this.frequencyData = Array.from({ length: this.bufferLength }, (_, index) => index);
+    this.countPollingIterval;
+
     this.audioRecorder;
     this.audioVolume;
     this.buffers;
-    this.countPollingIterval;
-    this.frequencyData = Array.from({ length: this.analyser.fftSize / 2 }, (_, index) => index + 1);
   }
 
   componentDidMount = () => {
@@ -174,10 +189,12 @@ export default class Microphone extends Component {
     this.masterGain.gain.value = 0;
 
     this.songSource.connect(this.analyser);
+    this.analyser.connect(this.audioContext.destination);
+
     this.analyser.connect(this.masterGain);
     this.masterGain.connect(this.audioContext.destination);
 
-    this.loadVMeter(this.audioContext, this.songSource);
+    // this.loadVMeter(this.audioContext, this.songSource);
     this.loadModule(this.audioContext, this.songSource);
 
     // PLOT 2D;
@@ -323,65 +340,97 @@ export default class Microphone extends Component {
     // }, 1000);
 
     // PLOT 3D;
-    const getdbFrequencyData = (prev, actTime) => {
+    const getdbFrequencyData = (prev, actTimeUTC) => {
+      let actTime = actTimeUTC.toISOString().substring(0, 19);
+      let nextTime = this.obtainNextTimeInSeconds(actTimeUTC);
+
       this.analyser.getFloatFrequencyData(this.dataArray);
+
       let ampArray = this.dataArray;
 
       if (!prev.data.table || ampArray[0] === -Infinity) {
         return {};
       }
+
+      const halfSR = this.audioContext.sampleRate / 2;
+
+      this.setState({ counter: this.counter + 1 });
+
+      // data.
       let dataCopy = { table: [] };
-      dataCopy.table = prev.data.table;
+      dataCopy.table = prev.data3D.table;
 
-      let newTimeArray;
-      newTimeArray = this.state.timeArray;
-      newTimeArray.push(actTime);
-      this.setState({ timeArray: newTimeArray });
-
-      if (this.state.timeArray.length === 1) {
-        this.setState({ initialTime: actTime });
-      }
-
-      let newInitialTime;
-      newInitialTime = this.state.initialTime;
+      let mindB = -Infinity;
+      let freqMindB = 0;
 
       let freqAmpArray = this.frequencyData.map(function (freq, i) {
-        return { t: actTime, f: freq, amp: ampArray[i] };
+        let index = Math.round((freq / halfSR) * ampArray.length);
+        if (Math.abs(ampArray[index]) > min) {
+          min = ampArray[index];
+          freqMindB = index;
+        }
+        return { t_min: actTime, t_max: nextTime, f_min: freq, f_max: freq + 1, amp: ampArray[index] };
       });
 
       dataCopy.table = [...dataCopy.table, ...freqAmpArray];
 
-      if (this.state.timeArray.length === 6) {
-        dataCopy.table = dataCopy.table.splice(0, 1024);
-        let newt = newTimeArray.shift();
+      this.setState({ actualDb: min });
+
+      // timing.
+      let timeDomain;
+      let newInitialTime;
+      let newTimeArray;
+
+      newTimeArray = this.state.timeArray;
+      newTimeArray.push(actTime);
+      this.setState({ timeArray: newTimeArray });
+
+      // set window time.
+      if (this.state.timeArray.length === this.windowTimePlot) {
+        dataCopy.table.splice(0, this.bufferLength);
+        newTimeArray.shift();
         this.setState({ timeArray: newTimeArray });
-        newInitialTime = newTimeArray[0];
+        this.setState({ initialTime: newTimeArray[0] });
       }
 
+      if (this.state.timeArray.length === 1) {
+        this.setState({ initialTime: actTime });
+        timeDomain = [actTime, nextTime];
+      } else {
+        newInitialTime = newTimeArray[0];
+        timeDomain = [newInitialTime, nextTime];
+      }
+
+      // we return vega lite parameter with changes.
       const result = {
         spec3D: {
-          width: 700,
-          height: 700,
-          mark: { type: 'rect' },
+          width: 500,
+          height: 500,
           data: { name: 'table' },
+          mark: { type: 'rect' },
           encoding: {
             x: {
-              field: 't',
+              field: 't_min',
               type: 'temporal',
-              axis: { title: 'Time', format: '%H:%M:%S', tickCount: 5 },
-              scale: { domain: [newInitialTime, actTime] },
+              axis: { title: 'Time', format: '%H:%M:%S', tickCount: this.windowTimePlot - 1, grid: true },
+              scale: { domain: timeDomain },
+            },
+            x2: {
+              field: 't_max',
+              type: 'temporal',
+              axis: { title: 'Time', format: '%H:%M:%S', tickCount: this.windowTimePlot - 1, grid: true },
             },
             y: {
-              field: 'f',
+              field: 'f_min',
               type: 'quantitative',
-              axis: {
-                title: 'Frequency [Hz]',
-              },
-              scale: { domain: [0, 1024] },
+              axis: { title: 'Frequency [Hz]', grid: true, labels: true },
+              scale: { domain: [0, this.bufferLength + 1] },
             },
-            color: { type: 'quantitative', field: 'amp' },
+            y2: { field: 'f_max', type: 'quantitative', axis: { title: 'Frequency [Hz]', grid: true, labels: true } },
+            color: { type: 'quantitative', field: 'amp', scale: { scheme: 'plasma' } },
           },
         },
+
         data3D: dataCopy,
       };
 
@@ -390,9 +439,15 @@ export default class Microphone extends Component {
 
     if (this.countPollingIterval) clearInterval(this.countPollingIterval);
     this.countPollingIterval = setInterval(() => {
-      this.setState((prevState) => getdbFrequencyData(prevState, this.getTime()));
+      this.setState((prevState) => getdbFrequencyData(prevState, this.getTimeUTCformat()));
     }, 1000);
   };
+
+  getFrecuencyValue(frecuency, dataArray) {
+    const nyquist = this.bufferLength;
+    const index = Math.round((frequency / nyquist) * dataArray.length);
+    return dataArray[index];
+  }
 
   componentDidUpdate = () => {};
 
@@ -400,7 +455,7 @@ export default class Microphone extends Component {
     this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
     this.masterGain = this.audioContext.createGain();
     this.songPlaying = false;
-    this.song = new Audio('https://redirector.dps.live/biobiosantiago/mp3/icecast.audio');
+    this.song = new Audio('https://playerservices.streamtheworld.com/api/livestream-redirect/CORAZON_SC');
 
     this.songSource = this.audioContext.createMediaElementSource(this.song);
     this.song.crossOrigin = 'anonymous';
@@ -507,7 +562,7 @@ export default class Microphone extends Component {
       this.setState({ actualDb: _volume });
 
       // source.connect(this.analyser);
-      // this.analyser.connect(ctx.destination);
+      // this.analyser.connect(ctx.destinaticonsoleon);
       // this.analyser.getFloatFrequencyData(this.dataArray);
       // console.log(this.dataArray);
     };
@@ -515,20 +570,6 @@ export default class Microphone extends Component {
 
     source.connect(this.audioVolume); // <8>
     this.audioVolume.connect(ctx.destination);
-  }
-
-  getTime() {
-    const date = new Date();
-    var now_utc = Date.UTC(
-      date.getUTCFullYear(),
-      date.getUTCMonth(),
-      date.getUTCDate(),
-      DateTime.local().c.hour,
-      DateTime.local().c.minute,
-      DateTime.local().c.second,
-    );
-
-    return new Date(now_utc).toISOString().substring(0, 19);
   }
 
   appearInputdBLimit() {
@@ -573,8 +614,43 @@ export default class Microphone extends Component {
     }
   }
 
+  getTime() {
+    const date = new Date();
+    var now_utc = Date.UTC(
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate(),
+      DateTime.local().c.hour,
+      DateTime.local().c.minute,
+      DateTime.local().c.second,
+    );
+
+    return new Date(now_utc).toISOString().substring(0, 19);
+  }
+
+  getTimeUTCformat() {
+    const date = new Date();
+    var now_utc = Date.UTC(
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate(),
+      DateTime.local().c.hour,
+      DateTime.local().c.minute,
+      DateTime.local().c.second,
+    );
+
+    return new Date(now_utc);
+  }
+
+  obtainNextTimeInSeconds(actTime) {
+    const date = moment(actTime).add(1, 'seconds');
+    return new Date(date.utc()._d).toISOString().substring(0, 19);
+  }
+
   render() {
-    // console.log(this.state.data)
+    // console.log(this.state.data3D.table)
+    // const time = this.getTimeUTCformat();
+    // console.log(time, this.obtainNextTimeInSeconds(time));
     return (
       <>
         <div className={styles.alarmContainer}>

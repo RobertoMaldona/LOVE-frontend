@@ -12,6 +12,7 @@ const RADIOSLINK = {
   corazon: 'https://playerservices.streamtheworld.com/api/livestream-redirect/CORAZON_SC',
   adn:
     'https://24383.live.streamtheworld.com/ADN_SC?DIST=TuneIn&TGT=TuneIn&maxServers=2&gdpr=0&us_privacy=1YNY&partnertok=eyJhbGciOiJIUzI1NiIsImtpZCI6InR1bmVpbiIsInR5cCI6IkpXVCJ9.eyJ0cnVzdGVkX3BhcnRuZXIiOnRydWUsImlhdCI6MTYzMzM5MjExNiwiaXNzIjoidGlzcnYifQ.apBDljw5PC4GQwEls0GoHYCMKg91TAZrYLziiqLdh1U',
+  newSound: 'http://localhost/media/1KHz.mp3',
 };
 
 export default class Mics extends Component {
@@ -42,7 +43,7 @@ export default class Mics extends Component {
       <>
         <div className={styles.mics}>
           <div className={styles.micX}>
-            <Microphone source={RADIOSLINK.biobio} show={false} id={'mic1'} dbLimit={dbLimit}></Microphone>
+            <Microphone source={RADIOSLINK.futuro} show={false} id={'mic1'} dbLimit={dbLimit}></Microphone>
           </div>
           {/* <div className={styles.micX}>
             <Microphone source={RADIOSLINK.adn} show={false} id={'mic2'}></Microphone>
