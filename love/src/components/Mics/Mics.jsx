@@ -18,6 +18,7 @@ const RADIOSLINK = {
   corazon: 'https://playerservices.streamtheworld.com/api/livestream-redirect/CORAZON_SC',
   adn:
     'https://24383.live.streamtheworld.com/ADN_SC?DIST=TuneIn&TGT=TuneIn&maxServers=2&gdpr=0&us_privacy=1YNY&partnertok=eyJhbGciOiJIUzI1NiIsImtpZCI6InR1bmVpbiIsInR5cCI6IkpXVCJ9.eyJ0cnVzdGVkX3BhcnRuZXIiOnRydWUsImlhdCI6MTYzMzM5MjExNiwiaXNzIjoidGlzcnYifQ.apBDljw5PC4GQwEls0GoHYCMKg91TAZrYLziiqLdh1U',
+  newSound: 'http://localhost/media/1KHz.mp3',
 };
 
 export default class Mics extends Component {
@@ -154,111 +155,7 @@ export default class Mics extends Component {
               <span className={styles.spanMicAvailable}> AVAILABLE MICROPHONES</span>
             </div>
             <Table mics={this.state.mics} selectMic={this.selectMic} recordPush={this.recordPush}></Table>
-            {/* <table>
-              <colgroup span="2" />
-              <col />
-              <col />
-              <col />
-              <tr>
-                <th colSpan="2" scope="colgroup" className={styles.thLocMic}>
-                  <span className={styles.locationMic}>MAIN TELESCOPE</span>
-                </th>
-
-                <th scope="col">
-                  <span className={styles.headers}> MIC STATUS </span>
-                </th>
-                <th scope="col">
-                  <span className={styles.headers}>NOTIFICATIONS</span>
-                </th>
-                <th scope="col">
-                  <span className={styles.headers}>ALARM</span>
-                </th>
-              </tr>
-              {this.state.mics.map((m) => {
-                if (m.loc === 'mainTelescope') {
-                  return (
-                    <>
-                      <Microphone
-                        source={m.src}
-                        id={m.id}
-                        selectMic={(mic) => this.selectMic(mic)}
-                        recordPush={(id, currentTime, url, blob) => this.recordPush(id, currentTime, url, blob)}
-                      ></Microphone>
-                    </>
-                  );
-                }
-              })}
-
-              <br />
-
-              <colgroup span="2" />
-              <col />
-              <col />
-              <col />
-              <tr>
-                <th colSpan="2" scope="colgroup" className={styles.thLocMic}>
-                  <span className={styles.locationMic}>AUXIALARY TELESCOPE</span>
-                </th>
-
-                <th scope="col">
-                  <span className={styles.headers}> MIC STATUS </span>
-                </th>
-                <th scope="col">
-                  <span className={styles.headers}>NOTIFICATIONS</span>
-                </th>
-                <th scope="col">
-                  <span className={styles.headers}>ALARM</span>
-                </th>
-              </tr>
-              {this.state.mics.map((m) => {
-                if (m.loc === 'auxilaryTelescope') {
-                  return (
-                    <Microphone
-                      source={m.src}
-                      id={m.id}
-                      selectMic={(mic) => this.selectMic(mic)}
-                      recordPush={(id, currentTime, url, blob) => this.recordPush(id, currentTime, url, blob)}
-                    ></Microphone>
-                  );
-                }
-              })}
-
-              <br />
-
-              <colgroup span="2" />
-              <col />
-              <col />
-              <col />
-              <tr>
-                <th colSpan="2" scope="colgroup" className={styles.thLocMic}>
-                  <span className={styles.locationMic}>SUMMIT FACILITY</span>
-                </th>
-
-                <th scope="col">
-                  <span className={styles.headers}> MIC STATUS </span>
-                </th>
-                <th scope="col">
-                  <span className={styles.headers}>NOTIFICATIONS</span>
-                </th>
-                <th scope="col">
-                  <span className={styles.headers}>ALARM</span>
-                </th>
-              </tr>
-              {this.state.mics.map((m) => {
-                if (m.loc === 'summitFacility') {
-                  return (
-                    <Microphone
-                      source={m.src}
-                      id={m.id}
-                      selectMic={(mic) => this.selectMic(mic)}
-                      recordPush={(id, currentTime, url, blob) => this.recordPush(id, currentTime, url, blob)}
-                    ></Microphone>
-                  );
-                }
-              })}
-            </table> */}
           </div>
-
           <PeleableMicDetail
             peelableDetailCss={peelableDetail}
             currentMic={this.state.currentMic}
@@ -275,11 +172,6 @@ export default class Mics extends Component {
             textRec={textRec}
           ></PeleableMicDetail>
         </div>
-
-        {/* THEME... LUEGO QUITAR  */}
-        {/* <div>
-          <button onClick={async () => this.changeTheme()}>Change Theme</button>
-        </div> */}
       </div>
     );
   }

@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "web-audio-recorder-js": "^0.0.2"
+  }
+}

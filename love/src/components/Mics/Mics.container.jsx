@@ -27,8 +27,8 @@ export const schema = {
   },
 };
 
-const MicsContainer = ({ ...props }) => {
-  return <Mics {...props} />;
+const MicsContainer = () => {
+  return <Mics />;
 };
 
 export default MicsContainer;

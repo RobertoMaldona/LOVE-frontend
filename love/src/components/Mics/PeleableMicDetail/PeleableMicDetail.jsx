@@ -3,11 +3,12 @@ import PropTypes from 'prop-types';
 import styles from './PeleableMicDetail.module.css';
 import Slider from 'components/GeneralPurpose/Slider/Slider';
 import Record from './Record';
+import HeatMap from './HeatMap/HeatMap';
 
 export default class PeleableMicDetail extends Component {
   static propTypes = {
-    peelableDetailCss: PropTypes.string,
     currentMic: PropTypes.object,
+    peelableDetailCss: PropTypes.string,
     closeMicDetails: PropTypes.func,
     play: PropTypes.func,
     setVolume: PropTypes.func,
@@ -23,8 +24,8 @@ export default class PeleableMicDetail extends Component {
 
   render() {
     const {
-      peelableDetailCss,
       currentMic,
+      peelableDetailCss,
       closeMicDetails,
       play,
       setVolume,
@@ -37,6 +38,9 @@ export default class PeleableMicDetail extends Component {
       textPlay,
       textRec,
     } = this.props;
+    console.log(currentMic);
+    let { actualFreq, actualDb, appearInputdBLimit, setDbLimitState, dbLimit, spec3D, data3D } = currentMic ?? {};
+
     return (
       <div className={peelableDetailCss}>
         <div className={styles.divTitleSection}>
@@ -54,7 +58,17 @@ export default class PeleableMicDetail extends Component {
             </div>
           </div>
 
-          <div>PLOT</div>
+          <div>
+            <HeatMap
+              actualFreq={actualFreq}
+              actualDb={actualDb}
+              appearInputdBLimit={appearInputdBLimit}
+              setDbLimitState={setDbLimitState}
+              dbLimit={dbLimit}
+              spec3D={spec3D}
+              data3D={data3D}
+            ></HeatMap>
+          </div>
           <div className={styles.audioStream}>
             <span className={[styles.detailsTitle, styles.headers].join(' ')}>AUDIO STREAMING</span>
             <div className={styles.aStreamContent}>
