@@ -1,0 +1,37 @@
+.container0 {
+  flex-wrap: wrap-reverse;
+}
+
+.container1 {
+  display: flex;
+  justify-content: space-around;
+}
+
+.flexStyle {
+  flex-wrap: wrap-reverse;
+}
+
+.LiveValue {
+  color: #f0e400;
+}
+
+.hideInputDiv {
+  width: 20%;
+  height: 20%;
+}
+
+.hideInput {
+  display: none;
+}
+
+.svgEdit {
+  fill: none;
+  stroke: #8c9da6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.editButtondBLimit {
+  width: 0.7rem;
+  height: 1.2rem;
+}

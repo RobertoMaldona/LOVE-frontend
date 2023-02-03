@@ -402,6 +402,10 @@ export const utilitiesIndex = {
     component: require('../GeneralPurpose/Plot/Plot.container').default,
     schema: require('../GeneralPurpose/Plot/Plot.container').schema,
   },
+  LimitTimeSeriesPlot: {
+    component: require('../GeneralPurpose/Plot/LimitTimeSeriesPlot/LimitTimeSeriesPlot.container').default,
+    schema: require('../GeneralPurpose/Plot/LimitTimeSeriesPlot/LimitTimeSeriesPlot.container').schema,
+  },
   PolarPlot: {
     component: require('../GeneralPurpose/Plot/PolarPlot/PolarPlot.container').default,
     schema: require('../GeneralPurpose/Plot/PolarPlot/PolarPlot.container').schema,
