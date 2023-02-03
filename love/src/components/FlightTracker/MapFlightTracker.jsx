@@ -15,6 +15,13 @@ import * as ReactDOM from 'react-dom';
 import { style, svg, zoom } from 'd3';
 
 export default class MapFlightTracker extends Component {
+  static propTypes = {
+    /* Planes data with the distance to the center */
+    planes: PropTypes.object,
+    /* Level of maps zoom*/
+    zoom: PropTypes.string,
+  };
+
   constructor(props) {
     super(props);
     this.ref = React.createRef();
@@ -22,11 +29,19 @@ export default class MapFlightTracker extends Component {
 
   componentDidMount = () => {
     this.insertTooltip();
-    this.props.getRenderPlanes(this.addPlanes);
   };
 
-  componentWillUnmount = () => {};
+  componentDidUpdate = (prevProps, prevState) => {
+    const { zoom } = this.props;
+    if (zoom !== prevProps.zoom) this.insertTooltip();
+  };
 
+  /**
+   * @param {*} latitude
+   * @param {*} longitude
+   * @param {*} zoom: the zoom that represent the actual map rendering
+   * @returns the coordinates for the svg of the map according to its latitude and longitude
+   */
   cordsPlaneInMap(latitude, longitude, zoom) {
     const width = 500;
     const height = 500;
@@ -34,11 +49,11 @@ export default class MapFlightTracker extends Component {
     if (zoom === '160') scale = 16.05;
     else if (zoom === '100') scale = 25.2;
 
-    const projection = d3
+    let projection = d3
       .geoMercator()
       .center([-70.73709442008416, -30.240476801377167])
       .scale(width * scale) // scale; 13 - 200 km,  16.05 -160 km and 25.2 -100 km.
-      .translate([width / 2, height / 2]);
+      .translate([width / 2, height / 2 + 15 / (scale / 13)]);
 
     return projection([latitude, longitude]);
   }
@@ -173,7 +188,7 @@ export default class MapFlightTracker extends Component {
             .append('path')
             .attr('id', 'telescopeIconP')
             .attr('d', pathTelescope)
-            .attr('transform', `translate(${width / 2 - 31.4 / 2},${height / 2 - 30.38 / 2})  scale(0.5)`)
+            .attr('transform', `translate(${width / 2 - 31.4 / 2}px,${height / 2 - 30.38 / 2}px)  scale(0.5)`)
             .style('fill', '#bcd8e2')
             .style('stroke', '#bcd8e2');
 
@@ -217,15 +232,14 @@ export default class MapFlightTracker extends Component {
     if (status !== 'running') color = `var(--status-${status}-dimmed-color-2`;
 
     var rotateRandom = Math.floor(Math.random() * 360);
-    const scale = 1;
+    const scale = 0.75;
     const sizeBox = 14.5 * scale; //size of the path's box
+    // const sizeBox = 0;
 
     /* Path plane */
     const dPlane =
       'm 14.83626,1023.9633 c -1.27638,-0.022 -2.23322,1.3945 -1.93048,2.5893 -0.0106,2.3825 0.0254,4.5399 -0.0211,6.9222 -0.86563,0.724 -1.95196,1.1101 -2.84804,1.7935 -2.6499502,1.6543 -5.3834402,3.1905 -7.9741805,4.9298 -0.52658,1.0194 -0.12448,2.19 -0.25868,3.2744 0.11289,0.5899 0.9093903,0.7624 1.3520503,0.4239 3.29418,-1.0185 6.53329,-2.2113 9.8415802,-3.184 -0.0136,1.2588 0.0536,2.5172 0.0159,3.7764 -0.0278,0.3845 0.0353,0.8094 -0.0793,1.1678 -0.73435,0.8237 -1.95869,1.1927 -2.42191,2.2475 -0.15271,0.6859 -0.0237,1.3982 -0.0669,2.0926 0.0545,0.4878 0.57437,0.9328 1.06023,0.7042 0.96241,-0.3065 1.93965,-0.5659 2.88352,-0.9103 0.49901,-0.1817 1.0366,-0.1155 1.51212,0.093 1.06199,0.324 2.1249,0.8298 3.24892,0.8142 0.5432,-0.2545 0.45447,-0.9487 0.40024,-1.437 0.0965,-0.7182 0.11746,-1.6418 -0.57108,-2.084 -0.65138,-0.5245 -1.36097,-0.9863 -1.96573,-1.5694 -0.0402,-1.6279 -0.0903,-3.3324 0.0123,-4.9143 1.26835,0.4358 2.56344,0.7925 3.82879,1.2414 2.24148,0.7382 4.46719,1.5504 6.75364,2.1317 0.57349,-0.097 0.70865,-0.8342 0.54603,-1.3122 -0.02,-0.838 0.23484,-1.7759 -0.23779,-2.5329 -1.9355,-1.3961 -4.08122,-2.4651 -6.08613,-3.7567 -1.61971,-0.9718 -3.23783,-1.9463 -4.85386,-2.9243 -0.1822,-1.0478 0.0511,-2.1208 -0.0622,-3.1775 -0.008,-1.8175 0.13456,-3.4277 -0.16148,-5.2296 -0.32567,-0.7305 -1.12107,-1.2029 -1.91639,-1.1695 z';
-
     const svg = d3.select('#mapTelescope');
-    // if(!svg) return;
 
     /* Color of circles*/
     if (distance[0] < 100) {
@@ -243,6 +257,8 @@ export default class MapFlightTracker extends Component {
     svg
       .append('g')
       .attr('id', `id${id}`)
+      // .style('transform-box', 'fill-box')
+      // .style('transform-origin', 'center center')
       .attr(
         'transform',
         `scale(${scale}) translate(${(cordx - sizeBox) / scale}, ${-1022.3622 + (cordy - sizeBox) / scale})`,
@@ -254,9 +270,9 @@ export default class MapFlightTracker extends Component {
       .style('fill', color)
       .style('opacity', '100%')
       .style('stroke', 'none')
-      .style('transform-box', 'fill-box')
-      .style('transform-origin', 'center center')
-      .style('rotate', `${rotateRandom}deg`)
+      // .style('transform-box', 'fill-box')
+      // .style('transform-origin', 'center center')
+      // .style('rotate', `${rotateRandom}deg`)
       .on('mouseover', function () {
         return tooltip
           .style('visibility', 'visible')
@@ -282,13 +298,31 @@ export default class MapFlightTracker extends Component {
       .style('transform-box', 'fill-box')
       .style('rotate', `${rotateRandom}deg`);
 
-    // svg
-    //   .append('circle')
-    //   .attr('id', 'point')
-    //   .attr('cx', `${cordx}`)
-    //   .attr('cy', `${cordy}`)
-    //   .attr('r', '2')
-    //   .attr('fill', 'orange');
+    const coord160 = this.cordsPlaneInMap(-70.455929982759, -31.0853237055783, zoom);
+    const long_lat_serena = [-71.25715298618236, -29.89192170340795];
+    const coords_serena = this.cordsPlaneInMap(-70.73709442008416, -30.240476801377167, zoom);
+    svg
+      .append('circle')
+      .attr('id', 'point')
+      .attr('cx', `${coords_serena[0]}`)
+      .attr('cy', `${coords_serena[1]}`)
+      // .attr('cx', '250')
+      // .attr('cy', '140')
+      .attr('r', '2')
+      .attr('fill', 'orange');
+    // .attr(
+    //   'transform',
+    //   `scale(${scale}) translate(495, 495)`,
+    // );
+    svg
+      .append('circle')
+      .attr('id', 'point')
+      // .attr('cx', `${coord160[0]}`)
+      // .attr('cx', `${coord160[1]}`)
+      .attr('cx', cordx)
+      .attr('cy', cordy)
+      .attr('r', '2')
+      .attr('fill', 'orange');
   }
 
   /**
@@ -317,6 +351,11 @@ export default class MapFlightTracker extends Component {
       .attr('text-anchor', 'middle');
   }
 
+  /**
+   * Function to select the svg map according to zoom.
+   * @param {*} zoom
+   * @returns component svg
+   */
   renderMap(zoom) {
     if (zoom === '200') return <Map200 id="mapTelescope"></Map200>;
     if (zoom === '160') return <Map160 id="mapTelescope"></Map160>;
@@ -332,11 +371,9 @@ export default class MapFlightTracker extends Component {
       <>
         {this.renderMap(zoom)}
 
-        {/* {this.insertTooltip()} */}
-        {/* {planes.map((airCraft) => {
+        {planes.map((airCraft) => {
           this.addPlanes(airCraft);
-        })} */}
-
+        })}
         {/* <div className={styles.mapDiv}>
           <svg
             className={styles.Svg}

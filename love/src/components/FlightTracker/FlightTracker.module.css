@@ -1,6 +1,5 @@
 .container {
   display: flex;
-  /* flex-flow: row wrap; */
   height: fit-content;
   justify-content: center;
 }
@@ -84,7 +83,7 @@ td.statusColumn {
 
 .statusDiv {
   display: flex;
-  width: 75%;
+  width: 95%;
 }
 
 .statusDivElement {
@@ -125,39 +124,10 @@ td.statusColumn {
   max-height: 10em;
 }
 
-/* DEFAULT */
-/* .zoom,
-.zoom.disabled,
-.zoom.disabled:hover {
-  background-image: none;
-  background-color: var(--default-background-color);
-  color: var(--default-font-color);
-  border: 20px;
-}
-.zoom:hover,
-.zoom:active:hover {
-  background-image: none;
-  background-color: var(--default-active-background-color);
-  color: var(--default-active-font-color);
-  border: 2;
-}
-.zoom.active {
-  background-image: none;
-  background-color: var(--default-active-background-color);
-  color: var(--default-active-font-color);
-  border: 2;
-}
-.zoom.active:hover {
-  background-image: none;
-  background-color: var(--default-active-hover-background-color);
-  color: var(--default-active-font-color);
-  border: 2;
-} */
-
 .iconBtn {
   display: inline;
-  border-radius: 15%;
-  padding: 0.3em;
-  height: 3.5em;
-  width: 3.5em;
+  border-radius: 10%;
+  padding: 0.15em;
+  height: 3em;
+  width: 3em;
 }

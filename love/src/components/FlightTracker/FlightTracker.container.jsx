@@ -21,20 +21,6 @@ export const schema = {
       isPrivate: false,
       default: 'Flight Tracker',
     },
-    // planes:  {
-    //   type: 'array',
-    //   description: 'Planes',
-    //   isPrivate: false,
-    //   default: [
-    //     {
-    //       id: 'LAN54',
-    //       latitude: '28.4545454',
-    //       longituded:'28.4545454',
-    //       trajectory:'28.4545454',
-    //       velocity:'450mph',
-    //     },
-    //   ],
-    // },
   },
 };
 
@@ -44,15 +30,7 @@ const FlightTrackerContainer = ({
   planes,
   ...props
 }) => {
-  return (
-    <FlightTracker
-      planes={planes}
-      //   subscribeToStream={subscribeToStream}
-      //   unsubscribeToStream={unsubscribeToStream}
-    />
-  );
+  return <FlightTracker planes={planes} />;
 };
-// getDataFlightTracker
 
-// export default connect(mapStateToProps, mapDispatchToProps)(FlightTrackerContainer);
 export default FlightTrackerContainer;

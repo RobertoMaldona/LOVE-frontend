@@ -10,6 +10,8 @@ import SimpleTable from 'components/GeneralPurpose/SimpleTable/SimpleTable';
 import ManagerInterface, { formatSecondsToDigital } from 'Utils';
 import { ReactComponent as ZoomIn } from './Svg/zoomIn.svg';
 import { ReactComponent as ZoomOut } from './Svg//zoomOut.svg';
+import { ReactComponent as ZoomOutNot } from './Svg//zoomOutNot.svg';
+import { ReactComponent as ZoomInNot } from './Svg//zoomInNot.svg';
 
 const DEFAULT_POLLING_TIMEOUT = 5000;
 const RADIUS = 160;
@@ -33,7 +35,7 @@ export default class FlightTracker extends Component {
   /**
    * @param {*} position: list with latitude and lonegitude
    * @param {*} radio: radio to explore
-   * @returns boolean, true if the position is inside the radio
+   * @returns float, that represent the distance to the observatory
    * THis function uses Haversine formula.
    */
   planeDistance = (position) => {
@@ -49,10 +51,6 @@ export default class FlightTracker extends Component {
 
     const d = earthRadius * c; // in km
     return d;
-  };
-
-  getRenderPlanes = (funct) => {
-    this.setState({ renderPlanes: funct });
   };
 
   componentDidUpdate = (prevProps, prevState) => {
@@ -112,12 +110,6 @@ export default class FlightTracker extends Component {
   };
 
   componentDidMount = () => {
-    //Timer to countdown timers of planes
-    // if (this.countPollingIterval) clearInterval(this.countPollingIterval);
-    // this.countPollingIterval = setInterval(() => {
-    //   this.setState((prevState) => this.changeStateTimer(prevState.timers));
-    // }, 1000);
-
     //Get Planes's data from API initial
     ManagerInterface.getDataFlightTracker('(-30.2326, -70.7312)', '200').then((res) => {
       //Set up initial state planesState
@@ -131,8 +123,6 @@ export default class FlightTracker extends Component {
         if (distance < 160) {
           if (distance < 100) planesStateIN[value.id] = 'alert';
           else planesStateIN[value.id] = 'warning';
-
-          // timers[value.id] = 600;
         }
       });
 
@@ -140,9 +130,9 @@ export default class FlightTracker extends Component {
         planes: res,
         lastUpdate: Date.now(),
         planesState: planesStateIN,
-        // timers: timers,
         planesDistance: planeDistance,
       });
+      console.log(res);
     });
 
     //Get Planes's data from API every x seconds.
@@ -173,12 +163,18 @@ export default class FlightTracker extends Component {
     return { timers: newTimers };
   };
 
+  /**
+   * Function to set zoom state by the button Zoom In
+   */
   zoomIn = () => {
     const { zoom } = this.state;
     if (zoom === '200') this.setState({ zoom: '160' });
     else if (zoom === '160') this.setState({ zoom: '100' });
   };
 
+  /**
+   * Function to set zoom state by the button Zoom Out
+   */
   zoomOut = () => {
     const { zoom } = this.state;
     if (zoom === '100') this.setState({ zoom: '160' });
@@ -192,19 +188,19 @@ export default class FlightTracker extends Component {
         title: 'AirCraft ID',
         type: 'string',
       },
-      // {
-      //   field: 'time',
-      //   title: 'Approach timer',
-      //   type: 'array',
-      //   className: styles.statusColumn,
-      //   render: (value) => {
-      //     return (
-      //       <StatusText small status={value[1]}>
-      //         {formatSecondsToDigital(value[0])}
-      //       </StatusText>
-      //     );
-      //   },
-      // },
+      {
+        field: 'distance',
+        title: 'Distance To Center',
+        type: 'array',
+        className: styles.statusColumn,
+        render: (value) => {
+          return (
+            <StatusText small status={value[1]}>
+              {value[0].toString() + 'km'}
+            </StatusText>
+          );
+        },
+      },
       {
         field: 'latitude',
         title: 'Latitude',
@@ -219,23 +215,14 @@ export default class FlightTracker extends Component {
           return Math.round(value * 1000) / 1000;
         },
       },
+
       {
-        field: 'distance',
-        title: 'Distance',
-        type: 'array',
-        className: styles.statusColumn,
-        render: (value) => {
-          return (
-            <StatusText small status={value[1]}>
-              {value[0].toString() + 'km'}
-            </StatusText>
-          );
-        },
-      },
-      {
-        field: 'velocity',
-        title: 'velocity',
+        field: 'vel',
+        title: 'Velocity',
         type: 'string',
+        render: (value) => {
+          return value + 'mph';
+        },
       },
     ];
 
@@ -251,7 +238,6 @@ export default class FlightTracker extends Component {
         distance: [Math.round(this.state.planesDistance[id]) ?? 'undefined', this.state.planesState[id] ?? 'undefined'],
       });
     });
-    this.state.renderPlanes !== null ? this.state.renderPlanes(tableData) : '';
 
     const dateNow = Date.now();
     let timerLength = 0;
@@ -261,6 +247,8 @@ export default class FlightTracker extends Component {
       }
     }
 
+    let zoomOut = this.state.zoom === '200' ? <ZoomOutNot></ZoomOutNot> : <ZoomOut className={styles.zoom}></ZoomOut>;
+    let zoomIn = this.state.zoom === '100' ? <ZoomInNot></ZoomInNot> : <ZoomIn className={styles.zoom}></ZoomIn>;
     const inRadius = timerLength > 0 ? 'warning' : 'ok';
 
     return (
@@ -291,31 +279,26 @@ export default class FlightTracker extends Component {
             </div>
           </div>
         </div>
-        <br></br>
         <div className={styles.mapContainer}>
-          <MapFlightTracker
-            planes={tableData}
-            zoom={this.state.zoom}
-            getRenderPlanes={this.getRenderPlanes}
-          ></MapFlightTracker>
+          <MapFlightTracker planes={tableData} zoom={this.state.zoom}></MapFlightTracker>
           <div className={styles.zoomDiv}>
             <Button
               className={styles.iconBtn}
               title="Zoom"
               onClick={this.zoomOut}
-              disabled={false}
+              disabled={this.state.zoom === '200'}
               status="transparent"
             >
-              <ZoomOut /*onClick={this.zoomIn}*/ className={styles.zoom}></ZoomOut>
+              {zoomOut}
             </Button>
             <Button
               className={styles.iconBtn}
               title="ZoomOut"
               onClick={this.zoomIn}
-              disabled={false}
+              disabled={this.state.zoom === '100'}
               status="transparent"
             >
-              <ZoomIn /*onClick={this.zoomIn}*/ className={styles.zoom}></ZoomIn>
+              {zoomIn}
             </Button>
           </div>
         </div>
