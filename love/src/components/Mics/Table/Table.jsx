@@ -8,10 +8,11 @@ export default class Table extends Component {
     mics: PropTypes.array,
     selectMic: PropTypes.func,
     recordPush: PropTypes.func,
+    setInfoPlot: PropTypes.func,
   };
 
   render() {
-    const { mics, selectMic, recordPush } = this.props;
+    const { mics, selectMic, recordPush, setInfoPlot } = this.props;
     return (
       <table>
         <colgroup span="2" />
@@ -42,6 +43,7 @@ export default class Table extends Component {
                   id={m.id}
                   selectMic={(mic) => selectMic(mic)}
                   recordPush={(id, currentTime, url, blob) => recordPush(id, currentTime, url, blob)}
+                  setInfoPlot={(data) => setInfoPlot(data)}
                 ></Microphone>
               </>
             );
@@ -77,6 +79,7 @@ export default class Table extends Component {
                 id={m.id}
                 selectMic={(mic) => selectMic(mic)}
                 recordPush={(id, currentTime, url, blob) => recordPush(id, currentTime, url, blob)}
+                setInfoPlot={(data) => setInfoPlot(data)}
               ></Microphone>
             );
           }
@@ -111,6 +114,7 @@ export default class Table extends Component {
                 id={m.id}
                 selectMic={(mic) => selectMic(mic)}
                 recordPush={(id, currentTime, url, blob) => recordPush(id, currentTime, url, blob)}
+                setInfoPlot={(data) => setInfoPlot(data)}
               ></Microphone>
             );
           }

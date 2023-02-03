@@ -38,6 +38,7 @@
   padding: 0.3em;
   margin-bottom: 1.25em;
   width: 95%;
+  align-items: flex-end;
 }
 
 .detailsTitle {
@@ -75,7 +76,7 @@
 }
 
 .playSVG {
-  scale: 1.5;
+  scale: 0.6;
 }
 
 .download {
@@ -83,7 +84,7 @@
 }
 
 .downloadSvg {
-  scale: 1.25;
+  scale: 0.3;
 }
 
 .oneLine {

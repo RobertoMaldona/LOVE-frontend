@@ -8,6 +8,7 @@ import HeatMap from './HeatMap/HeatMap';
 export default class PeleableMicDetail extends Component {
   static propTypes = {
     currentMic: PropTypes.object,
+    infoPlot: PropTypes.object,
     peelableDetailCss: PropTypes.string,
     closeMicDetails: PropTypes.func,
     play: PropTypes.func,
@@ -38,8 +39,6 @@ export default class PeleableMicDetail extends Component {
       textPlay,
       textRec,
     } = this.props;
-    console.log(currentMic);
-    let { actualFreq, actualDb, appearInputdBLimit, setDbLimitState, dbLimit, spec3D, data3D } = currentMic ?? {};
 
     return (
       <div className={peelableDetailCss}>
@@ -59,15 +58,7 @@ export default class PeleableMicDetail extends Component {
           </div>
 
           <div>
-            <HeatMap
-              actualFreq={actualFreq}
-              actualDb={actualDb}
-              appearInputdBLimit={appearInputdBLimit}
-              setDbLimitState={setDbLimitState}
-              dbLimit={dbLimit}
-              spec3D={spec3D}
-              data3D={data3D}
-            ></HeatMap>
+            <HeatMap infoPlot={this.props.infoPlot}></HeatMap>
           </div>
           <div className={styles.audioStream}>
             <span className={[styles.detailsTitle, styles.headers].join(' ')}>AUDIO STREAMING</span>
@@ -77,7 +68,15 @@ export default class PeleableMicDetail extends Component {
                 <br />
                 <span className={styles.oneLine}>{textPlay}</span>
               </span>
-              <Slider onChange={(value) => setVolume(value)} max={2} value={volume?.value} disabled={!isPlay}></Slider>
+              <div>
+                <Slider
+                  onChange={(value) => setVolume(value)}
+                  max={2}
+                  value={volume?.value}
+                  disabled={!isPlay}
+                ></Slider>
+                <span className={styles.oneLine}>VOLUME</span>
+              </div>
               <span
                 className={styles.recSpan}
                 onClick={() => {

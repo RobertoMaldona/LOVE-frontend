@@ -14,6 +14,7 @@ import { VegaLite } from 'react-vega';
 import { DateTime } from 'luxon';
 import moment from 'moment';
 import StatusText from 'components/GeneralPurpose/StatusText/StatusText';
+import ViewIcon from 'components/icons/ViewIcon/ViewIcon';
 export default class Microphone extends Component {
   static propTypes = {
     /**
@@ -21,6 +22,7 @@ export default class Microphone extends Component {
      */
     mics: PropTypes.object,
     selectMic: PropTypes.func,
+    setInfoPlot: PropTypes.func,
   };
 
   constructor(props) {
@@ -49,8 +51,8 @@ export default class Microphone extends Component {
       timeArray: [],
 
       spec3D: {
-        width: 500,
-        height: 500,
+        width: 200,
+        height: 200,
         data: { name: 'table' },
         mark: { type: 'rect' },
         encoding: {
@@ -65,7 +67,7 @@ export default class Microphone extends Component {
             type: 'quantitative',
             field: 'amp',
             scale: { scheme: 'spectral' },
-            legend: { labelColor: '#ddd', labelFontSize: 14, titleColor: '#ddd', title: 'dB', gradientLength: 450 },
+            legend: { labelColor: '#ddd', labelFontSize: 14, titleColor: '#ddd', title: 'dB', gradientLength: 200 },
           },
         },
 
@@ -111,6 +113,17 @@ export default class Microphone extends Component {
     if (this.countPollingIterval) clearInterval(this.countPollingIterval);
     this.countPollingIterval = setInterval(() => {
       this.setState((prevState) => this.getdbFrequencyData(prevState, this.getTimeUTCformat()));
+      let infoPlot = {
+        actualFreq: this.state.actualFreq,
+        actualDb: this.state.actualDb,
+        appearInputdBLimit: this.appearInputdBLimit,
+        setDbLimitState: this.setDbLimitState,
+        dbLimit: this.state.dbLimit,
+        spec3D: this.state.spec3D,
+        data3D: this.state.data3D,
+      };
+      // console.log(this.props);
+      // if(this.state.isSelected) this.props.setInfoPlot(infoPlot);
     }, 1000);
   };
 
@@ -269,6 +282,17 @@ export default class Microphone extends Component {
       this.setState({ isSelected: true, alarm: false });
     }
     this.setState({ isSelected: !isSelected });
+    let infoPlot = {
+      actualFreq: this.state.actualFreq,
+      actualDb: this.state.actualDb,
+      appearInputdBLimit: this.appearInputdBLimit,
+      setDbLimitState: this.setDbLimitState,
+      dbLimit: this.state.dbLimit,
+      spec3D: this.state.spec3D,
+      data3D: this.state.data3D,
+    };
+    //Borrar
+    this.props.setInfoPlot(infoPlot);
   };
 
   /**
@@ -355,8 +379,8 @@ export default class Microphone extends Component {
     // we return vega lite parameter with changes.
     const result = {
       spec3D: {
-        width: 500,
-        height: 500,
+        width: 200,
+        height: 200,
         data: { name: 'table' },
         mark: { type: 'rect' },
         encoding: {
@@ -381,7 +405,7 @@ export default class Microphone extends Component {
             type: 'quantitative',
             field: 'amp',
             scale: { scheme: 'spectral' },
-            legend: { labelColor: '#ddd', labelFontSize: 10, titleColor: '#ddd', title: 'dB', gradientLength: 450 },
+            legend: { labelColor: '#ddd', labelFontSize: 10, titleColor: '#ddd', title: 'dB', gradientLength: 150 },
           },
         },
         config: {
@@ -506,7 +530,7 @@ export default class Microphone extends Component {
       actualDb: this.state.actualDb,
       appearInputdBLimit: this.appearInputdBLimit,
       setDbLimitState: this.setDbLimitState,
-      dbLimit: this.state.dbLimit,
+      dflexbLimit: this.state.dbLimit,
       spec3D: this.state.spec3D,
       data3D: this.state.data3D,
     };
@@ -514,7 +538,7 @@ export default class Microphone extends Component {
     return (
       <tr className={classSelectedMic}>
         <td onClick={() => this.props.selectMic(mic)} className={styles.tdView}>
-          {viewSvg}
+          <ViewIcon selected={this.state.isSelected}></ViewIcon>
         </td>
         <td onClick={() => this.props.selectMic(mic)} className={styles.tdIdMic}>
           <span className={styles.idMic}>{id}</span>

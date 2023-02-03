@@ -7,13 +7,7 @@ import Input from 'components/GeneralPurpose/Input/Input';
 
 export default class HeatMap extends Component {
   static propTypes = {
-    actualFreq: PropTypes.number,
-    actualDb: PropTypes.number,
-    appearInputdBLimit: PropTypes.func,
-    setDbLimitState: PropTypes.func,
-    dbLimit: PropTypes.number,
-    spec3D: PropTypes.object,
-    data3D: PropTypes.object,
+    infoPlot: PropTypes.object,
   };
 
   constructor(props) {
@@ -23,10 +17,11 @@ export default class HeatMap extends Component {
   componentDidMount = () => {};
 
   render() {
-    if (!this.props.actualDb) {
+    if (!this.props.infoPlot) {
       return <></>;
     }
-    const { actualFreq, actualDb, appearInputdBLimit, setDbLimitState, dbLimit, spec3D, data3D } = this.props;
+    // console.log(this.props.infoPlot);
+    const { actualFreq, actualDb, appearInputdBLimit, setDbLimitState, dbLimit, spec3D, data3D } = this.props.infoPlot;
 
     return (
       <div>
@@ -78,7 +73,7 @@ export default class HeatMap extends Component {
         </div>
         <br></br>
         <div className={styles.monserratFontTitle}> ALARM STORY</div>
-        <div>
+        <div className={styles.divVegaLite}>
           <br></br>
           <VegaLite style={{ display: 'flex' }} renderer="svg" spec={spec3D} data={data3D} />
           <br></br>

@@ -35,6 +35,8 @@ export default class Mics extends Component {
       /* The current microphone to show details */
       currentMic: null,
 
+      infoPlot: null,
+
       /* List of Mics with the respective id, src and location*/
       mics: [],
 
@@ -87,6 +89,10 @@ export default class Mics extends Component {
     mic.selectMe();
   };
 
+  setInfoPlot = (data) => {
+    this.setState({ infoPlot: data });
+  };
+
   openFinishedList = () => {
     this.setState({
       viewInfo: true,
@@ -98,7 +104,7 @@ export default class Mics extends Component {
     if (this.state.isRecording) this.record();
     if (this.state.play) this.play();
     this.state.currentMic.selectMe();
-    this.setState({ viewInfo: false, currentMic: null });
+    this.setState({ viewInfo: false, currentMic: null, infoPlot: null });
   };
 
   record = () => {
@@ -138,9 +144,9 @@ export default class Mics extends Component {
       <StartRec className={[styles.recSVG, styles.verticalSpace].join(' ')}></StartRec>
     );
     const svgPLay = this.state.play ? (
-      <Pause className={[styles.playSVG, styles.verticalSpace].join(' ')}></Pause>
+      <Pause className={styles.playSVG}></Pause>
     ) : (
-      <Play className={[styles.playSVG, styles.verticalSpace].join(' ')}></Play>
+      <Play className={styles.playSVG}></Play>
     );
     let { volume } = this.state.currentMic ?? {};
     let textPlay = this.state.play ? 'PAUSE' : 'PLAY';
@@ -154,11 +160,17 @@ export default class Mics extends Component {
             <div className={styles.divTitleSection}>
               <span className={styles.spanMicAvailable}> AVAILABLE MICROPHONES</span>
             </div>
-            <Table mics={this.state.mics} selectMic={this.selectMic} recordPush={this.recordPush}></Table>
+            <Table
+              mics={this.state.mics}
+              selectMic={this.selectMic}
+              recordPush={this.recordPush}
+              setInfoPlot={this.setInfoPlot}
+            ></Table>
           </div>
           <PeleableMicDetail
             peelableDetailCss={peelableDetail}
             currentMic={this.state.currentMic}
+            infoPlot={this.state.infoPlot}
             closeMicDetails={this.closeMicDetails}
             play={this.play}
             setVolume={this.setVolume}

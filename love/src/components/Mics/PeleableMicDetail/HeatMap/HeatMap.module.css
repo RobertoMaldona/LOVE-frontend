@@ -64,3 +64,8 @@
   width: 0.7rem;
   height: 1.2rem;
 }
+
+.divVegaLite {
+  display: grid;
+  justify-content: center;
+}
