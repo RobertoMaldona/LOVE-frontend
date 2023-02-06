@@ -10,8 +10,6 @@ import TelescopeURL from './Svg/telescope.svg';
 import { ReactComponent as Map200 } from './Svg//Map200.svg';
 import { ReactComponent as Map160 } from './Svg//Map160.svg';
 import { ReactComponent as Map100 } from './Svg//Map100.svg';
-import { Document } from 'yaml';
-import * as ReactDOM from 'react-dom';
 import { style, svg, zoom } from 'd3';
 
 export default class MapFlightTracker extends Component {
@@ -212,7 +210,7 @@ export default class MapFlightTracker extends Component {
    * Function to draw an aircraft on the map
    * @param {*} cordx: positon on the map
    * @param {*} cordy: positon on the map
-   * @param {*} id
+   * @param {*} id: plane id
    */
   addPlanes(airCraft) {
     const { zoom } = this.props;

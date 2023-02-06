@@ -12,9 +12,10 @@ import { ReactComponent as ZoomIn } from './Svg/zoomIn.svg';
 import { ReactComponent as ZoomOut } from './Svg//zoomOut.svg';
 import { ReactComponent as ZoomOutNot } from './Svg//zoomOutNot.svg';
 import { ReactComponent as ZoomInNot } from './Svg//zoomInNot.svg';
+import ZoomInIcon from 'components/icons/Zoom/ZoomInIcon';
+import ZoomOutIcon from 'components/icons/Zoom/ZoomOutIcon';
 
 const DEFAULT_POLLING_TIMEOUT = 5000;
-const RADIUS = 160;
 
 export default class FlightTracker extends Component {
   constructor(props) {
@@ -22,7 +23,6 @@ export default class FlightTracker extends Component {
     this.pollingInterval = null;
     this.countPollingIterval = null;
     this.state = {
-      // timers: {},
       planes: [],
       planesState: {},
       lastUpdate: 0,
@@ -86,10 +86,6 @@ export default class FlightTracker extends Component {
         if (dist < RADIO1) {
           //Plane between RADIO1 and RADIO2
           if (!dist < RADIO2) {
-            // if (this.state.timers[id] === undefined) {
-            //   newTimers = { ...newTimers, id: 600 };
-            //   newPlanesState[id] = 'warning';
-            // }
             if (this.state.planesState[id] != 'warning') newPlanesState[id] = 'warning';
           }
           //Plane within RADIO2
@@ -98,14 +94,13 @@ export default class FlightTracker extends Component {
           }
         } else {
           if (this.state.planesState[id] != 'running') {
-            // delete newTimers[id];
             newPlanesState[id] = 'running';
           }
         }
       });
 
-      //setState with the parameters newPlanesState and newTimers
-      this.setState({ /*timers: newTimers,*/ planesState: newPlanesState, planesDistance: newPlanesDistance });
+      //setState with the parameters newPlanesState
+      this.setState({ planesState: newPlanesState, planesDistance: newPlanesDistance });
     }
   };
 
@@ -232,7 +227,6 @@ export default class FlightTracker extends Component {
       const { id } = element;
       tableData.push({
         ...element,
-        // time: [this.state.timers[id] ?? 600, this.state.planesState[id] ?? 'undefined'],
         longitude: element['loc'][0] ?? 'undefined',
         latitude: element['loc'][1] ?? 'undefined',
         distance: [Math.round(this.state.planesDistance[id]) ?? 'undefined', this.state.planesState[id] ?? 'undefined'],
@@ -247,8 +241,8 @@ export default class FlightTracker extends Component {
       }
     }
 
-    let zoomOut = this.state.zoom === '200' ? <ZoomOutNot></ZoomOutNot> : <ZoomOut className={styles.zoom}></ZoomOut>;
-    let zoomIn = this.state.zoom === '100' ? <ZoomInNot></ZoomInNot> : <ZoomIn className={styles.zoom}></ZoomIn>;
+    let zoomOut = this.state.zoom === '200' ? <ZoomInIcon block={true}></ZoomInIcon> : <ZoomInIcon></ZoomInIcon>;
+    let zoomIn = this.state.zoom === '100' ? <ZoomOutIcon block={true}></ZoomOutIcon> : <ZoomOutIcon></ZoomOutIcon>;
     const inRadius = timerLength > 0 ? 'warning' : 'ok';
 
     return (
