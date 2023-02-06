@@ -6,18 +6,34 @@ import styles from './LimitTimeSeriesPlot.module.css';
 import { VegaLite } from 'react-vega';
 import { DateTime } from 'luxon';
 import moment from 'moment';
+import _ from 'lodash';
 
-export default class Microphone extends Component {
+export default class LimitTimeSeriesPlot extends Component {
   static propTypes = {
-    /* Mics's id  */
-    mics: PropTypes.object,
+    // /** Width of the plot in pixels */
+    // width: PropTypes.number,
+
+    // /** Height of the plot in pixels */
+    // height: PropTypes.number,
+
+    /** Node to be used to track width and height.
+     *  Use this instead of props.width and props.height for responsive plots.
+     *  Will be ignored if both props.width and props.height are provided */
+    containerNode: PropTypes.object,
   };
 
   constructor(props) {
     super(props);
-    //   this.temperaturePlotRef = React.createRef();
 
     this.state = {
+      width: undefined,
+
+      height: undefined,
+
+      containerWidth: 500,
+
+      containerHeight: 200,
+
       actualValue: 0.5,
 
       initialTime: '',
@@ -32,13 +48,15 @@ export default class Microphone extends Component {
 
       showInput: false,
     };
+
+    this.resizeObserver = undefined;
   }
 
   /**
    *
    */
   initVariables() {
-    this.width = 800;
+    this.width = 500;
     this.height = 200;
     this.intervalTime = 1000; //ms.
     this.titleX = 'Time';
@@ -56,14 +74,36 @@ export default class Microphone extends Component {
    */
   componentDidMount = () => {
     this.initVariables();
-
     if (this.countPollingIterval) clearInterval(this.countPollingIterval);
     this.countPollingIterval = setInterval(() => {
       this.setState((prevState) => this.getvalueData(prevState, this.getTime()));
     }, this.intervalTime);
   };
 
-  componentDidUpdate = () => {};
+  componentDidUpdate = (prevProps) => {
+    console.log(this.props.containerNode);
+    if (prevProps.containerNode !== this.props.containerNode) {
+      if (this.props.containerNode) {
+        this.resizeObserver = new ResizeObserver((entries) => {
+          console.log('resize');
+          const container = entries[0];
+          this.setState({
+            height: container.contentRect.height - 50,
+            width: container.contentRect.width - 50,
+          });
+        });
+
+        this.resizeObserver.observe(this.props.containerNode);
+      }
+    }
+  };
+
+  componentWillUnmount = () => {
+    // this.props.unsubscribeToStreams();
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
+  };
 
   /**
    *
@@ -91,6 +131,7 @@ export default class Microphone extends Component {
       newInitialTime = actTime;
     }
 
+    // Here we insert the data that we want to show every second.
     let value = this.state.actualValue;
 
     dataCopy.table.push({ t: actTime, value: value, Limit: this.state.Limit });
@@ -104,8 +145,20 @@ export default class Microphone extends Component {
 
     const result = {
       spec: {
-        width: this.width,
-        height: this.height,
+        // width: this.width,
+        // height: this.height,
+        width:
+          this.state.width !== undefined && this.state.height !== undefined
+            ? this.state.width
+            : this.state.containerWidth,
+        height:
+          this.state.width !== undefined && this.state.height !== undefined
+            ? this.state.height
+            : this.state.containerHeight,
+        autosize: {
+          type: 'fit',
+          contains: 'padding',
+        },
         encoding: {
           x: { type: 'temporal' },
           y: { type: 'quantitative' },
@@ -247,6 +300,7 @@ export default class Microphone extends Component {
   }
 
   render() {
+    console.log(this.state.width, this.state.height);
     return (
       <>
         <div className={styles.container0}>
@@ -257,28 +311,30 @@ export default class Microphone extends Component {
             </div>
 
             <div className={styles.flexStyle}>
-              <span>
+              <div className={styles.lineButtonContainer}>
                 {this.legendLimit}
                 <Button
-                  className={styles.editButtonValueLimit}
+                  className={styles.buttonValueLimit}
                   onClick={() => {
                     this.appearInputvalueLimit();
                   }}
                 >
-                  <svg width="20" height="20" viewBox="10 0 10 20">
-                    <line className={styles.svgEdit} x1="8.34" y1="2.09" x2="7.58" y2="1.38" />
-                    <line className={styles.svgEdit} x1="8.72" y1="1.73" x2="7.96" y2="1.02" />
-                    <polyline className={styles.svgEdit} points="4.16 1.66 .15 1.66 .15 9.48 7.97 9.48 7.97 5.49" />
-                    <path
-                      fill="white"
-                      d="m8.69.3h0,0m0,0l.68.67-4.79,4.8-.68-.67,4-4,.79-.79m0-.3c-.07,0-.15.03-.21.09l-.8.8-4,4c-.11.11-.11.3,0,.41l.68.68c.06.06.13.09.21.09s.15-.03.21-.09L9.58,1.18c.11-.11.11-.3,0-.41l-.68-.68c-.06-.06-.13-.09-.21-.09h0Z"
-                    />
-                    <polyline className={styles.svgEdit} points="3.63 5.13 2.93 6.74 4.58 6" />
-                  </svg>
+                  <div className={styles.svgButton}>
+                    <svg width="1rem" height="1rem">
+                      <line className={styles.svgEdit} x1="8.34" y1="2.09" x2="7.58" y2="1.38" />
+                      <line className={styles.svgEdit} x1="8.72" y1="1.73" x2="7.96" y2="1.02" />
+                      <polyline className={styles.svgEdit} points="4.16 1.66 .15 1.66 .15 9.48 7.97 9.48 7.97 5.49" />
+                      <path
+                        fill="white"
+                        d="m8.69.3h0,0m0,0l.68.67-4.79,4.8-.68-.67,4-4,.79-.79m0-.3c-.07,0-.15.03-.21.09l-.8.8-4,4c-.11.11-.11.3,0,.41l.68.68c.06.06.13.09.21.09s.15-.03.21-.09L9.58,1.18c.11-.11.11-.3,0-.41l-.68-.68c-.06-.06-.13-.09-.21-.09h0Z"
+                      />
+                      <polyline className={styles.svgEdit} points="3.63 5.13 2.93 6.74 4.58 6" />
+                    </svg>
+                  </div>
                 </Button>
-              </span>
+              </div>
 
-              <span> {this.returnInput()}</span>
+              <div> {this.returnInput()}</div>
             </div>
           </div>
 

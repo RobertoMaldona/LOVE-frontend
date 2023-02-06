@@ -31,7 +31,17 @@
   stroke-linejoin: round;
 }
 
-.editButtondBLimit {
-  width: 0.7rem;
-  height: 1.2rem;
+.buttonValueLimit {
+  width: 0.1rem;
+  height: 1rem;
+  transform: translate(30%, 0%);
+}
+
+.svgButton {
+  position: relative;
+}
+
+.lineButtonContainer {
+  display: flex;
+  flex-wrap: nowrap;
 }

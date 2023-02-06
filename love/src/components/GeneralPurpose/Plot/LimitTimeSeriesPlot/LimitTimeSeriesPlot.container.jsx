@@ -26,8 +26,36 @@ export const schema = {
   },
 };
 
-const LimitTimeSeriesPlotContainer = ({ Limit }) => {
-  return <LimitTimeSeriesPlot Limit={Limit} />;
-};
+class LimitTimeSeriesPlotContainer extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {};
+
+    this.containerRef = React.createRef();
+  }
+
+  componentDidMount() {}
+
+  componentDidUpdate() {}
+
+  componentWillUnmount() {
+    // this.props.unsubscribeToStreams();
+  }
+
+  render() {
+    const { containerNode } = this.props;
+
+    if (!containerNode) {
+      return (
+        <div ref={this.containerRef} style={{ maxWidth: '100%', height: '100%' }}>
+          <LimitTimeSeriesPlot containerNode={this.containerRef.current?.parent} />
+        </div>
+      );
+    } else {
+      return <LimitTimeSeriesPlot containerNode={containerNode} />;
+    }
+  }
+}
 
 export default LimitTimeSeriesPlotContainer;
