@@ -7,27 +7,68 @@ import HeatMap from './HeatMap/HeatMap';
 
 export default class PeleableMicDetail extends Component {
   static propTypes = {
-    currentMic: PropTypes.object,
+    /**
+     * ID of the current mic selected
+     */
+    id: PropTypes.string,
+    /**
+     * Plot's info of the current mic to render
+     */
     infoPlot: PropTypes.object,
+    /**
+     * Classname of the styles to decide if show or don't
+     */
     peelableDetailCss: PropTypes.string,
+    /**
+     * Function to close this component peleable
+     */
     closeMicDetails: PropTypes.func,
+    /**
+     * Function to play or pause the selected mic
+     */
     play: PropTypes.func,
+    /**
+     * Function to set the volume of the current mic playing
+     */
     setVolume: PropTypes.func,
+    /**
+     * The initial volume of the mic
+     */
     volume: PropTypes.object,
+    /**
+     * State that say if there is some mic playing
+     */
     isPlay: PropTypes.bool,
+    /**
+     * Function to start or stop record
+     */
     record: PropTypes.func,
+    /**
+     * Array of records made previously
+     */
     records: PropTypes.array,
+    /**
+     * Svg of play. This change if the mic is playing
+     */
     svgPLay: PropTypes.object,
+    /**
+     * Svg of start record. This change if the mic is recording
+     */
     svgRec: PropTypes.element,
+    /**
+     * Text down of svgPLay
+     */
     textPlay: PropTypes.string,
+    /**
+     * Text down of svgRec
+     */
     textRec: PropTypes.string,
   };
 
   render() {
     const {
-      currentMic,
+      id,
       peelableDetailCss,
-      closeMicDetails,
       play,
       setVolume,
       volume,
@@ -43,20 +84,10 @@ export default class PeleableMicDetail extends Component {
     return (
       <div className={peelableDetailCss}>
         <div className={styles.divTitleSection}>
-          <span className={styles.spanIdDetails}> {currentMic?.id}</span>
+          <span className={styles.spanIdDetails}> {id ?? ''}</span>
         </div>
 
         <div className={styles.divDetails}>
-          <div className={styles.listTitleWrapper}>
-            <div
-              className={styles.collapseScriptListButton}
-              onClick={closeMicDetails}
-              title="Close available script list"
-            >
-              <span style={{ width: '100%' }}>&#8854;</span>
-            </div>
-          </div>
-
           <div>
             <HeatMap infoPlot={this.props.infoPlot}></HeatMap>
           </div>
@@ -88,12 +119,13 @@ export default class PeleableMicDetail extends Component {
                 <span className={styles.oneLine}>{textRec}</span>
               </span>
             </div>
-            <span className={[styles.detailsTitle, styles.headers].join(' ')}>RECORDED AUDIOS</span>
-            <div id="downloads" className={styles.recordsDiv}>
-              {records.map((rec) => {
-                return <Record url={rec.url} nameFile={rec.nameFile} blob={rec.blob}></Record>;
-              })}
-            </div>
+            {/* Aqui iba records */}
+          </div>
+          <span className={[styles.detailsTitle, styles.headers].join(' ')}>RECORDED AUDIOS</span>
+          <div id="downloads" className={styles.recordsDiv}>
+            {records.map((rec) => {
+              return <Record url={rec.url} nameFile={rec.nameFile} blob={rec.blob}></Record>;
+            })}
           </div>
         </div>
       </div>

@@ -5,6 +5,7 @@
   padding-block: 0.75em;
   border-style: solid;
   border-color: hsl(205deg 40% 8% / 65%);
+  padding-bottom: 1.75em;
 }
 
 .headers {
@@ -35,10 +36,10 @@
 
 .aStreamContent {
   display: flex;
-  padding: 0.3em;
   margin-bottom: 1.25em;
   width: 95%;
   align-items: flex-end;
+  padding: 0.3em;
 }
 
 .detailsTitle {
@@ -53,9 +54,11 @@
   border-radius: 7.5px;
   width: 95%;
   margin-top: 1em;
-  max-height: 15em;
+  max-height: 7.5em;
   overflow-y: scroll;
-  margin-bottom: 0.75em;
+  margin-bottom: 1.75em;
+  display: inline-grid;
+  justify-items: center;
 }
 
 .spanNameFiles {
@@ -76,7 +79,7 @@
 }
 
 .playSVG {
-  scale: 0.6;
+  height: 3em;
 }
 
 .download {
@@ -84,7 +87,7 @@
 }
 
 .downloadSvg {
-  scale: 0.3;
+  height: 1.25em;
 }
 
 .oneLine {

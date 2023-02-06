@@ -10,7 +10,6 @@ import { ReactComponent as NotificationOn } from './../SVG/notification_on.svg';
 import { ReactComponent as NotificationOnSelect } from './../SVG/notification_onSelect.svg';
 import { ReactComponent as NotificationOff } from './../SVG/notification_off.svg';
 import { ReactComponent as NotificationOffSelect } from './../SVG/notification_offSelect.svg';
-import { VegaLite } from 'react-vega';
 import { DateTime } from 'luxon';
 import moment from 'moment';
 import StatusText from 'components/GeneralPurpose/StatusText/StatusText';
@@ -18,10 +17,24 @@ import ViewIcon from 'components/icons/ViewIcon/ViewIcon';
 export default class Microphone extends Component {
   static propTypes = {
     /**
-     * Function for the onChange event of the `<input>` element. The actual value, of the event target, is passed as argument.
+     * Function to change the mic's component state of the currentMic and select this to show on the mic details
      */
-    mics: PropTypes.object,
     selectMic: PropTypes.func,
+    /**
+     * URL of the source sound
+     */
+    source: PropTypes.string,
+    /**
+     * ID assigned to this mic
+     */
+    id: PropTypes.string,
+    /**
+     * Function to add a new record on the mic's record state
+     */
+    recordPush: PropTypes.func,
+    /**
+     * Function to set the infoPlot state of the mic component to render.
+     */
     setInfoPlot: PropTypes.func,
   };
 
@@ -122,8 +135,7 @@ export default class Microphone extends Component {
         spec3D: this.state.spec3D,
         data3D: this.state.data3D,
       };
-      // console.log(this.props);
-      // if(this.state.isSelected) this.props.setInfoPlot(infoPlot);
+      if (this.state.isSelected) this.props.setInfoPlot(infoPlot);
     }, 1000);
   };
 
@@ -291,12 +303,11 @@ export default class Microphone extends Component {
       spec3D: this.state.spec3D,
       data3D: this.state.data3D,
     };
-    //Borrar
     this.props.setInfoPlot(infoPlot);
   };
 
   /**
-   *
+   * Chnage the notification's state
    */
   turnNotifications = () => {
     const { notifications } = this.state;
@@ -304,6 +315,10 @@ export default class Microphone extends Component {
     else this.setState({ notifications: true });
   };
 
+  /**
+   * Set the Decibel Limit to activate alarms
+   * @param {float} dbLimit
+   */
   setDbLimitState = (dbLimit) => {
     this.setState({ dbLimit: dbLimit });
   };
@@ -444,8 +459,8 @@ export default class Microphone extends Component {
   }
 
   /**
-   *
-   * @returns
+   * Method to get the actual time
+   * @returns String
    */
   getTime() {
     const date = new Date();

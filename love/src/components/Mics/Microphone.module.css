@@ -2,17 +2,12 @@
   background-color: #292a38;
   border-radius: 8px;
   padding: 20px;
-
-  /* position: fixed; */
   top: 50%;
   left: 50%;
-  /* transform: translate(-50%, -50%); */
-
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-
   height: 75px;
 }
 
@@ -28,6 +23,7 @@
 .component {
   grid-area: body;
   display: flex;
+  padding-bottom: 1em;
 }
 
 .micDetails {
@@ -38,6 +34,7 @@
   margin: 2px;
   padding-inline: 0.5em;
   max-width: 35em;
+  margin-bottom: 1.75em;
 }
 
 .mics {
@@ -64,11 +61,11 @@
 }
 
 .recSVG {
-  scale: 1;
+  height: 2.25em;
 }
 
 .playSVG {
-  scale: 0.9;
+  height: 4em;
 }
 
 .verticalSpace {

@@ -5,9 +5,21 @@ import Microphone from './Microphone';
 
 export default class Table extends Component {
   static propTypes = {
+    /**
+     * Array of dictonary with the mics info
+     */
     mics: PropTypes.array,
+    /**
+     * Function to change the mic's component state of the currentMic and show on mic details
+     */
     selectMic: PropTypes.func,
+    /**
+     * Function to add a new record on the mic's record state
+     */
     recordPush: PropTypes.func,
+    /**
+     * Function to set the infoPlot state of the mic component to render.
+     */
     setInfoPlot: PropTypes.func,
   };
 

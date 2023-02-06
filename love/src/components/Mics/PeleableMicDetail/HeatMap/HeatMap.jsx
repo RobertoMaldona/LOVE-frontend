@@ -7,11 +7,17 @@ import Input from 'components/GeneralPurpose/Input/Input';
 
 export default class HeatMap extends Component {
   static propTypes = {
+    /**
+     * Info of the current mic to plot
+     */
     infoPlot: PropTypes.object,
   };
 
   constructor(props) {
     super(props);
+    this.state = {
+      infoPlot: null,
+    };
   }
 
   componentDidMount = () => {};
@@ -20,7 +26,7 @@ export default class HeatMap extends Component {
     if (!this.props.infoPlot) {
       return <></>;
     }
-    // console.log(this.props.infoPlot);
+
     const { actualFreq, actualDb, appearInputdBLimit, setDbLimitState, dbLimit, spec3D, data3D } = this.props.infoPlot;
 
     return (
