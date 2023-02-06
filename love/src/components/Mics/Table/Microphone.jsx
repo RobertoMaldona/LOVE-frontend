@@ -2,18 +2,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ManagerInterface, { parseCommanderData } from 'Utils';
 import styles from './Table.module.css';
-import { ReactComponent as ViewSVG } from './../SVG/view.svg';
-import { ReactComponent as ViewSVGSelect } from './../SVG/viewSelect.svg';
-import { ReactComponent as AlarmNSVG } from './../SVG/alarm_no.svg';
-import { ReactComponent as AlarmYSVG } from './../SVG/alarm_yes.svg';
-import { ReactComponent as NotificationOn } from './../SVG/notification_on.svg';
-import { ReactComponent as NotificationOnSelect } from './../SVG/notification_onSelect.svg';
-import { ReactComponent as NotificationOff } from './../SVG/notification_off.svg';
-import { ReactComponent as NotificationOffSelect } from './../SVG/notification_offSelect.svg';
 import { DateTime } from 'luxon';
 import moment from 'moment';
 import StatusText from 'components/GeneralPurpose/StatusText/StatusText';
 import ViewIcon from 'components/icons/ViewIcon/ViewIcon';
+import AlarmOnIcon from 'components/icons/MICS/AlarmOnIcon/AlarmOnIcon';
+import AlarmOffIcon from 'components/icons/MICS/AlarmOff/AlarmOffIcon';
+import NtfOffIcon from 'components/icons/NtfIcon/NtfOffIcon';
+import NtfOnIcon from 'components/icons/NtfIcon/NtfOnIcon';
 export default class Microphone extends Component {
   static propTypes = {
     /**
@@ -508,30 +504,7 @@ export default class Microphone extends Component {
   render() {
     let classSelectedMic = this.state.isSelected ? styles.selectedMic : '';
 
-    let ntfSVG = this.state.isSelected ? (
-      this.state.notifications ? (
-        <NotificationOnSelect className={styles.svgTable} />
-      ) : (
-        <NotificationOffSelect className={styles.svgTable} />
-      )
-    ) : this.state.notifications ? (
-      <NotificationOn className={styles.svgTable} />
-    ) : (
-      <NotificationOff className={styles.svgTable} />
-    );
-
-    let viewSvg = this.state.isSelected ? (
-      <ViewSVGSelect className={styles.svgView} />
-    ) : (
-      <ViewSVG className={styles.svgView} />
-    );
-
-    let alarm = this.state.alarm ? (
-      <AlarmYSVG className={styles.svgTable}></AlarmYSVG>
-    ) : (
-      <AlarmNSVG className={styles.svgTable}></AlarmNSVG>
-    );
-
+    const { isSelected } = this.state;
     const { id } = this.props;
     let mic = {
       id: id,
@@ -563,8 +536,20 @@ export default class Microphone extends Component {
             Enabled
           </StatusText>
         </td>
-        <td onClick={() => this.turnNotifications()}>{ntfSVG}</td>
-        <td>{alarm}</td>
+        <td onClick={() => this.turnNotifications()}>
+          {this.state.notifications ? (
+            <NtfOnIcon selected={isSelected} className={styles.svgTable}></NtfOnIcon>
+          ) : (
+            <NtfOffIcon selected={isSelected} className={styles.svgTable}></NtfOffIcon>
+          )}
+        </td>
+        <td>
+          {this.state.alarm ? (
+            <AlarmOnIcon className={styles.svgTable}></AlarmOnIcon>
+          ) : (
+            <AlarmOffIcon className={styles.svgTable}></AlarmOffIcon>
+          )}
+        </td>
       </tr>
     );
   }

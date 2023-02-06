@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-// import PropTypes from 'prop-types';
-import styles from './ViewIcon.module.css';
+import styles from './NtfIcon.module.css';
 
 function NtfOnIcon(props) {
-  const { selected } = props;
+  const { selected, className } = props;
   const colorClass = !selected ? styles.clsnfc : styles.clsnfcSel;
   return (
-    <svg id="Estados" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20.4 24">
+    <svg className={className} id="Estados" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20.4 24">
       <g>
         <path className={colorClass} d="m10.35,24c1.77,0,3.2-1.43,3.2-3.2h-6.4c0,1.77,1.43,3.2,3.2,3.2Z" />
         <path

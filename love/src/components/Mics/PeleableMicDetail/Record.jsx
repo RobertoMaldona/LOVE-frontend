@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ManagerInterface from 'Utils';
-import { ReactComponent as Play } from './../SVG/play.svg';
-import { ReactComponent as Pause } from './../SVG/pause.svg';
-import { ReactComponent as Download } from './../SVG/download.svg';
 import styles from './PeleableMicDetail.module.css';
+import PlayIcon from 'components/icons/MICS/Play/PlayIcon';
+import DownloadIcon from 'components/icons/MICS/Download/DownloadIcon';
+import PauseIcon from 'components/icons/MICS/Pause/PauseIcon';
 
 export default class Record extends Component {
   static propTypes = {
@@ -69,9 +69,9 @@ export default class Record extends Component {
   render() {
     const { url, nameFile, blob } = this.props;
     const svgPLay = this.state.play ? (
-      <Pause className={styles.playSVG}></Pause>
+      <PauseIcon className={styles.playSVG}></PauseIcon>
     ) : (
-      <Play className={styles.playSVG}></Play>
+      <PlayIcon className={styles.playSVG}></PlayIcon>
     );
 
     return (
@@ -81,7 +81,7 @@ export default class Record extends Component {
         </span>
         <span className={styles.spanNameFiles}>{nameFile}</span>
         <a onClick={() => this.auxFunc(blob)} href={url} download={nameFile} className={styles.download}>
-          <Download className={styles.downloadSvg}></Download>
+          <DownloadIcon className={styles.downloadSvg}></DownloadIcon>
         </a>
       </div>
     );

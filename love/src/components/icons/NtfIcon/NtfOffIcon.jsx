@@ -3,10 +3,10 @@ import React, { Component } from 'react';
 import styles from './NtfIcon.module.css';
 
 function NtfOffIcon(props) {
-  const { selected } = props;
+  const { selected, className } = props;
   const colorClass = !selected ? styles.clsnfc : styles.clsnfcSel;
   return (
-    <svg id="Estados" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.96 24">
+    <svg className={className} id="Estados" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.96 24">
       <g className={styles.clsnfc2}>
         <path className={colorClass} d="m9.99,24c1.77,0,3.2-1.43,3.2-3.2h-6.4c0,1.77,1.43,3.2,3.2,3.2Z" />
         <g>

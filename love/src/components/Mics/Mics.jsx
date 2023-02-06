@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styles from './Microphone.module.css';
-// import styles2 from './palette2.css'
-import { ReactComponent as StartRec } from './SVG/start_recording.svg';
-import { ReactComponent as StopRec } from './SVG/stop_recording.svg';
-import { ReactComponent as Play } from './SVG/play.svg';
-import { ReactComponent as Pause } from './SVG/pause.svg';
 import PeleableMicDetail from './PeleableMicDetail/PeleableMicDetail';
 import Table from './Table/Table';
 import ManagerInterface from 'Utils';
+import StopRecIcon from 'components/icons/MICS/StopRec/StopRec';
+import StartRecIcon from 'components/icons/MICS/StartRec/StartRec';
+import PauseIcon from 'components/icons/MICS/Pause/PauseIcon';
+import PlayIcon from 'components/icons/MICS/Play/PlayIcon';
 
 const RADIOSLINK = {
   biobio: 'https://redirector.dps.live/biobiosantiago/mp3/icecast.audio',
@@ -158,14 +157,14 @@ export default class Mics extends Component {
   render() {
     const peelableDetail = this.state.viewInfo ? styles.micDetails : styles.collapsedMicDetail;
     const svgRec = this.state.isRecording ? (
-      <StopRec className={[styles.recSVG, styles.verticalSpace].join(' ')}></StopRec>
+      <StopRecIcon className={[styles.recSVG, styles.verticalSpace].join(' ')}></StopRecIcon>
     ) : (
-      <StartRec className={[styles.recSVG, styles.verticalSpace].join(' ')}></StartRec>
+      <StartRecIcon className={[styles.recSVG, styles.verticalSpace].join(' ')}></StartRecIcon>
     );
     const svgPLay = this.state.play ? (
-      <Pause className={styles.playSVG}></Pause>
+      <PauseIcon className={styles.playSVG}></PauseIcon>
     ) : (
-      <Play className={styles.playSVG}></Play>
+      <PlayIcon className={styles.playSVG}></PlayIcon>
     );
     let { volume } = this.state.currentMic ?? {};
     let textPlay = this.state.play ? 'PAUSE' : 'PLAY';
