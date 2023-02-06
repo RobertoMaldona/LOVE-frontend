@@ -8,10 +8,6 @@ import Button from '../GeneralPurpose/Button/Button';
 import isEqual, { remove } from 'lodash';
 import SimpleTable from 'components/GeneralPurpose/SimpleTable/SimpleTable';
 import ManagerInterface, { formatSecondsToDigital } from 'Utils';
-import { ReactComponent as ZoomIn } from './Svg/zoomIn.svg';
-import { ReactComponent as ZoomOut } from './Svg//zoomOut.svg';
-import { ReactComponent as ZoomOutNot } from './Svg//zoomOutNot.svg';
-import { ReactComponent as ZoomInNot } from './Svg//zoomInNot.svg';
 import ZoomInIcon from 'components/icons/Zoom/ZoomInIcon';
 import ZoomOutIcon from 'components/icons/Zoom/ZoomOutIcon';
 
