@@ -48,8 +48,8 @@ class LimitTimeSeriesPlotContainer extends React.Component {
 
     if (!containerNode) {
       return (
-        <div ref={this.containerRef} style={{ maxWidth: '100%', height: '100%' }}>
-          <LimitTimeSeriesPlot containerNode={this.containerRef.current?.parent} />
+        <div id="hola" ref={this.containerRef}>
+          <LimitTimeSeriesPlot containerNode={this.containerRef.current?.parentNode} />
         </div>
       );
     } else {

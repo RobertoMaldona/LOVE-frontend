@@ -10,12 +10,6 @@ import _ from 'lodash';
 
 export default class LimitTimeSeriesPlot extends Component {
   static propTypes = {
-    // /** Width of the plot in pixels */
-    // width: PropTypes.number,
-
-    // /** Height of the plot in pixels */
-    // height: PropTypes.number,
-
     /** Node to be used to track width and height.
      *  Use this instead of props.width and props.height for responsive plots.
      *  Will be ignored if both props.width and props.height are provided */
@@ -30,9 +24,9 @@ export default class LimitTimeSeriesPlot extends Component {
 
       height: undefined,
 
-      containerWidth: 500,
+      containerWidth: undefined,
 
-      containerHeight: 200,
+      containerHeight: undefined,
 
       actualValue: 0.5,
 
@@ -53,11 +47,9 @@ export default class LimitTimeSeriesPlot extends Component {
   }
 
   /**
-   *
+   * Function that initialize some plot Vega properties.
    */
   initVariables() {
-    this.width = 500;
-    this.height = 200;
     this.intervalTime = 1000; //ms.
     this.titleX = 'Time';
     this.titleY = 'Values';
@@ -70,7 +62,8 @@ export default class LimitTimeSeriesPlot extends Component {
   }
 
   /**
-   *
+   * Particularly, this function allows to update the data inyected into plot every one second
+   * calling the getValueData function.
    */
   componentDidMount = () => {
     this.initVariables();
@@ -80,16 +73,21 @@ export default class LimitTimeSeriesPlot extends Component {
     }, this.intervalTime);
   };
 
+  /**
+   * This function allows to observe the resizing container window of the plot, and then
+   * make the plot into a responsive one.
+   * @param {*} prevProps, essentially, the property is the containerNode, that is the reference to
+   * the plot Node parent.
+   */
   componentDidUpdate = (prevProps) => {
     console.log(this.props.containerNode);
     if (prevProps.containerNode !== this.props.containerNode) {
       if (this.props.containerNode) {
         this.resizeObserver = new ResizeObserver((entries) => {
-          console.log('resize');
           const container = entries[0];
           this.setState({
-            height: container.contentRect.height - 50,
-            width: container.contentRect.width - 50,
+            height: container.contentRect.height - 200,
+            width: container.contentRect.width - 245,
           });
         });
 
@@ -98,26 +96,29 @@ export default class LimitTimeSeriesPlot extends Component {
     }
   };
 
+  /**
+   * Function that allows to stop observing the window resize when the component is out of the
+   * main view.
+   */
   componentWillUnmount = () => {
-    // this.props.unsubscribeToStreams();
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
     }
   };
 
   /**
-   *
-   * @param {*} prev
-   * @param {*} actTime
-   * @returns
+   *Function that update the spec and data receiving by Vega Lite.
+   * @param {*} prevState is the previous state, we have interest in spec and data states.
+   * @param {*} actTime is the actual time where the data is need to be considered in the plot.
+   * @returns spec and data states updated to plot in vega lite.
    */
-  getvalueData = (prev, actTime) => {
-    if (!prev.data.table) {
+  getvalueData = (prevState, actTime) => {
+    if (!prevState.data.table) {
       return {};
     }
 
     let dataCopy = { table: [] };
-    dataCopy.table = prev.data.table;
+    dataCopy.table = prevState.data.table;
 
     let newTimeArray;
     newTimeArray = this.state.timeArray;
@@ -145,20 +146,8 @@ export default class LimitTimeSeriesPlot extends Component {
 
     const result = {
       spec: {
-        // width: this.width,
-        // height: this.height,
-        width:
-          this.state.width !== undefined && this.state.height !== undefined
-            ? this.state.width
-            : this.state.containerWidth,
-        height:
-          this.state.width !== undefined && this.state.height !== undefined
-            ? this.state.height
-            : this.state.containerHeight,
-        autosize: {
-          type: 'fit',
-          contains: 'padding',
-        },
+        width: this.state.width,
+        height: this.state.height,
         encoding: {
           x: { type: 'temporal' },
           y: { type: 'quantitative' },
@@ -239,7 +228,8 @@ export default class LimitTimeSeriesPlot extends Component {
   };
 
   /**
-   *
+   * This function allows to show up the input to change the limit input, after press
+   * respective the button to do it, changing the showInput state.
    */
   appearInputvalueLimit() {
     if (this.state.showInput) {
@@ -249,6 +239,11 @@ export default class LimitTimeSeriesPlot extends Component {
     }
   }
 
+  /**
+   * Function that check if the showInput state is true or false to show the
+   * input tag.
+   * @returns the input tag or value limit.
+   */
   returnInput() {
     if (this.state.showInput) {
       return <Input onChange={(e) => this.setState({ Limit: e.target.value })} />;
@@ -258,7 +253,9 @@ export default class LimitTimeSeriesPlot extends Component {
   }
 
   /**
-   *
+   * Function with which we can obtain the actual time string in UTC
+   * cut in the way that need the getValueData Function.
+   * @returns actual time in UTC.
    */
   getTime() {
     const date = new Date();
@@ -275,7 +272,8 @@ export default class LimitTimeSeriesPlot extends Component {
   }
 
   /**
-   *
+   * Function with which we can obtain the actual time in UTC wrapper in a Date object.
+   * @returns actual time in UTC.
    */
   getTimeUTCformat() {
     const date = new Date();
@@ -292,7 +290,9 @@ export default class LimitTimeSeriesPlot extends Component {
   }
 
   /**
-   *
+   *Function that allows to add one second to the actual time.
+   * @param {*} actTime actual time.
+   * @returns the next time in UTC.
    */
   obtainNextTimeInSeconds(actTime) {
     const date = moment(actTime).add(1, 'seconds');
@@ -300,6 +300,7 @@ export default class LimitTimeSeriesPlot extends Component {
   }
 
   render() {
+    console.log(this.props.containerNode);
     console.log(this.state.width, this.state.height);
     return (
       <>
@@ -341,7 +342,13 @@ export default class LimitTimeSeriesPlot extends Component {
           <br></br>
 
           <div>
-            <VegaLite style={{ display: 'flex' }} renderer="svg" spec={this.state.spec} data={this.state.data} />
+            <VegaLite
+              style={{ display: 'flex' }}
+              actions={false}
+              renderer="svg"
+              spec={this.state.spec}
+              data={this.state.data}
+            />
           </div>
         </div>
       </>
