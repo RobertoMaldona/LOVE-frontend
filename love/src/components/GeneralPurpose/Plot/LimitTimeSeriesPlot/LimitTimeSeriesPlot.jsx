@@ -245,7 +245,7 @@ export default class LimitTimeSeriesPlot extends Component {
    */
   returnInput() {
     if (this.state.showInput) {
-      return <Input onChange={(e) => this.setState({ Limit: e.target.value })} width="50%" />;
+      return <Input onChange={(e) => this.setState({ Limit: e.target.value })} />;
     } else {
       return this.state.Limit;
     }

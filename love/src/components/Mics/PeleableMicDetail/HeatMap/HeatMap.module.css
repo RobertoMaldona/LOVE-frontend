@@ -1,43 +1,41 @@
-.infoMonserratFontContainer {
+.infoMonserratFontContainer0 {
+  flex-wrap: wrap-reverse;
+}
+
+.infoMonserratFontContainer1 {
   display: flex;
   justify-content: space-around;
 }
 
-.infoMonserratFont {
-  flex-wrap: wrap;
+.infoMonserratFont1 {
+  flex-wrap: wrap-reverse;
   font-family: 'Montserrat', sans-serif;
-  margin: 0em;
-  font-weight: 300;
-  font-size: 20px;
+}
+
+.infoMonserratFont2 {
+  flex-wrap: wrap-reverse;
+  font-family: 'Montserrat', sans-serif;
+  width: 20%;
 }
 
 .dBLiveValue {
   color: #f0e400;
   font-family: 'Montserrat', sans-serif;
-  font-weight: 300;
-  font-size: 20px;
 }
 
 .monserratFontTitle {
   display: flex;
   font-family: 'Montserrat', sans-serif;
-  font-weight: 900;
-  font-size: 25px;
 }
 
 .inputMonserratFont {
   display: flex;
-  width: 400px;
   font-family: 'Montserrat', sans-serif;
-  font-weight: 300;
-  font-size: 15px;
 }
 
 .inputdBLimit {
   display: flex;
   font-family: 'Montserrat', sans-serif;
-  font-weight: 300;
-  font-size: 20px;
 }
 .hideInputDiv {
   width: 20%;
@@ -58,14 +56,20 @@
 
 .buttondBLimit {
   display: flex;
+  flex-wrap: nowrap;
 }
 
 .editButtondBLimit {
-  width: 0.7rem;
-  height: 1.2rem;
+  width: 0.1rem;
+  height: 1rem;
+  transform: translate(30%, 0%);
 }
 
 .divVegaLite {
   display: grid;
   justify-content: center;
+}
+
+.svgButton {
+  position: relative;
 }

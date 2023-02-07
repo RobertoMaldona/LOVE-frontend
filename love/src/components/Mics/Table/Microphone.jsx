@@ -69,7 +69,7 @@ export default class Microphone extends Component {
           y: {
             field: 'f',
             type: 'quantitative',
-            axis: { title: 'FREQ [Hz]', grid: true },
+            axis: { title: 'FREQUENCY [Hz]', grid: true },
             scale: { domain: [0, this.bufferLength + 1] },
           },
           color: {
@@ -95,6 +95,8 @@ export default class Microphone extends Component {
       },
 
       data3D: { table: [] },
+
+      showInput: false,
     };
 
     // ========================================================
@@ -125,6 +127,7 @@ export default class Microphone extends Component {
       let infoPlot = {
         actualFreq: this.state.actualFreq,
         actualDb: this.state.actualDb,
+        showInput: this.state.showInput,
         appearInputdBLimit: this.appearInputdBLimit,
         setDbLimitState: this.setDbLimitState,
         dbLimit: this.state.dbLimit,
@@ -294,11 +297,13 @@ export default class Microphone extends Component {
       actualFreq: this.state.actualFreq,
       actualDb: this.state.actualDb,
       appearInputdBLimit: this.appearInputdBLimit,
+      showInput: this.state.showInput,
       setDbLimitState: this.setDbLimitState,
       dbLimit: this.state.dbLimit,
       spec3D: this.state.spec3D,
       data3D: this.state.data3D,
     };
+    console.log('selectMe', infoPlot.showInput);
     this.props.setInfoPlot(infoPlot);
   };
 
@@ -408,7 +413,7 @@ export default class Microphone extends Component {
           y: {
             field: 'f_min',
             type: 'quantitative',
-            axis: { title: 'FREQ [Hz]', grid: true, labels: true },
+            axis: { title: 'FREQUENCY [Hz]', grid: true, labels: true },
             scale: { domain: [0, this.bufferLength + 1] },
           },
           y2: { field: 'f_max', type: 'quantitative' },
@@ -442,17 +447,14 @@ export default class Microphone extends Component {
   /**
    *
    */
-  appearInputdBLimit() {
-    const input = document.getElementById('hideInputdBLimit');
-    const display = document.getElementById('InitialdBLimit');
-    if (input.style.display === 'none') {
-      input.style.display = 'block';
-      display.style.display = 'none';
+  appearInputdBLimit = () => {
+    console.log('aca', this.state.showInput);
+    if (this.state.showInput) {
+      this.setState({ showInput: false });
     } else {
-      input.style.display = 'none';
-      display.style.display = 'block';
+      this.setState({ showInput: true });
     }
-  }
+  };
 
   /**
    * Method to get the actual time

@@ -146,7 +146,7 @@ export default class Mics extends Component {
 
   /**
    * Function to set the volume of current mic playing, using the setVolume function of microphone component
-   * @param {*} value
+   * @param {float} value
    * @returns
    */
   setVolume = (value) => {
@@ -170,6 +170,7 @@ export default class Mics extends Component {
     let textPlay = this.state.play ? 'PAUSE' : 'PLAY';
     let textRec = this.state.isRecording ? 'STOP REC' : 'START REC';
 
+    console.log('MicsRender', this.state.infoPlot?.showInput);
     return (
       <div>
         <div className={styles.component}>
