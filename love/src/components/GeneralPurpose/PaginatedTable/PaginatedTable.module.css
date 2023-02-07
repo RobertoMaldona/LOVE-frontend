@@ -1,9 +1,7 @@
 .paginationContainer {
   display: flex;
-  justify-content: flex-end;
-  margin-right: 1rem;
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
+  margin-block: 0.25rem;
+  height: 2em;
 }
 .adjacentPageControl {
   margin-left: 1rem;
@@ -11,8 +9,13 @@
 }
 
 .contentRange {
-  margin-left: 1rem;
   margin-right: 1rem;
+  justify-self: left;
+  display: grid;
+  align-items: center;
+  width: 20%;
+  padding-inline: 0.5em;
+  justify-content: left;
 }
 
 .iconBtn {
@@ -26,3 +29,51 @@
 .select {
   background: none;
 }
+
+.inputPage {
+  width: 25%;
+  height: 80%;
+  align-self: center;
+}
+
+.selectPage {
+  display: inline-flex;
+  width: 80%;
+  justify-content: end;
+  height: 100%;
+}
+
+.pagination {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.35em;
+  padding-right: 0.25em;
+}
+
+.pagination .pageNumber {
+  border-radius: 10%;
+  cursor: pointer;
+  transition: all 0.5s ease;
+}
+
+.pagination .pageNumber:hover {
+  color: #fff;
+  background: #00a8ff;
+}
+
+.pagination .active {
+  color: #fff;
+  background: #00a8ff;
+}
+
+.arrow {
+  font-size: 1.5em;
+}
+
+/* .pagination .active:hover {
+	color: #00a8ff;
+	background: #fff;
+} 
+*/

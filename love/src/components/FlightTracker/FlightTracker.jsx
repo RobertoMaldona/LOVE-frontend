@@ -10,6 +10,7 @@ import SimpleTable from 'components/GeneralPurpose/SimpleTable/SimpleTable';
 import ManagerInterface, { formatSecondsToDigital } from 'Utils';
 import ZoomInIcon from 'components/icons/Zoom/ZoomInIcon';
 import ZoomOutIcon from 'components/icons/Zoom/ZoomOutIcon';
+import PaginatedTable from 'components/GeneralPurpose/PaginatedTable/PaginatedTable';
 
 const DEFAULT_POLLING_TIMEOUT = 5000;
 
@@ -172,6 +173,22 @@ export default class FlightTracker extends Component {
     else if (zoom === '160') this.setState({ zoom: '200' });
   };
 
+  getData = (itemsPerPage, page) => {
+    const { planes } = this.state;
+    const tableData = [];
+    for (let i = page * itemsPerPage; i < (page + 1) * itemsPerPage; i++) {
+      let element = planes[i];
+      if (!element) break;
+      const { id } = element;
+      tableData.push({
+        ...element,
+        longitude: element['loc'][0] ?? 'undefined',
+        latitude: element['loc'][1] ?? 'undefined',
+        distance: [Math.round(this.state.planesDistance[id]) ?? 'undefined', this.state.planesState[id] ?? 'undefined'],
+      });
+    }
+    return tableData;
+  };
   render() {
     const headers = [
       {
@@ -229,7 +246,6 @@ export default class FlightTracker extends Component {
       });
     });
 
-    const dateNow = Date.now();
     let timerLength = 0;
     for (const [key, value] of Object.entries(this.state.planesState)) {
       if (value != 'running') {
@@ -237,8 +253,6 @@ export default class FlightTracker extends Component {
       }
     }
 
-    let zoomOut = this.state.zoom === '200' ? <ZoomInIcon block={true}></ZoomInIcon> : <ZoomInIcon></ZoomInIcon>;
-    let zoomIn = this.state.zoom === '100' ? <ZoomOutIcon block={true}></ZoomOutIcon> : <ZoomOutIcon></ZoomOutIcon>;
     const inRadius = timerLength > 0 ? 'warning' : 'ok';
 
     return (
@@ -269,35 +283,17 @@ export default class FlightTracker extends Component {
             </div>
           </div>
         </div>
-        <div className={styles.mapContainer}>
-          <MapFlightTracker planes={tableData} zoom={this.state.zoom}></MapFlightTracker>
-          <div className={styles.zoomDiv}>
-            <Button
-              className={styles.iconBtn}
-              title="Zoom"
-              onClick={this.zoomOut}
-              disabled={this.state.zoom === '200'}
-              status="transparent"
-            >
-              {zoomOut}
-            </Button>
-            <Button
-              className={styles.iconBtn}
-              title="ZoomOut"
-              onClick={this.zoomIn}
-              disabled={this.state.zoom === '100'}
-              status="transparent"
-            >
-              {zoomIn}
-            </Button>
-          </div>
-        </div>
         <br></br>
         <div className={styles.divElement}>
-          <div className={styles.table}>
-            <SimpleTable headers={headers} data={tableData}></SimpleTable>
-          </div>
-          <div className={styles.divLastUp}>LAST UPDATE: {Math.round((dateNow - this.state.lastUpdate) / 1000)}SEC</div>
+          <PaginatedTable headers={headers} data={tableData} paginationOptions={[5, 10, 15, 20]}></PaginatedTable>
+        </div>
+        <div className={styles.divElement}>
+          <PaginatedTable
+            headers={headers}
+            callBack={this.getData}
+            paginationOptions={[5, 10, 15, 20]}
+            dataLen={planes.length}
+          ></PaginatedTable>
         </div>
       </div>
     );
