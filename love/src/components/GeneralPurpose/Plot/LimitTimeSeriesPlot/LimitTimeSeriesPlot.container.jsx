@@ -48,7 +48,7 @@ class LimitTimeSeriesPlotContainer extends React.Component {
 
     if (!containerNode) {
       return (
-        <div id="hola" ref={this.containerRef}>
+        <div ref={this.containerRef}>
           <LimitTimeSeriesPlot containerNode={this.containerRef.current?.parentNode} />
         </div>
       );

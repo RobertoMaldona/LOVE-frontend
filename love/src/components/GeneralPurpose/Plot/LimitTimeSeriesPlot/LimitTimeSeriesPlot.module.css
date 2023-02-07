@@ -7,8 +7,13 @@
   justify-content: space-around;
 }
 
-.flexStyle {
+.flexStyle1 {
   flex-wrap: wrap-reverse;
+}
+
+.flexStyle2 {
+  flex-wrap: wrap-reverse;
+  width: 10%;
 }
 
 .LiveValue {
@@ -44,4 +49,11 @@
 .lineButtonContainer {
   display: flex;
   flex-wrap: nowrap;
+}
+
+.svgButtonEdit {
+  transform-origin: center;
+  transform: translate(-25%);
+  width: 1rem;
+  height: 1rem;
 }

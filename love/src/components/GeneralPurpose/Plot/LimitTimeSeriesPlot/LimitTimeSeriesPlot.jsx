@@ -80,7 +80,6 @@ export default class LimitTimeSeriesPlot extends Component {
    * the plot Node parent.
    */
   componentDidUpdate = (prevProps) => {
-    console.log(this.props.containerNode);
     if (prevProps.containerNode !== this.props.containerNode) {
       if (this.props.containerNode) {
         this.resizeObserver = new ResizeObserver((entries) => {
@@ -246,7 +245,7 @@ export default class LimitTimeSeriesPlot extends Component {
    */
   returnInput() {
     if (this.state.showInput) {
-      return <Input onChange={(e) => this.setState({ Limit: e.target.value })} />;
+      return <Input onChange={(e) => this.setState({ Limit: e.target.value })} width="50%" />;
     } else {
       return this.state.Limit;
     }
@@ -300,18 +299,16 @@ export default class LimitTimeSeriesPlot extends Component {
   }
 
   render() {
-    console.log(this.props.containerNode);
-    console.log(this.state.width, this.state.height);
     return (
       <>
         <div className={styles.container0}>
           <div className={styles.container1}>
-            <div className={styles.flexStyle}>
+            <div className={styles.flexStyle1}>
               <div>{this.legendValue} </div>
               <div className={styles.LiveValue}> {this.state.actualValue} </div>
             </div>
 
-            <div className={styles.flexStyle}>
+            <div className={styles.flexStyle2}>
               <div className={styles.lineButtonContainer}>
                 {this.legendLimit}
                 <Button
@@ -321,7 +318,7 @@ export default class LimitTimeSeriesPlot extends Component {
                   }}
                 >
                   <div className={styles.svgButton}>
-                    <svg width="1rem" height="1rem">
+                    <svg className={styles.svgButtonEdit}>
                       <line className={styles.svgEdit} x1="8.34" y1="2.09" x2="7.58" y2="1.38" />
                       <line className={styles.svgEdit} x1="8.72" y1="1.73" x2="7.96" y2="1.02" />
                       <polyline className={styles.svgEdit} points="4.16 1.66 .15 1.66 .15 9.48 7.97 9.48 7.97 5.49" />
