@@ -96,12 +96,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
   return $;
 };
 
-function fetchWithTimeout(url, options={}, timeout=2000) {
+function fetchWithTimeout(url, options = {}, timeout = 2000) {
   return Promise.race([
     fetch(url, options),
     new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('timeout')), timeout)
-    })
+      setTimeout(() => reject(new Error('timeout')), timeout);
+    }),
   ]);
 }
 
@@ -153,6 +153,14 @@ export default class ManagerInterface {
 
   static removeToken() {
     localStorage.removeItem('LOVE-TOKEN');
+  }
+
+  static setStyle(style) {
+    localStorage.setItem('STYLE', style);
+  }
+
+  static getStyle() {
+    return localStorage.getItem('STYLE');
   }
 
   static requestConfigValidation(config, schema) {
@@ -319,22 +327,68 @@ export default class ManagerInterface {
 
   static getEFDStatus(url) {
     if (!url) {
-      return new Promise(function(resolve, _) {
-        resolve({label: "EFD Status URL is not present in LOVE Configuration File", style: "invalid"});
+      return new Promise(function (resolve, _) {
+        resolve({ label: 'EFD Status URL is not present in LOVE Configuration File', style: 'invalid' });
       });
     }
-    return fetchWithTimeout(url, {method: 'GET'}).then(result => {
-      if (result.status == 200) {
-        return {label: "EFD Healthy Status Pass", style: "ok"};
-      }
-      if (result.status === 503) {
-        return {label: "EFD Healthy Status Fail", style: "alert"};
-      }
-      result.json().then((resp) => {
-        return {label: "EFD Healthy Status Unknown", style: "alert", response: resp};
+    return fetchWithTimeout(url, { method: 'GET' })
+      .then((result) => {
+        if (result.status == 200) {
+          return { label: 'EFD Healthy Status Pass', style: 'ok' };
+        }
+        if (result.status === 503) {
+          return { label: 'EFD Healthy Status Fail', style: 'alert' };
+        }
+        result.json().then((resp) => {
+          return { label: 'EFD Healthy Status Unknown', style: 'alert', response: resp };
+        });
+      })
+      .catch((err) => {
+        return { label: 'EFD Healthy Status Fail', style: 'alert', error: err };
       });
-    }).catch(err => {
-      return {label: "EFD Healthy Status Fail", style: "alert", error: err};
+  }
+
+  static postBlob(blob) {
+    function getSimpleHeaders() {
+      const token = ManagerInterface.getToken();
+      if (token) {
+        return new Headers({
+          Authorization: `Token ${token}`,
+        });
+      }
+      return new Headers({});
+    }
+
+    const token = ManagerInterface.getToken();
+    if (token === null) {
+      return new Promise((resolve) => resolve(false));
+    }
+    const url = `${this.getApiBaseUrl()}records/`;
+
+    const formData = new FormData();
+    formData.append('blob', blob);
+
+    return fetch(url, {
+      method: 'POST',
+      headers: getSimpleHeaders(),
+      body: formData,
+    }).then((response) => {
+      if (response.status >= 500) {
+        return false;
+      }
+      if (response.status === 401 || response.status === 403) {
+        ManagerInterface.removeToken();
+        return false;
+      }
+      if (response.status === 400) {
+        return response.json().then((resp) => {
+          toast.error(resp.ack);
+          return false;
+        });
+      }
+      return response.json().then((resp) => {
+        return resp;
+      });
     });
   }
 
@@ -1052,11 +1106,11 @@ export function getUserHost(user, host) {
 
 /**
  * Function for get desplace in angle for the SVG
- * @param {number in degree to initial} from 
- * @param {number in degree to end} to 
+ * @param {number in degree to initial} from
+ * @param {number in degree to end} to
  * @returns {number to desplace}
  */
 export function closestEquivalentAngle(from, to) {
   const delta = ((((to - from) % 360) + 540) % 360) - 180;
   return from + delta;
-};
+}

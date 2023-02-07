@@ -1,0 +1,28 @@
+:root {
+  --base-font-color: hsl(194, 3%, 19%);
+  --second-base-font-color: rgba(52, 52, 54, 0.7);
+  --secondary-font-color: hsl(200, 13%, 9%);
+  --secondary-font-dimmed-color: rgba(33, 37, 39, 0.3); /*Transparent*/
+  --tertiary-font-color: hsl(201, 54%, 13%);
+  --highlighted-font-color: hsl(0, 19%, 29%);
+
+  --base-background-color: hsl(205, 40%, 90%);
+  --secondary-background-color: hsl(200, 40%, 88%);
+  --secondary-background-dimmed-color: hsl(200, 45%, 87%);
+  --tertiary-background-color: hsl(201, 21%, 77%);
+  --quaternary-background-color: hsl(202, 32%, 77%);
+  --quinary-background-color: hsl(196, 16%, 77%);
+
+  --overlay-background-color: hsla(205, 40%, 90%, 70%);
+
+  --second-primary-background-color: hsl(202, 38%, 88%);
+  --second-primary-background-color-dimmed: hsl(202, 38%, 88%, 0.5);
+  --second-secondary-background-color: hsl(202, 36%, 86%);
+  --second-tertiary-background-color: hsl(201, 26%, 77%);
+  --second-quaternary-background-color: hsl(201, 24%, 73%);
+  --second-quaternary-background-dimmed-color: hsl(201, 36%, 80%);
+  --second-quinary-background-color: hsl(201, 22%, 60%);
+  --second-senary-background-color: hsl(201, 40%, 19%);
+  --second-senary-background-dimmed-color: hsl(201, 40%, 19%, 0.3);
+  --sidebar-background-color: hsla(202, 36%, 87%, 90%);
+}

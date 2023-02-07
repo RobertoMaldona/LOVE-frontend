@@ -2,46 +2,81 @@
   background-color: #292a38;
   border-radius: 8px;
   padding: 20px;
-
-  position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-
-  height: 150px;
+  height: 75px;
 }
 
-.volumenWrapper {
+.spanMicAvailable {
+  display: table-header-group;
+  font-size: 19px;
+  font-family: Sans-Serif;
+  font-weight: normal;
+  padding-bottom: 1em;
+  text-align-last: start;
+}
+
+.component {
+  grid-area: body;
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
+  padding-bottom: 1em;
 }
 
-.led {
-  width: 40px;
-  height: 25px;
-  background-color: #292a38;
-  border-radius: 4px;
-
-  box-shadow: -2px -2px 4px 0px #a7a7a73d inset, 2px 2px 4px 0px #0a0a0e5e inset;
-  margin: 0 5px;
+.micDetails {
+  width: 50%;
+  overflow-x: hidden;
+  overflow-y: clip;
+  transition: 0.4s;
+  margin: 2px;
+  padding-inline: 0.5em;
+  max-width: 35em;
+  margin-bottom: 1.75em;
 }
 
-.audioControl {
-  cursor: pointer;
-  color: #fff;
+.mics {
+  width: 100%;
+  /* border-radius: 20px; */
+  transition: 0.4s;
+  margin: 2px;
+  padding-inline: 0.5em;
+}
 
-  box-shadow: -2px -2px 4px 0px #a7a7a73d, 2px 2px 4px 0px #0a0a0e5e;
-  padding: 8px;
+.collapsedMicDetail {
+  width: 0px;
+  overflow-x: hidden;
+  transition: 0.4s;
+}
 
-  font-size: 25px;
-  border-radius: 50%;
+.component {
+  display: flex;
+  margin-inline: -0.25em;
+}
+
+.container {
+  max-width: 100%;
+}
+
+.recSVG {
+  height: 2.25em;
+}
+
+.playSVG {
+  height: 4em;
+}
+
+.verticalSpace {
+  margin-bottom: 0.5em;
+}
+
+.divTitleSection {
+  height: 7.5%;
+  margin-block: 2px;
+  color: var(--base-font-color);
+  display: grid;
 }
 
 .alarmContainer {

@@ -1,0 +1,20 @@
+.cls1, .cls2 {
+  stroke: #af3222;
+  stroke-miterlimit: 10;
+}
+
+.cls3 {
+  letter-spacing: 0em;
+}
+
+.cls2 {
+  fill: #af3222;
+  stroke-width: 3px;
+}
+
+.cls4 {
+  fill: #c1ced2;
+  font-family: Montserrat-Bold, Montserrat;
+  font-size: 7.93px;
+  font-weight: 700;
+}
