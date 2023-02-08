@@ -1,7 +1,6 @@
 .input {
   width: 100%;
   box-sizing: border-box;
-  border-radius: 5%;
   padding: 0.4em;
   font-family: inherit;
   font-size: inherit;
@@ -26,61 +25,42 @@
   /* outline: var(--primary-active-font-color) auto 5px; */
 }
 
-.spanIcon {
+.borderRadiusLeft {
+  border-bottom-left-radius: 0.2em;
+  border-top-left-radius: 0.2em;
+}
+
+.borderRadiusRight {
+  border-bottom-right-radius: 0.2em;
+  border-top-right-radius: 0.2em;
+}
+.divIcon {
   color: #555;
   text-align: center;
   background-color: var(--tertiary-background-color);
   /* border: 0.1em solid #d6d6d6; */
-  border-radius: 5%;
   height: 80%;
   align-self: center;
-  aspect-ratio: 1 / 1;
+  /* aspect-ratio: 1 / 1; */
+  width: 20%;
+  height: 80%;
+  display: inline-grid;
+  align-items: center;
+  justify-items: center;
+}
+
+.divIcon > * {
+  height: 90%;
+  width: 90%;
 }
 
 .pointer {
   cursor: pointer;
 }
 
-.arrow {
-  font-size: 1.5em;
-}
-
 .div {
   display: inline-flex;
   height: 100%;
   align-self: center;
-  width: 25%;
   padding: 0.2em;
 }
-
-/* .div2{
-  position: relative;
-  display: table;
-  border-collapse: separate;
-  align-self: center;
-}
-
-.input2{
-  display: table-cell;
-  position: relative;
-  z-index: 2;
-  float: left;
-  width: 100%;
-  border: 1px solid #d6d6d6;
-  box-sizing: border-box;
-  border-radius: 3px;
-  padding: 0.4em;
-  font-family: inherit;
-  font-size: inherit;
-  background-color: transparent;
-  border: 1px solid var(--secondary-font-dimmed-color);
-  color: var(--base-font-color);
-  height: 2em;
-}
-
-.spanIcon2 {
-  display: table-cell;
-  vertical-align: middle;
-  height: 2em;
-  width: 2em;
-} */

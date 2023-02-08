@@ -13,28 +13,42 @@ export default function Input({
   ...props
 }) {
   const [iValue, setIValue] = React.useState(0);
+
   const change = (e) => {
-    console.log(e);
     setIValue(e.target.value);
     onChange ? onChange(e) : '';
   };
-  // console.log(onClick, iValue);
+
+  const enter = (e) => {
+    if (e.isComposing || e.keyCode === 229) {
+      return;
+    }
+    if (e.keyCode === 13) onClick?.(iValue);
+  };
+
+  const borderInputLeft = icon ? '' : styles.borderRadiusLeft;
+  const borderInputRight = iconButton ? '' : styles.borderRadiusRight;
+
   return (
     <div className={styles.div}>
-      {icon ? <span className={styles.spanIcon}>{icon}</span> : ''}
+      {icon && <div className={[styles.divIcon, styles.borderRadiusLeft].join(' ')}>{icon}</div>}
       <input
         type="text"
-        className={[styles.input, className].join(' ')}
+        className={[styles.input, className, borderInputLeft, borderInputRight].join(' ')}
         defaultValue={defaultValue}
         value={value}
         placeholder={placeholder}
         onChange={(e) => change(e)}
+        onKeyDown={(e) => enter(e)}
         {...props}
       />
       {iconButton && (
-        <span onClick={() => onClick(iValue)} className={[styles.spanIcon, styles.pointer].join(' ')}>
+        <div
+          onClick={() => onClick?.(iValue)}
+          className={[styles.divIcon, styles.pointer, styles.borderRadiusRight].join(' ')}
+        >
           {iconButton}
-        </span>
+        </div>
       )}
     </div>
   );

@@ -11,6 +11,7 @@ import ManagerInterface, { formatSecondsToDigital } from 'Utils';
 import ZoomInIcon from 'components/icons/Zoom/ZoomInIcon';
 import ZoomOutIcon from 'components/icons/Zoom/ZoomOutIcon';
 import PaginatedTable from 'components/GeneralPurpose/PaginatedTable/PaginatedTable';
+import Input from 'components/GeneralPurpose/Input/Input';
 
 const DEFAULT_POLLING_TIMEOUT = 5000;
 
@@ -127,19 +128,19 @@ export default class FlightTracker extends Component {
       console.log(res);
     });
 
-    //Get Planes's data from API every x seconds.
-    if (this.pollingInterval) clearInterval(this.pollingInterva);
-    this.pollingInterval = setInterval(
-      () => {
-        ManagerInterface.getDataFlightTracker('(-30.2326, -70.7312)', '200').then((res) => {
-          this.setState({
-            planes: res,
-            lastUpdate: Date.now(),
-          });
-        });
-      },
-      this.props.pollingTimeout ? this.props.pollingTimeout * 1000 : DEFAULT_POLLING_TIMEOUT,
-    );
+    // //Get Planes's data from API every x seconds.
+    // if (this.pollingInterval) clearInterval(this.pollingInterva);
+    // this.pollingInterval = setInterval(
+    //   () => {
+    //     ManagerInterface.getDataFlightTracker('(-30.2326, -70.7312)', '200').then((res) => {
+    //       this.setState({
+    //         planes: res,
+    //         lastUpdate: Date.now(),
+    //       });
+    //     });
+    //   },
+    //   this.props.pollingTimeout ? this.props.pollingTimeout * 1000 : DEFAULT_POLLING_TIMEOUT,
+    // );
   };
 
   /*
@@ -188,6 +189,10 @@ export default class FlightTracker extends Component {
       });
     }
     return tableData;
+  };
+
+  printData = (data) => {
+    data?.map((v) => console.log(v));
   };
   render() {
     const headers = [
@@ -238,12 +243,17 @@ export default class FlightTracker extends Component {
     const tableData = [];
     planes.forEach((element) => {
       const { id } = element;
-      tableData.push({
-        ...element,
-        longitude: element['loc'][0] ?? 'undefined',
-        latitude: element['loc'][1] ?? 'undefined',
-        distance: [Math.round(this.state.planesDistance[id]) ?? 'undefined', this.state.planesState[id] ?? 'undefined'],
-      });
+      for (let i = 1; i < 4; i++) {
+        tableData.push({
+          ...element,
+          longitude: element['loc'][0] ?? 'undefined',
+          latitude: element['loc'][1] ?? 'undefined',
+          distance: [
+            Math.round(this.state.planesDistance[id]) ?? 'undefined',
+            this.state.planesState[id] ?? 'undefined',
+          ],
+        });
+      }
     });
 
     let timerLength = 0;
@@ -271,7 +281,8 @@ export default class FlightTracker extends Component {
             </div>
             <div className={styles.statusDivElement}>
               <div className={styles.statusElement}>
-                <Title>Aircraft in Radius</Title>
+                {/* <Title>Aircraft in Radius</Title> */}
+                Aircraft in Radius
               </div>
               <div className={styles.statusElement}>
                 <Value>
@@ -284,16 +295,14 @@ export default class FlightTracker extends Component {
           </div>
         </div>
         <br></br>
-        <div className={styles.divElement}>
-          <PaginatedTable headers={headers} data={tableData} paginationOptions={[5, 10, 15, 20]}></PaginatedTable>
-        </div>
-        <div className={styles.divElement}>
-          <PaginatedTable
-            headers={headers}
-            callBack={this.getData}
-            paginationOptions={[5, 10, 15, 20]}
-            dataLen={planes.length}
-          ></PaginatedTable>
+        <PaginatedTable
+          headers={headers}
+          data={tableData}
+          callBack={this.printData}
+          paginationOptions={[5, 10, 15, 20]}
+        ></PaginatedTable>
+        <div>
+          <Input></Input>
         </div>
       </div>
     );

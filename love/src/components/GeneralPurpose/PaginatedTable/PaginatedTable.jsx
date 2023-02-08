@@ -4,7 +4,7 @@ import styles from './PaginatedTable.module.css';
 import Button from '../Button/Button';
 import Select from '../Select/Select';
 import PropTypes from 'prop-types';
-import { index } from 'd3';
+import { index, style } from 'd3';
 import Input from '../Input/Input';
 import { Search } from 'brace';
 import RowExpansionIcon from 'components/icons/RowExpansionIcon/RowExpansionIcon';
@@ -13,25 +13,27 @@ const AVAILABLE_ITEMS_PER_PAGE = [10, 25, 50, 100];
 /**
  * Adds pagination handlers to #SimpleTable.
  */
-const PaginatedTable = ({ headers, data, paginationOptions, callBack, dataLen }) => {
+const PaginatedTable = ({ title, headers, data, paginationOptions, callBack }) => {
   const availableItemsPerPage = paginationOptions ?? AVAILABLE_ITEMS_PER_PAGE;
   const [itemsPerPage, setItemsPerPage] = React.useState(availableItemsPerPage[0].toString());
   const [page, setPage] = React.useState(0);
+  const [dataFilter, setDataFilter] = React.useState(0);
 
-  const length = data ? data.length : dataLen;
+  const length = dataFilter ? dataFilter.length : data.length;
   const lastPage =
     length % itemsPerPage === 0 ? Math.floor(length / itemsPerPage) - 1 : Math.floor(length / itemsPerPage);
 
-  const pageData = data ? data.slice(page * itemsPerPage, (page + 1) * itemsPerPage) : callBack(itemsPerPage, page);
-  page * itemsPerPage;
+  const pageData = dataFilter
+    ? dataFilter.slice(page * itemsPerPage, (page + 1) * itemsPerPage)
+    : data.slice(page * itemsPerPage, (page + 1) * itemsPerPage);
 
-  const goToFirst = () => {
-    setPage(0);
-  };
+  // const goToFirst = () => {
+  //   setPage(0);
+  // };
 
-  const goToLast = () => {
-    setPage(lastPage);
-  };
+  // const goToLast = () => {
+  //   setPage(lastPage);
+  // };
 
   const goToNext = () => {
     setPage((page) => Math.min(page + 1, lastPage));
@@ -47,7 +49,22 @@ const PaginatedTable = ({ headers, data, paginationOptions, callBack, dataLen })
 
   const searchPage = (numString) => {
     const number = parseInt(numString, 10);
-    if (number) setPage(number - 1);
+    if (number && number < lastPage + 2) setPage(number - 1);
+  };
+
+  const searchElements = (elem) => {
+    let dataFilter = [];
+    data.map((arrow) => {
+      const arrayValues = Object.values(arrow);
+      arrayValues.some((value) => {
+        if (typeof value === 'string') {
+          if (value.includes(elem)) dataFilter.push(arrow);
+        } else {
+          if (value === elem) dataFilter.push(arrow);
+        }
+      });
+    });
+    setDataFilter(dataFilter);
   };
 
   const onSelectChange = (option) => {
@@ -59,13 +76,42 @@ const PaginatedTable = ({ headers, data, paginationOptions, callBack, dataLen })
     setPage(0);
   }, [JSON.stringify(data), JSON.stringify(headers)]);
 
+  React.useEffect(() => {
+    callBack?.(pageData);
+  }, [page]);
+
   const feasibleItemsPerPage = availableItemsPerPage.filter((threshold) => length > threshold);
 
   const paginationLengthArray = lastPage < 2 ? [] : new Array(lastPage - 1).fill(0);
 
   return (
-    <div>
-      <SimpleTable headers={headers} data={pageData} />
+    <div className={styles.paginatedTable}>
+      {/* Header and Search */}
+      <div className={styles.tableHeader}>
+        <div className={styles.tableHeaderBox}>
+          <div className={styles.DTlfLeft}>{title ?? 'TITLE HEADER'}</div>
+          <div className={styles.DTlfRight}>
+            <div className={styles.DTperPage}>
+              <span className={styles.spanLabel}>Per page: </span>
+              <Select
+                onChange={onSelectChange}
+                controlClassName={styles.select}
+                className={styles.selectDiv}
+                option={itemsPerPage}
+                options={feasibleItemsPerPage.map((v) => v.toString())}
+              />
+            </div>
+            <div className={styles.DTsearch}>
+              <Input onChange={(n) => searchElements(n.target.value)} placeholder={'Search'}></Input>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Table */}
+      <SimpleTable headers={headers} data={pageData} className={styles.simpleTable} />
+
+      {/* Paginator */}
       {feasibleItemsPerPage.length > 0 && (
         <div className={styles.paginationContainer}>
           <span className={styles.contentRange}>
@@ -82,15 +128,8 @@ const PaginatedTable = ({ headers, data, paginationOptions, callBack, dataLen })
               {lastPage >= 6 ? (
                 page > 3 && page < lastPage - 3 ? (
                   <>
-                    <li
-                      key={'pointsPrev'}
-                      // onClick={() => goToPage(page)}
-                      className={styles.pageNumber}
-                    >
+                    <li key={'pointsPrev'} className={styles.pageNumber}>
                       ...
-                    </li>
-                    <li key={page - 1} onClick={() => goToPage(page - 1)} className={styles.pageNumber}>
-                      {page - 1}
                     </li>
                     <li key={page} onClick={() => goToPage(page)} className={styles.pageNumber}>
                       {page}
@@ -98,15 +137,14 @@ const PaginatedTable = ({ headers, data, paginationOptions, callBack, dataLen })
                     <li key={page + 1} onClick={() => goToPage(page + 1)} className={styles.pageNumber}>
                       {page + 1}
                     </li>
-                    <li
-                      key={'pointsNext'}
-                      // onClick={() => goToPage(page)}
-                      className={styles.pageNumber}
-                    >
+                    <li key={page + 2} onClick={() => goToPage(page + 2)} className={styles.pageNumber}>
+                      {page + 2}
+                    </li>
+                    <li key={'pointsNext'} className={styles.pageNumber}>
                       ...
                     </li>
                   </>
-                ) : page < 3 ? (
+                ) : page <= 3 ? (
                   <>
                     <li key={2} onClick={() => goToPage(2)} className={styles.pageNumber}>
                       2
@@ -120,21 +158,13 @@ const PaginatedTable = ({ headers, data, paginationOptions, callBack, dataLen })
                     <li key={5} onClick={() => goToPage(5)} className={styles.pageNumber}>
                       5
                     </li>
-                    <li
-                      key={'pointsNext'}
-                      // onClick={() => goToPage(page)}
-                      className={styles.pageNumber}
-                    >
+                    <li key={'pointsNext'} className={styles.pageNumber}>
                       ...
                     </li>
                   </>
                 ) : (
                   <>
-                    <li
-                      key={'pointsPrev'}
-                      // onClick={() => goToPage(page)}
-                      className={styles.pageNumber}
-                    >
+                    <li key={'pointsPrev'} className={styles.pageNumber}>
                       ...
                     </li>
                     <li key={lastPage - 3} onClick={() => goToPage(lastPage - 3)} className={styles.pageNumber}>
@@ -143,7 +173,7 @@ const PaginatedTable = ({ headers, data, paginationOptions, callBack, dataLen })
                     <li key={lastPage - 2} onClick={() => goToPage(lastPage - 2)} className={styles.pageNumber}>
                       {lastPage - 2}
                     </li>
-                    <li key={lastPage - 2} onClick={() => goToPage(lastPage - 1)} className={styles.pageNumber}>
+                    <li key={lastPage - 1} onClick={() => goToPage(lastPage - 1)} className={styles.pageNumber}>
                       {lastPage - 1}
                     </li>
                     <li key={lastPage} onClick={() => goToPage(lastPage)} className={styles.pageNumber}>
@@ -167,12 +197,13 @@ const PaginatedTable = ({ headers, data, paginationOptions, callBack, dataLen })
                 <span className={styles.arrow}>&#62;</span>
               </li>
             </ul>
-            <Input
-              icon={<RowExpansionIcon></RowExpansionIcon>}
-              iconButton={<RowExpansionIcon></RowExpansionIcon>}
-              onClick={(n) => searchPage(n)}
-              placeholder={'Go to page'}
-            ></Input>
+            <div className={styles.input}>
+              <Input
+                iconButton={<RowExpansionIcon></RowExpansionIcon>}
+                onClick={(n) => searchPage(n)}
+                placeholder={'Go to page'}
+              ></Input>
+            </div>
           </div>
         </div>
       )}
