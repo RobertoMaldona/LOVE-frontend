@@ -65,6 +65,7 @@ const PaginatedTable = ({ title, headers, data, paginationOptions, callBack }) =
       });
     });
     setDataFilter(dataFilter);
+    setPage(0);
   };
 
   const onSelectChange = (option) => {
