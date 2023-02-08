@@ -18,13 +18,17 @@ export default class Table extends Component {
      */
     recordPush: PropTypes.func,
     /**
-     * Function to set the infoPlot state of the mic component to render.
+     * Function to set the infoPlot state of the mic component to render
      */
     setInfoPlot: PropTypes.func,
+    /**
+     * Container Node of the Vega Lite heat map to render
+     */
+    containerNode: PropTypes.object,
   };
 
   render() {
-    const { mics, selectMic, recordPush, setInfoPlot } = this.props;
+    const { mics, selectMic, recordPush, setInfoPlot, containerNode } = this.props;
     return (
       <table>
         <colgroup span="2" />
@@ -56,6 +60,7 @@ export default class Table extends Component {
                   selectMic={(mic) => selectMic(mic)}
                   recordPush={(id, currentTime, url, blob) => recordPush(id, currentTime, url, blob)}
                   setInfoPlot={(data) => setInfoPlot(data)}
+                  containerNode={containerNode}
                 ></Microphone>
               </>
             );

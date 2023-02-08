@@ -32,10 +32,16 @@ export default class Microphone extends Component {
      * Function to set the infoPlot state of the mic component to render.
      */
     setInfoPlot: PropTypes.func,
+
+    /** Node to be used to track heat map width and height.
+     *  Use this instead of props.width and props.height for responsive plots.
+     */
+    containerNode: PropTypes.object,
   };
 
   constructor(props) {
     super(props);
+
     this.state = {
       isSelected: false,
 
@@ -96,6 +102,10 @@ export default class Microphone extends Component {
 
       data3D: { table: [] },
 
+      width: undefined,
+
+      height: undefined,
+
       showInput: false,
     };
 
@@ -116,6 +126,8 @@ export default class Microphone extends Component {
     this.windowTimePlot;
     this.frequencyData;
     this.countPollingIterval;
+
+    this.resizeObserver = undefined;
   }
 
   componentDidMount = () => {
@@ -136,6 +148,32 @@ export default class Microphone extends Component {
       };
       if (this.state.isSelected) this.props.setInfoPlot(infoPlot);
     }, 1000);
+  };
+
+  componentDidUpdate = (prevProps) => {
+    console.log('si paso x aqui');
+    console.log(prevProps.containerNode, this.props.containerNode);
+    if (prevProps.containerNode !== this.props.containerNode) {
+      if (this.props.containerNode) {
+        this.resizeObserver = new ResizeObserver((entries) => {
+          const container = entries[0];
+          console.log('el container', container);
+          console.log('vega size', this.state.width, this.state.height);
+          this.setState({
+            height: container.contentRect.height - 200,
+            width: container.contentRect.width - 245,
+          });
+        });
+
+        this.resizeObserver.observe(this.props.containerNode);
+      }
+    }
+  };
+
+  componentWillUnmount = () => {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
   };
 
   /* Method to set up the audio variables*/
@@ -303,7 +341,6 @@ export default class Microphone extends Component {
       spec3D: this.state.spec3D,
       data3D: this.state.data3D,
     };
-    console.log('selectMe', infoPlot.showInput);
     this.props.setInfoPlot(infoPlot);
   };
 
@@ -395,8 +432,8 @@ export default class Microphone extends Component {
     // we return vega lite parameter with changes.
     const result = {
       spec3D: {
-        width: 200,
-        height: 200,
+        width: this.state.width,
+        height: this.state.height,
         data: { name: 'table' },
         mark: { type: 'rect' },
         encoding: {

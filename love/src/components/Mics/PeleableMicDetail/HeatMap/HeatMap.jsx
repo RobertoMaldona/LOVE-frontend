@@ -15,12 +15,21 @@ export default class HeatMap extends Component {
 
   constructor(props) {
     super(props);
+
     this.state = {
       infoPlot: null,
     };
   }
 
   componentDidMount = () => {};
+
+  componentDidUpdate = () => {};
+
+  componentWillUnmount = () => {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
+  };
 
   render() {
     if (!this.props.infoPlot) {
@@ -37,7 +46,6 @@ export default class HeatMap extends Component {
       spec3D,
       data3D,
     } = this.props.infoPlot;
-    console.log(showInput);
     return (
       <div className={styles.infoMonserratFontContainer0}>
         <div className={styles.infoMonserratFontContainer1}>
@@ -77,6 +85,7 @@ export default class HeatMap extends Component {
         </div>
         <br></br>
         <div className={styles.monserratFontTitle}> ALARM STORY</div>
+
         <div className={styles.divVegaLite}>
           <br></br>
           <VegaLite style={{ display: 'flex' }} renderer="svg" spec={spec3D} data={data3D} />

@@ -6,6 +6,18 @@ import Record from './Record';
 import HeatMap from './HeatMap/HeatMap';
 
 export default class PeleableMicDetail extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      first: true,
+
+      second: false,
+    };
+
+    this.containerRef = React.createRef();
+  }
+
   static propTypes = {
     /**
      * ID of the current mic selected
@@ -15,6 +27,10 @@ export default class PeleableMicDetail extends Component {
      * Plot's info of the current mic to render
      */
     infoPlot: PropTypes.object,
+    /**
+     * Function that allows to set the heat map container node of the current mic to render
+     */
+    setContainerNode: PropTypes.func,
     /**
      * Classname of the styles to decide if show or don't
      */
@@ -65,6 +81,24 @@ export default class PeleableMicDetail extends Component {
     textRec: PropTypes.string,
   };
 
+  /**
+   * Function that allows to update the heat map container node.
+   * @param {Object} container
+   */
+  changeSize = (container) => {
+    this.props.setContainerNode(container);
+    this.setState({ first: false });
+    if (!this.state.second) {
+      this.setState({ second: true });
+      console.log('TRUE');
+    } else {
+      this.setState({ second: false });
+      console.log('FALSE');
+    }
+  };
+
+  componentDidMount = () => {};
+
   render() {
     const {
       id,
@@ -79,6 +113,7 @@ export default class PeleableMicDetail extends Component {
       svgRec,
       textPlay,
       textRec,
+      containerNode,
     } = this.props;
 
     return (
@@ -89,7 +124,17 @@ export default class PeleableMicDetail extends Component {
 
         <div className={styles.divDetails}>
           <div>
-            <HeatMap infoPlot={this.props.infoPlot}></HeatMap>
+            {!containerNode ? (
+              <div ref={this.containerRef} id="el de verda">
+                {this.state.first ? this.changeSize(this.containerRef.current?.parentNode) : <></>}
+                {this.state.second ? this.changeSize(this.containerRef.current?.parentNode) : <></>}
+                <HeatMap infoPlot={this.props.infoPlot} containerNode={this.containerRef}></HeatMap>
+              </div>
+            ) : (
+              <div>
+                <HeatMap infoPlot={this.props.infoPlot} containerNode={containerNode}></HeatMap>
+              </div>
+            )}
           </div>
           <div className={styles.audioStream}>
             <span className={[styles.detailsTitle, styles.headers].join(' ')}>AUDIO STREAMING</span>

@@ -12,7 +12,7 @@ export default class LimitTimeSeriesPlot extends Component {
   static propTypes = {
     /** Node to be used to track width and height.
      *  Use this instead of props.width and props.height for responsive plots.
-     *  Will be ignored if both props.width and props.height are provided */
+     */
     containerNode: PropTypes.object,
   };
 
@@ -23,10 +23,6 @@ export default class LimitTimeSeriesPlot extends Component {
       width: undefined,
 
       height: undefined,
-
-      containerWidth: undefined,
-
-      containerHeight: undefined,
 
       actualValue: 0.5,
 
