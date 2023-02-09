@@ -27,14 +27,6 @@ const PaginatedTable = ({ title, headers, data, paginationOptions, callBack }) =
     ? dataFilter.slice(page * itemsPerPage, (page + 1) * itemsPerPage)
     : data.slice(page * itemsPerPage, (page + 1) * itemsPerPage);
 
-  // const goToFirst = () => {
-  //   setPage(0);
-  // };
-
-  // const goToLast = () => {
-  //   setPage(lastPage);
-  // };
-
   const goToNext = () => {
     setPage((page) => Math.min(page + 1, lastPage));
   };
@@ -110,10 +102,10 @@ const PaginatedTable = ({ title, headers, data, paginationOptions, callBack }) =
       </div>
 
       {/* Table */}
-      <SimpleTable headers={headers} data={pageData} className={styles.simpleTable} />
+      <SimpleTable headers={headers} data={pageData} />
 
       {/* Paginator */}
-      {feasibleItemsPerPage.length > 0 && (
+      {lastPage > 0 && (
         <div className={styles.paginationContainer}>
           <span className={styles.contentRange}>
             {page * itemsPerPage + 1}-{(page + 1) * itemsPerPage} of {length}

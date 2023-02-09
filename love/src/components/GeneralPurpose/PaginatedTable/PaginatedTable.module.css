@@ -32,6 +32,9 @@
 
 .select {
   background: none;
+  display: inline-flex;
+  height: 100%;
+  padding-block: 0.5em;
 }
 
 .inputPage {
@@ -118,6 +121,7 @@
 .DTperPage {
   display: inline-flex;
   align-items: center;
+  margin-right: 0.25em;
 }
 
 .DTsearch {
@@ -137,7 +141,7 @@
   background: var(--second-quaternary-background-dimmed-color);
   padding-block: 0.15em;
   border-top-left-radius: 0.25em;
-  border: 1px solid black;
+  border: 1.5px solid black;
   border-top-right-radius: 0.25em;
 }
 
@@ -145,6 +149,35 @@
   align-self: center;
 }
 
+.selectDiv {
+  height: 2.25em;
+  margin-inline: 0.25em;
+}
+
 .simpleTable {
   margin-top: -0.05em;
 }
+
+.simpleTable > * {
+  border: 2px solid var(--base-background-color);
+  background-color: aqua;
+}
+
+/* 
+.simpleTable > thead > th:first-of-type {
+  border-top-left-radius: 0;
+}
+
+.simpleTable > thead > th:last-of-type {
+  border-top-right-radius: 0;
+}
+
+.simpleTable > thead > tr > th {
+  border: 2px solid var(--base-background-color);
+  background-color: red;
+}
+
+.simpleTable th {
+  border: 2px solid var(--base-background-color);
+  background-color: red;
+} */

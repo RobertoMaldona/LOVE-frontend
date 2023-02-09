@@ -296,6 +296,7 @@ export default class FlightTracker extends Component {
         </div>
         <br></br>
         <PaginatedTable
+          title={'PAGINATED TABLE'}
           headers={headers}
           data={tableData}
           callBack={this.printData}
