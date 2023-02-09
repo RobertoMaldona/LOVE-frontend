@@ -45,8 +45,6 @@ export default class Mics extends Component {
       isRecording: false,
 
       records: [],
-
-      containerNode: null,
     };
   }
 
@@ -156,14 +154,6 @@ export default class Mics extends Component {
     this.state.currentMic.volumeFunc(value);
   };
 
-  /**
-   * Function that allows to set the heat map container node of the current mic to render
-   * @param {Object} container
-   */
-  setContainerNode = (container) => {
-    this.setState({ containerNode: container });
-  };
-
   render() {
     const peelableDetail = this.state.viewInfo ? styles.micDetails : styles.collapsedMicDetail;
     const svgRec = this.state.isRecording ? (
@@ -193,7 +183,6 @@ export default class Mics extends Component {
               selectMic={this.selectMic}
               recordPush={this.recordPush}
               setInfoPlot={this.setInfoPlot}
-              containerNode={this.state.containerNode}
             ></Table>
           </div>
           <PeleableMicDetail
@@ -211,7 +200,6 @@ export default class Mics extends Component {
             svgRec={svgRec}
             textPlay={textPlay}
             textRec={textRec}
-            setContainerNode={this.setContainerNode}
           ></PeleableMicDetail>
         </div>
       </div>

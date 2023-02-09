@@ -32,11 +32,6 @@ export default class Microphone extends Component {
      * Function to set the infoPlot state of the mic component to render.
      */
     setInfoPlot: PropTypes.func,
-
-    /** Node to be used to track heat map width and height.
-     *  Use this instead of props.width and props.height for responsive plots.
-     */
-    containerNode: PropTypes.object,
   };
 
   constructor(props) {
@@ -59,52 +54,15 @@ export default class Microphone extends Component {
 
       initialTime: '',
 
+      timeDomain: [],
+
       dbLimit: 0.1,
 
       ampArray: [],
 
       timeArray: [],
 
-      spec3D: {
-        width: 200,
-        height: 200,
-        data: { name: 'table' },
-        mark: { type: 'rect' },
-        encoding: {
-          x: { field: 't', type: 'temporal', axis: { title: 'TIME', format: '%H:%M:%S', grid: true } },
-          y: {
-            field: 'f',
-            type: 'quantitative',
-            axis: { title: 'FREQUENCY [Hz]', grid: true },
-            scale: { domain: [0, this.bufferLength + 1] },
-          },
-          color: {
-            type: 'quantitative',
-            field: 'amp',
-            scale: { scheme: 'spectral' },
-            legend: { labelColor: '#ddd', labelFontSize: 14, titleColor: '#ddd', title: 'dB', gradientLength: 200 },
-          },
-        },
-
-        config: {
-          background: null,
-          axis: {
-            gridColor: '#424242',
-            tickColor: null,
-            titleColor: '#ddd',
-            labelColor: '#ddd',
-            titleFontWeight: 750,
-            labelFontWeight: 750,
-            titlePadding: 16,
-          },
-        },
-      },
-
       data3D: { table: [] },
-
-      width: undefined,
-
-      height: undefined,
 
       showInput: false,
     };
@@ -143,38 +101,18 @@ export default class Microphone extends Component {
         appearInputdBLimit: this.appearInputdBLimit,
         setDbLimitState: this.setDbLimitState,
         dbLimit: this.state.dbLimit,
-        spec3D: this.state.spec3D,
+        windowTimePlot: this.windowTimePlot,
+        bufferLength: this.bufferLength,
+        timeDomain: this.state.timeDomain,
         data3D: this.state.data3D,
       };
       if (this.state.isSelected) this.props.setInfoPlot(infoPlot);
     }, 1000);
   };
 
-  componentDidUpdate = (prevProps) => {
-    console.log('si paso x aqui');
-    console.log(prevProps.containerNode, this.props.containerNode);
-    if (prevProps.containerNode !== this.props.containerNode) {
-      if (this.props.containerNode) {
-        this.resizeObserver = new ResizeObserver((entries) => {
-          const container = entries[0];
-          console.log('el container', container);
-          console.log('vega size', this.state.width, this.state.height);
-          this.setState({
-            height: container.contentRect.height - 200,
-            width: container.contentRect.width - 245,
-          });
-        });
+  componentDidUpdate = () => {};
 
-        this.resizeObserver.observe(this.props.containerNode);
-      }
-    }
-  };
-
-  componentWillUnmount = () => {
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect();
-    }
-  };
+  componentWillUnmount = () => {};
 
   /* Method to set up the audio variables*/
   initAudio() {
@@ -207,7 +145,10 @@ export default class Microphone extends Component {
     this.loadModule(this.audioContext, this.songSource);
   }
 
-  /* Method to encode the audio when is record*/
+  /**
+   * Method to encode the audio when is record
+   * @param {Array} vol: volume to set.
+   */
   encodeAudio(buffers) {
     const sampleCount = buffers.reduce((memo, buffer) => {
       return memo + buffer.length;
@@ -259,7 +200,11 @@ export default class Microphone extends Component {
     return new Blob([dataView], { type: 'audio/wav' });
   }
 
-  /* Load Audio Worklet to Record */
+  /**
+   * Load Audio Worklet to Record
+   * @param {Object} ctx, the AudioContext Object.
+   * @param {Object} source of the audio streaming, for testing now is a public url.
+   */
   async loadModule(ctx, source) {
     try {
       await ctx.audioWorklet.addModule(process.env.PUBLIC_URL + '/worklets/recordProcessor.js');
@@ -318,7 +263,7 @@ export default class Microphone extends Component {
 
   /**
    * Method to change the volume of the microphone stream. this function is used by the mics component
-   * @param {*} vol: volume to set.
+   * @param {number} vol: volume to set.
    */
   changeVolume = (vol) => {
     this.masterGain.gain.value = vol;
@@ -338,7 +283,10 @@ export default class Microphone extends Component {
       showInput: this.state.showInput,
       setDbLimitState: this.setDbLimitState,
       dbLimit: this.state.dbLimit,
-      spec3D: this.state.spec3D,
+      windowTimePlot: this.windowTimePlot,
+      bufferLength: this.bufferLength,
+      timeDomain: this.state.timeDomain,
+      // spec3D: this.state.spec3D,
       data3D: this.state.data3D,
     };
     this.props.setInfoPlot(infoPlot);
@@ -355,7 +303,7 @@ export default class Microphone extends Component {
 
   /**
    * Set the Decibel Limit to activate alarms
-   * @param {float} dbLimit
+   * @param {number} dbLimit
    */
   setDbLimitState = (dbLimit) => {
     this.setState({ dbLimit: dbLimit });
@@ -365,12 +313,12 @@ export default class Microphone extends Component {
   // PLOT HEAT MAP
 
   /**
-   *
-   * @param {*} prev
-   * @param {*} actTimeUTC
-   * @returns
+   * Function that update the data that will be receiving by Vega Lite Heat Map.
+   * @param {Object} prevState ,the previous state, we have interest in spec and data states.
+   * @param {Object} actTimeUTC ,is the actual time where the data is need to be considered in the plot.
+   * @returns data state updated to send to the plot.
    */
-  getdbFrequencyData = (prev, actTimeUTC) => {
+  getdbFrequencyData = (prevState, actTimeUTC) => {
     let actTime = actTimeUTC.toISOString().substring(0, 19);
     let nextTime = this.obtainNextTimeInSeconds(actTimeUTC);
 
@@ -378,7 +326,7 @@ export default class Microphone extends Component {
 
     let ampArray = this.dataArray;
 
-    if (!prev.data3D.table || ampArray[0] === -Infinity) {
+    if (!prevState.data3D.table || ampArray[0] === -Infinity) {
       return {};
     }
 
@@ -386,7 +334,7 @@ export default class Microphone extends Component {
 
     // data.
     let dataCopy = { table: [] };
-    dataCopy.table = prev.data3D.table;
+    dataCopy.table = prevState.data3D.table;
 
     let mindB = -Infinity;
     let freqMaxdB = 0;
@@ -429,51 +377,53 @@ export default class Microphone extends Component {
       timeDomain = [newInitialTime, nextTime];
     }
 
+    console.log(timeDomain);
+    this.setState({ timeDomain: timeDomain });
     // we return vega lite parameter with changes.
     const result = {
-      spec3D: {
-        width: this.state.width,
-        height: this.state.height,
-        data: { name: 'table' },
-        mark: { type: 'rect' },
-        encoding: {
-          x: {
-            field: 't_min',
-            type: 'temporal',
-            axis: { title: 'TIME', format: '%H:%M:%S', tickCount: this.windowTimePlot - 1, grid: true },
-            scale: { domain: timeDomain },
-          },
-          x2: {
-            field: 't_max',
-            type: 'temporal',
-          },
-          y: {
-            field: 'f_min',
-            type: 'quantitative',
-            axis: { title: 'FREQUENCY [Hz]', grid: true, labels: true },
-            scale: { domain: [0, this.bufferLength + 1] },
-          },
-          y2: { field: 'f_max', type: 'quantitative' },
-          color: {
-            type: 'quantitative',
-            field: 'amp',
-            scale: { scheme: 'spectral' },
-            legend: { labelColor: '#ddd', labelFontSize: 10, titleColor: '#ddd', title: 'dB', gradientLength: 150 },
-          },
-        },
-        config: {
-          background: null,
-          axis: {
-            gridColor: '#424242',
-            tickColor: null,
-            titleColor: '#ddd',
-            labelColor: '#ddd',
-            titleFontWeight: 750,
-            labelFontWeight: 750,
-            titlePadding: 16,
-          },
-        },
-      },
+      // spec3D: {
+      //   width: this.state.width,
+      //   height: this.state.height,
+      //   data: { name: 'table' },
+      //   mark: { type: 'rect' },
+      //   encoding: {
+      //     x: {
+      //       field: 't_min',
+      //       type: 'temporal',
+      //       axis: { title: 'TIME', format: '%H:%M:%S', tickCount: this.windowTimePlot - 1, grid: true },
+      //       scale: { domain: timeDomain },
+      //     },
+      //     x2: {
+      //       field: 't_max',
+      //       type: 'temporal',
+      //     },
+      //     y: {
+      //       field: 'f_min',
+      //       type: 'quantitative',
+      //       axis: { title: 'FREQUENCY [Hz]', grid: true, labels: true },
+      //       scale: { domain: [0, this.bufferLength + 1] },
+      //     },
+      //     y2: { field: 'f_max', type: 'quantitative' },
+      //     color: {
+      //       type: 'quantitative',
+      //       field: 'amp',
+      //       scale: { scheme: 'spectral' },
+      //       legend: { labelColor: '#ddd', labelFontSize: 10, titleColor: '#ddd', title: 'dB', gradientLength: 150 },
+      //     },
+      //   },
+      //   config: {
+      //     background: null,
+      //     axis: {
+      //       gridColor: '#424242',
+      //       tickColor: null,
+      //       titleColor: '#ddd',
+      //       labelColor: '#ddd',
+      //       titleFontWeight: 750,
+      //       labelFontWeight: 750,
+      //       titlePadding: 16,
+      //     },
+      //   },
+      // },
 
       data3D: dataCopy,
     };
@@ -482,10 +432,10 @@ export default class Microphone extends Component {
   };
 
   /**
-   *
+   * This function allows to show up the input to change the Decibel limit input, after press
+   * respective the button to do it, changing the showInput state.
    */
   appearInputdBLimit = () => {
-    console.log('aca', this.state.showInput);
     if (this.state.showInput) {
       this.setState({ showInput: false });
     } else {
@@ -494,8 +444,9 @@ export default class Microphone extends Component {
   };
 
   /**
-   * Method to get the actual time
-   * @returns String
+   * Function with which we can obtain the actual time string in UTC
+   * cut in the way that need the getValueData Function.
+   * @returns actual time in UTC.
    */
   getTime() {
     const date = new Date();
@@ -512,8 +463,8 @@ export default class Microphone extends Component {
   }
 
   /**
-   *
-   * @returns
+   * Function with which we can obtain the actual time in UTC wrapper in a Date object.
+   * @returns actual time in UTC.
    */
   getTimeUTCformat() {
     const date = new Date();
@@ -530,9 +481,9 @@ export default class Microphone extends Component {
   }
 
   /**
-   *
-   * @param {*} actTime
-   * @returns
+   *Function that allows to add one second to the actual time.
+   * @param {Object} actTime actual time in UTC format.
+   * @returns the next time in UTC format.
    */
   obtainNextTimeInSeconds(actTime) {
     const date = moment(actTime).add(1, 'seconds');

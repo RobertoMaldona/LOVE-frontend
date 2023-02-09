@@ -72,7 +72,7 @@ export default class LimitTimeSeriesPlot extends Component {
   /**
    * This function allows to observe the resizing container window of the plot, and then
    * make the plot into a responsive one.
-   * @param {*} prevProps, essentially, the property is the containerNode, that is the reference to
+   * @param {Object} prevProps, essentially, the property is the containerNode, that is the reference to
    * the plot Node parent.
    */
   componentDidUpdate = (prevProps) => {
@@ -81,6 +81,9 @@ export default class LimitTimeSeriesPlot extends Component {
         this.resizeObserver = new ResizeObserver((entries) => {
           const container = entries[0];
           this.setState({
+            // This is really important. We set Vega Lite height and width substracting the rest space
+            // that this library uses to plot like the legend. Then, the resulting value is the distance between
+            // the ending of the complete plot and the plot inner part where only the data is shown.
             height: container.contentRect.height - 200,
             width: container.contentRect.width - 245,
           });
@@ -102,9 +105,9 @@ export default class LimitTimeSeriesPlot extends Component {
   };
 
   /**
-   *Function that update the spec and data receiving by Vega Lite.
-   * @param {*} prevState is the previous state, we have interest in spec and data states.
-   * @param {*} actTime is the actual time where the data is need to be considered in the plot.
+   * Function that update the spec and data receiving by Vega Lite.
+   * @param {Object} prevState is the previous state, we have interest in spec and data states.
+   * @param {Object} actTime is the actual time where the data is need to be considered in the plot.
    * @returns spec and data states updated to plot in vega lite.
    */
   getvalueData = (prevState, actTime) => {
@@ -286,8 +289,8 @@ export default class LimitTimeSeriesPlot extends Component {
 
   /**
    *Function that allows to add one second to the actual time.
-   * @param {*} actTime actual time.
-   * @returns the next time in UTC.
+   * @param {Object} actTime actual time in UTC format.
+   * @returns the next time in UTC format.
    */
   obtainNextTimeInSeconds(actTime) {
     const date = moment(actTime).add(1, 'seconds');

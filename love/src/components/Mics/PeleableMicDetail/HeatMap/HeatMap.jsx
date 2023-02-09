@@ -4,6 +4,8 @@ import { VegaLite } from 'react-vega';
 import styles from './HeatMap.module.css';
 import Button from 'components/GeneralPurpose/Button/Button';
 import Input from 'components/GeneralPurpose/Input/Input';
+import { buffer, window } from 'd3';
+import _ from 'lodash';
 
 export default class HeatMap extends Component {
   static propTypes = {
@@ -11,6 +13,10 @@ export default class HeatMap extends Component {
      * Info of the current mic to plot
      */
     infoPlot: PropTypes.object,
+    /** Node to be used to track width and height.
+     *  Use this instead of props.width and props.height for responsive plots.
+     */
+    containerNode: PropTypes.object,
   };
 
   constructor(props) {
@@ -18,16 +24,157 @@ export default class HeatMap extends Component {
 
     this.state = {
       infoPlot: null,
+
+      width: undefined,
+
+      height: undefined,
+
+      spec: {
+        width: 100,
+        height: 100,
+        data: { name: 'table' },
+        mark: { type: 'rect' },
+        encoding: {
+          x: { field: 't', type: 'temporal', axis: { title: 'TIME', format: '%H:%M:%S', grid: true } },
+          y: {
+            field: 'f',
+            type: 'quantitative',
+            axis: { title: 'FREQUENCY [Hz]', grid: true },
+            scale: { domain: [0, this.bufferLength + 1] },
+          },
+          color: {
+            type: 'quantitative',
+            field: 'amp',
+            scale: { scheme: 'spectral' },
+            legend: { labelColor: '#ddd', labelFontSize: 14, titleColor: '#ddd', title: 'dB', gradientLength: 200 },
+          },
+        },
+
+        config: {
+          background: null,
+          axis: {
+            gridColor: '#424242',
+            tickColor: null,
+            titleColor: '#ddd',
+            labelColor: '#ddd',
+            titleFontWeight: 750,
+            labelFontWeight: 750,
+            titlePadding: 16,
+          },
+        },
+      },
+      showHeatMap: false,
     };
+
+    this.resizeObserver = undefined;
   }
 
-  componentDidMount = () => {};
+  /**
+   *
+   * @param {*} prevProps
+   */
+  componentDidUpdate = (prevProps) => {
+    if (prevProps.containerNode !== this.props.containerNode) {
+      if (this.props.containerNode) {
+        this.resizeObserver = new ResizeObserver((entries) => {
+          const container = entries[0];
+          this.setState({
+            height: container.contentRect.height - 198,
+            width: container.contentRect.width - 120,
+          });
+        });
 
-  componentDidUpdate = () => {};
+        this.resizeObserver.observe(this.props.containerNode);
+      }
+    }
+
+    if (this.props.infoPlot !== null) {
+      if (this.props.infoPlot.timeDomain !== undefined) {
+        const { timeDomain, windowTimePlot, bufferLength } = this.props.infoPlot;
+        const prevTimeDomain = prevProps.infoPlot?.timeDomain;
+        if (timeDomain !== false) {
+          if (prevTimeDomain !== timeDomain) {
+            this.constructSpec(timeDomain, windowTimePlot, bufferLength);
+          }
+        }
+      }
+    }
+  };
+
+  /**
+   * Function that update the spec inpu to Vega Lite Heat Map.
+   * @param {Array} timeDomain, x-axis heat map.
+   * @param {number} windowTimePlot, x-axis amount of elements.
+   * @param {number} bufferLength, y-axis amount of elements.
+   */
+  constructSpec = (timeDomain, windowTimePlot, bufferLength) => {
+    console.log('infoplot', timeDomain, windowTimePlot, bufferLength);
+    const height = this.state.height;
+    const width = this.state.width;
+    console.log('size', width, height);
+    const spec = {
+      spec: {
+        width: width,
+        height: height,
+        data: { name: 'table' },
+        mark: { type: 'rect' },
+        encoding: {
+          x: {
+            field: 't_min',
+            type: 'temporal',
+            axis: { title: 'TIME', format: '%H:%M:%S', tickCount: windowTimePlot - 1, grid: true },
+            scale: { domain: timeDomain },
+          },
+          x2: {
+            field: 't_max',
+            type: 'temporal',
+          },
+          y: {
+            field: 'f_min',
+            type: 'quantitative',
+            axis: { title: 'FREQUENCY [Hz]', grid: true, labels: true },
+            scale: { domain: [0, bufferLength + 1] },
+          },
+          y2: { field: 'f_max', type: 'quantitative' },
+          color: {
+            type: 'quantitative',
+            field: 'amp',
+            scale: { scheme: 'spectral' },
+            legend: { labelColor: '#ddd', labelFontSize: 10, titleColor: '#ddd', title: 'dB', gradientLength: height },
+          },
+        },
+        config: {
+          background: null,
+          axis: {
+            gridColor: '#424242',
+            tickColor: null,
+            titleColor: '#ddd',
+            labelColor: '#ddd',
+            titleFontWeight: 750,
+            labelFontWeight: 750,
+            titlePadding: 16,
+          },
+        },
+      },
+    };
+    this.setState({ spec: spec.spec });
+  };
 
   componentWillUnmount = () => {
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
+    }
+  };
+
+  /**
+   * This function allows to show up the Heat Map, after press the show up button,
+   * changing the correspondient state.
+   */
+  appearHeatMap = () => {
+    if (this.state.showHeatMap) {
+      this.setState({ showHeatMap: false });
+    } else {
+      this.setState({ showHeatMap: true });
     }
   };
 
@@ -43,7 +190,6 @@ export default class HeatMap extends Component {
       appearInputdBLimit,
       setDbLimitState,
       dbLimit,
-      spec3D,
       data3D,
     } = this.props.infoPlot;
     return (
@@ -84,12 +230,27 @@ export default class HeatMap extends Component {
           </div>
         </div>
         <br></br>
-        <div className={styles.monserratFontTitle}> ALARM STORY</div>
+        <div className={styles.monserratFontTitle}>
+          ALARM STORY
+          <Button
+            className={styles.editButtonShowHeatMap}
+            onClick={() => {
+              this.appearHeatMap();
+            }}
+          >
+            {this.state.showHeatMap ? 'Hide Spectrogram' : 'Show Spectrogram'}
+          </Button>
+        </div>
 
         <div className={styles.divVegaLite}>
-          <br></br>
-          <VegaLite style={{ display: 'flex' }} renderer="svg" spec={spec3D} data={data3D} />
-          <br></br>
+          <div>
+            {console.log(this.state.showHeatMap)}
+            {this.state.showHeatMap ? (
+              <VegaLite style={{ display: 'flex' }} renderer="svg" spec={this.state.spec} data={data3D} />
+            ) : (
+              <></>
+            )}
+          </div>
         </div>
       </div>
     );

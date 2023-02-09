@@ -21,10 +21,6 @@ export default class Table extends Component {
      * Function to set the infoPlot state of the mic component to render
      */
     setInfoPlot: PropTypes.func,
-    /**
-     * Container Node of the Vega Lite heat map to render
-     */
-    containerNode: PropTypes.object,
   };
 
   render() {
@@ -60,7 +56,6 @@ export default class Table extends Component {
                   selectMic={(mic) => selectMic(mic)}
                   recordPush={(id, currentTime, url, blob) => recordPush(id, currentTime, url, blob)}
                   setInfoPlot={(data) => setInfoPlot(data)}
-                  containerNode={containerNode}
                 ></Microphone>
               </>
             );
@@ -75,7 +70,7 @@ export default class Table extends Component {
         <col />
         <tr>
           <th colSpan="2" scope="colgroup" className={styles.thLocMic}>
-            <span className={styles.locationMic}>AUXIALARY TELESCOPE</span>
+            <span className={styles.locationMic}>AUXILIARY TELESCOPE</span>
           </th>
 
           <th scope="col">

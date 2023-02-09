@@ -81,22 +81,6 @@ export default class PeleableMicDetail extends Component {
     textRec: PropTypes.string,
   };
 
-  /**
-   * Function that allows to update the heat map container node.
-   * @param {Object} container
-   */
-  changeSize = (container) => {
-    this.props.setContainerNode(container);
-    this.setState({ first: false });
-    if (!this.state.second) {
-      this.setState({ second: true });
-      console.log('TRUE');
-    } else {
-      this.setState({ second: false });
-      console.log('FALSE');
-    }
-  };
-
   componentDidMount = () => {};
 
   render() {
@@ -123,19 +107,20 @@ export default class PeleableMicDetail extends Component {
         </div>
 
         <div className={styles.divDetails}>
-          <div>
-            {!containerNode ? (
-              <div ref={this.containerRef} id="el de verda">
-                {this.state.first ? this.changeSize(this.containerRef.current?.parentNode) : <></>}
-                {this.state.second ? this.changeSize(this.containerRef.current?.parentNode) : <></>}
-                <HeatMap infoPlot={this.props.infoPlot} containerNode={this.containerRef}></HeatMap>
-              </div>
-            ) : (
-              <div>
-                <HeatMap infoPlot={this.props.infoPlot} containerNode={containerNode}></HeatMap>
-              </div>
-            )}
-          </div>
+          {!containerNode ? (
+            <div ref={this.containerRef}>
+              {/* It's important to pass the current to allows the dynamic works in HeatMap Did Update */}
+              <HeatMap
+                className={styles.heatMap}
+                infoPlot={this.props.infoPlot}
+                containerNode={this.containerRef.current}
+              ></HeatMap>
+            </div>
+          ) : (
+            <div>
+              <HeatMap infoPlot={this.props.infoPlot} containerNode={containerNode}></HeatMap>
+            </div>
+          )}
           <div className={styles.audioStream}>
             <span className={[styles.detailsTitle, styles.headers].join(' ')}>AUDIO STREAMING</span>
             <div className={styles.aStreamContent}>

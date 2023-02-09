@@ -25,6 +25,9 @@
 
 .monserratFontTitle {
   display: flex;
+  font-weight: bold;
+  color: var(--base-font-color);
+  margin: 0.5em;
   font-family: 'Montserrat', sans-serif;
 }
 
@@ -68,6 +71,10 @@
 .divVegaLite {
   display: grid;
   justify-content: center;
+  transform: translate(5%);
+}
+.editButtonShowHeatMap {
+  transform: translate(7%, 0%);
 }
 
 .svgButton {

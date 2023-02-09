@@ -35,14 +35,6 @@ class LimitTimeSeriesPlotContainer extends React.Component {
     this.containerRef = React.createRef();
   }
 
-  componentDidMount() {}
-
-  componentDidUpdate() {}
-
-  componentWillUnmount() {
-    // this.props.unsubscribeToStreams();
-  }
-
   render() {
     const { containerNode } = this.props;
 

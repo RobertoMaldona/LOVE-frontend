@@ -27,7 +27,7 @@
 }
 
 .micDetails {
-  width: 50%;
+  width: 70%;
   overflow-x: hidden;
   overflow-y: clip;
   transition: 0.4s;
