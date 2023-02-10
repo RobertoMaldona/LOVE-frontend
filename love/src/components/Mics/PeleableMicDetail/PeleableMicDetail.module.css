@@ -138,3 +138,69 @@
   transform: translate(10%);
   transform-origin: center;
 }
+
+/* HEAD BEFORE HEAT MAP  */
+
+.infoMonserratFontContainer0 {
+  flex-wrap: wrap-reverse;
+}
+
+.infoMonserratFontContainer1 {
+  display: flex;
+  justify-content: space-around;
+}
+
+.infoMonserratFont1 {
+  flex-wrap: wrap-reverse;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.infoMonserratFont2 {
+  flex-wrap: wrap-reverse;
+  font-family: 'Montserrat', sans-serif;
+  width: 20%;
+}
+
+.dBLiveValue {
+  color: #f0e400;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.buttondBLimit {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.editButtondBLimit {
+  width: 0.1rem;
+  height: 1rem;
+  transform: translate(30%, 0%);
+}
+
+.svgButtonDiv {
+  position: relative;
+  transform: translate(-10%, 0%);
+}
+
+.svgButton {
+  transform: translate(-45%, 0%);
+}
+.svgEdit {
+  fill: none;
+  stroke: #8c9da6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 0.3px;
+}
+
+.monserratFontTitle {
+  display: flex;
+  font-weight: bold;
+  color: var(--base-font-color);
+  margin: 0.5em;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.editButtonShowHeatMap {
+  transform: translate(7%, 0%);
+}
