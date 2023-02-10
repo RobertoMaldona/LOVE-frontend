@@ -4,6 +4,7 @@ import { addGroup, removeGroup } from '../../redux/actions/ws';
 import {} from '../../redux/selectors';
 import SubscriptionTableContainer from '../GeneralPurpose/SubscriptionTable/SubscriptionTable.container';
 import FlightTracker from './FlightTracker';
+import MapFlightTracker from './MapFlightTracker';
 
 export const schema = {
   description: 'Component that displays the position of the camera',
@@ -24,13 +25,8 @@ export const schema = {
   },
 };
 
-const FlightTrackerContainer = ({
-  //   subscribeToStream,
-  //   unsubscribeToStream,
-  planes,
-  ...props
-}) => {
-  return <FlightTracker planes={planes} />;
+const FlightTrackerContainer = ({ ...props }) => {
+  return <FlightTracker />;
 };
 
 export default FlightTrackerContainer;

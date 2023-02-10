@@ -1,16 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { transform } from 'lodash';
 import styles from './FlightTracker.module.css';
 import * as d3 from 'd3';
 import CoquimboURL from './GeoJson/Coquimbo.geojson';
 import ValparaisoURL from './GeoJson/Valparaiso.geojson';
 import AtacamaURL from './GeoJson/Atacama.geojson';
-import TelescopeURL from './Svg/telescope.svg';
 import { ReactComponent as Map200 } from './Svg//Map200.svg';
 import { ReactComponent as Map160 } from './Svg//Map160.svg';
 import { ReactComponent as Map100 } from './Svg//Map100.svg';
-import { style, svg, zoom } from 'd3';
 
 export default class MapFlightTracker extends Component {
   static propTypes = {
@@ -22,22 +19,33 @@ export default class MapFlightTracker extends Component {
 
   constructor(props) {
     super(props);
-    this.ref = React.createRef();
   }
 
   componentDidMount = () => {
     this.insertTooltip();
   };
 
-  componentDidUpdate = (prevProps, prevState) => {
+  componentDidUpdate = (prevProps) => {
     const { zoom } = this.props;
-    if (zoom !== prevProps.zoom) this.insertTooltip();
+    if (zoom !== prevProps.zoom) {
+      this.insertTooltip();
+      const { planes } = this.props;
+      planes.map((airCraft) => {
+        this.addPlanes(airCraft);
+      });
+    }
+    if (this.props.planes !== prevProps.planes) {
+      const { planes } = this.props;
+      planes.map((airCraft) => {
+        this.addPlanes(airCraft);
+      });
+    }
   };
 
   /**
-   * @param {*} latitude
-   * @param {*} longitude
-   * @param {*} zoom: the zoom that represent the actual map rendering
+   * @param {string} latitude
+   * @param {string} longitude
+   * @param {string} zoom: the zoom that represent the actual map rendering
    * @returns the coordinates for the svg of the map according to its latitude and longitude
    */
   cordsPlaneInMap(latitude, longitude, zoom) {
@@ -51,11 +59,14 @@ export default class MapFlightTracker extends Component {
       .geoMercator()
       .center([-70.73709442008416, -30.240476801377167])
       .scale(width * scale) // scale; 13 - 200 km,  16.05 -160 km and 25.2 -100 km.
-      .translate([width / 2, height / 2 + 15 / (scale / 13)]);
+      .translate([width / 2, height / 2]);
 
     return projection([latitude, longitude]);
   }
 
+  /**
+   * Function to generate the svg map with geojson entry
+   */
   getRegionSvg() {
     const width = 500;
     const height = 500;
@@ -65,7 +76,7 @@ export default class MapFlightTracker extends Component {
       .geoMercator()
       .center(telescopeCoords)
       .scale(width * 25.2) // scale; 13 - 200 km,  16.05 -160 km and 25.2 -100 km.
-      .translate([width / 2, height / 2 + 15]);
+      .translate([width / 2, height / 2]);
 
     let geoGenerator = d3.geoPath().projection(projection);
 
@@ -112,11 +123,14 @@ export default class MapFlightTracker extends Component {
               .style('stroke', '#4c606a');
           });
 
+          console.log('');
           // first zone : 200 km area.
-          // const long_lat_1 = [-69.72640645677438, -28.671508190008392,]
+          // const long_lat_1 = [-69.72640645677438, -28.671508190008392,];
           // const coords_1 = projection(long_lat_1)
-          // console.log(coords_1) //returns [364.65891235520394, 60.57129669433607]
-          // const radius_1 = 221.42696271805653 with Euclidian distance.
+          // console.log("rad1:",coords_1)
+          // console.log(Math.sqrt((coords_1[0]-250)**2 + (coords_1[1]-250)**2))
+          //returns [364.65891235520394, 60.57129669433607]
+          // radius_1 = 234.3880562607948 with Euclidian distance.
 
           const mask = svg.append('mask').attr('id', 'Mask');
           mask.append('rect').attr('width', '100%').attr('height', '100%').attr('fill', 'white');
@@ -124,7 +138,7 @@ export default class MapFlightTracker extends Component {
             .append('circle')
             .attr('cx', '50%')
             .attr('cy', '50%')
-            .attr('r', '220') // this radius let encloses the last radius in map. For scales (222, 220).
+            .attr('r', '230.1434983635952') // this radius let encloses the last radius in map. For scales (222, 220).
             .attr('fill', 'black');
 
           svg
@@ -135,35 +149,36 @@ export default class MapFlightTracker extends Component {
             .attr('height', '100%');
 
           // second zone : 160 km area.
-          // const long_lat_2 = [-69.79391230365658, -29.057079010258132]
+          // const long_lat_2 = [-69.80730130824585, -29.056574125505087]
           // const coords_2 = projection(long_lat_2)
           // console.log(coords_2) //returns [357.00061695433305, 110.5181751002815], [382.104607855159, 74.27436233534718]
-          // const radius_2 = 175.79622153494552, 219.84341506903084 with Euclidian distance.
+          // console.log(Math.sqrt((coords_2[0]-250)**2 + (coords_2[1]-250)**2))
+          // // radius2 = 187.11298329859903, 231.0125678417318 with Euclidian distance.
 
           svg
             .append('circle')
             .attr('id', 'middle_circle')
             .attr('cx', '50%')
             .attr('cy', '50%')
-            .attr('r', '219.84341506903084')
+            .attr('r', '231.0125678417318')
             // .attr('stroke', '#bcd8e2')
             // .attr('stroke-width', '1')
             .attr('fill', 'none');
 
           // third zone : 100 km area.
-          // const long_lat_3 = [-69.93171344197097, -29.672737573022122];
+          // const long_lat_3 = [ -70.45824123940402, -31.108020979254803 ];
           // const coords_3 = projection(long_lat_3);
           // console.log(coords_3); //returns [341.3675737065496, 190.66005738475087], [362.80381215308626, 173.21876315578902], [427.11252749269624, 120.89488046890165]
-          // // const radius_3 = 108.94614410158273, 136.45533469819196, 219.17340003748237  with Euclidian distance.
+          // console.log(Math.sqrt((coords_3[0]-250)**2 + (coords_3[1]-250)**2))
+          // radius3 = 118.72482058439441, 146.57949002919514, 230.1434983635952 with Euclidian distance.
 
           svg
             .append('circle')
             .attr('id', 'intern_circle')
             .attr('cx', '50%')
-            .attr('cy', '50%')
-            .attr('r', '219.17340003748237')
-            // .attr('stroke', '#bcd8e2')
-            // .attr('stroke-width', '1')
+            .style('opacity', opacity)
+
+            .attr('stroke-width', '1')
             .attr('fill', 'none');
 
           // this circle depends on external circle.
@@ -172,7 +187,7 @@ export default class MapFlightTracker extends Component {
             .attr('id', 'external_circle')
             .attr('cx', '50%')
             .attr('cy', '50%')
-            .attr('r', '221.42696271805653')
+            .attr('r', '230.1434983635952')
             .attr('fill', '#bcd8e2')
             .style('opacity', '10%');
 
@@ -183,12 +198,27 @@ export default class MapFlightTracker extends Component {
           svg
             .append('g')
             .attr('id', 'telescopeIconG')
+            // .attr('transform', `translate(${width / 2}, ${height / 2})  scale(0.5)`)
             .append('path')
             .attr('id', 'telescopeIconP')
             .attr('d', pathTelescope)
-            .attr('transform', `translate(${width / 2 - 31.4 / 2}px,${height / 2 - 30.38 / 2}px)  scale(0.5)`)
             .style('fill', '#bcd8e2')
             .style('stroke', '#bcd8e2');
+
+          const sizeSVG = svg.node().getBoundingClientRect().width,
+            scaleToPixels = sizeSVG / 500;
+
+          const sizeTel = svg.select(`#telescopeIconG`).node().getBoundingClientRect(),
+            heightTel = sizeTel.height / scaleToPixels,
+            widthTel = sizeTel.width / scaleToPixels;
+
+          const scale = 0.33;
+          svg
+            .select('#telescopeIconG')
+            .attr(
+              'transform',
+              `translate(${width / 2 - (widthTel * scale) / 2}, ${height / 2 - heightTel * scale})  scale(${scale})`,
+            );
 
           // La Serena.
           const long_lat_serena = [-71.25715298618236, -29.89192170340795];
@@ -199,8 +229,18 @@ export default class MapFlightTracker extends Component {
             .attr('id', 'circle_serena')
             .attr('cx', `${coords_serena[0]}`)
             .attr('cy', `${coords_serena[1]}`)
-            .attr('r', '5')
+            .attr('r', '4')
             .classed(styles.laSerena, true);
+
+          const coordsTel = projection(telescopeCoords);
+
+          // svg
+          //   .append('circle')
+          //   .attr('id', 'circle_serena')
+          //   .attr('cx', `${coordsTel[0]}`)
+          //   .attr('cy', `${coordsTel[1]}`)
+          //   .attr('r', '5')
+          //   .classed(styles.laSerena, true);
         });
       });
     });
@@ -208,13 +248,14 @@ export default class MapFlightTracker extends Component {
 
   /**
    * Function to draw an aircraft on the map
-   * @param {*} cordx: positon on the map
-   * @param {*} cordy: positon on the map
-   * @param {*} id: plane id
+   * @param {string} cordx: positon on the map
+   * @param {string} cordy: positon on the map
+   * @param {number} id: plane id
    */
   addPlanes(airCraft) {
     const { zoom } = this.props;
     const { id, distance, loc } = airCraft;
+    const scale = 0.75; //The Planes size
 
     /* Planes out of zoom */
     if (zoom === '160' && distance[0] > 160) return;
@@ -224,20 +265,19 @@ export default class MapFlightTracker extends Component {
     const [cordx, cordy] = this.cordsPlaneInMap(latitude, longitude, this.props.zoom);
 
     /* Define plane's color by zone */
-    let color = '#bcd8e2';
+    let color = '#bcd8e2',
+      opacity = '0.33';
     const status = distance[1];
-    // const status = distance[1] === 'running' ? 'ok' : distance[1];
-    if (status !== 'running') color = `var(--status-${status}-dimmed-color-2`;
+    if (status !== 'running') {
+      opacity = status === 'warning' ? '0.66' : '1';
+    }
 
     var rotateRandom = Math.floor(Math.random() * 360);
-    const scale = 0.75;
-    const sizeBox = 14.5 * scale; //size of the path's box
-    // const sizeBox = 0;
-
     /* Path plane */
-    const dPlane =
-      'm 14.83626,1023.9633 c -1.27638,-0.022 -2.23322,1.3945 -1.93048,2.5893 -0.0106,2.3825 0.0254,4.5399 -0.0211,6.9222 -0.86563,0.724 -1.95196,1.1101 -2.84804,1.7935 -2.6499502,1.6543 -5.3834402,3.1905 -7.9741805,4.9298 -0.52658,1.0194 -0.12448,2.19 -0.25868,3.2744 0.11289,0.5899 0.9093903,0.7624 1.3520503,0.4239 3.29418,-1.0185 6.53329,-2.2113 9.8415802,-3.184 -0.0136,1.2588 0.0536,2.5172 0.0159,3.7764 -0.0278,0.3845 0.0353,0.8094 -0.0793,1.1678 -0.73435,0.8237 -1.95869,1.1927 -2.42191,2.2475 -0.15271,0.6859 -0.0237,1.3982 -0.0669,2.0926 0.0545,0.4878 0.57437,0.9328 1.06023,0.7042 0.96241,-0.3065 1.93965,-0.5659 2.88352,-0.9103 0.49901,-0.1817 1.0366,-0.1155 1.51212,0.093 1.06199,0.324 2.1249,0.8298 3.24892,0.8142 0.5432,-0.2545 0.45447,-0.9487 0.40024,-1.437 0.0965,-0.7182 0.11746,-1.6418 -0.57108,-2.084 -0.65138,-0.5245 -1.36097,-0.9863 -1.96573,-1.5694 -0.0402,-1.6279 -0.0903,-3.3324 0.0123,-4.9143 1.26835,0.4358 2.56344,0.7925 3.82879,1.2414 2.24148,0.7382 4.46719,1.5504 6.75364,2.1317 0.57349,-0.097 0.70865,-0.8342 0.54603,-1.3122 -0.02,-0.838 0.23484,-1.7759 -0.23779,-2.5329 -1.9355,-1.3961 -4.08122,-2.4651 -6.08613,-3.7567 -1.61971,-0.9718 -3.23783,-1.9463 -4.85386,-2.9243 -0.1822,-1.0478 0.0511,-2.1208 -0.0622,-3.1775 -0.008,-1.8175 0.13456,-3.4277 -0.16148,-5.2296 -0.32567,-0.7305 -1.12107,-1.2029 -1.91639,-1.1695 z';
     const svg = d3.select('#mapTelescope');
+    const dPlane =
+      'm8.59.66l4.06,9.97,4.15,10.19h-1.16l-6.89-6.1-.17-.15-.17.15-6.89,6.1H.37l4.15-10.19L8.59.66m0-.66l-4.29,10.54L0,21.08h1.63l6.96-6.17,6.96,6.17h1.63l-4.29-10.54L8.59,0h0Z';
+    const pPlane = '.18 20.95 8.59 .33 16.98 20.95 15.54 20.95 8.59 14.74 1.55 20.98 .18 20.95';
 
     /* Color of circles*/
     if (distance[0] < 100) {
@@ -248,6 +288,7 @@ export default class MapFlightTracker extends Component {
 
     /* Remove the g airCraft previous.*/
     svg.select(`#id${id}`).remove();
+    svg.select('point').remove();
 
     var tooltip = d3.select('#tooltip');
 
@@ -255,27 +296,18 @@ export default class MapFlightTracker extends Component {
     svg
       .append('g')
       .attr('id', `id${id}`)
-      // .style('transform-box', 'fill-box')
-      // .style('transform-origin', 'center center')
-      .attr(
-        'transform',
-        `scale(${scale}) translate(${(cordx - sizeBox) / scale}, ${-1022.3622 + (cordy - sizeBox) / scale})`,
-      )
-      .append('path')
-      .classed('pathPlane', true)
-      .attr('d', dPlane)
-      .attr('class', styles.pathPlane)
+      .append('g')
+      .attr('id', `g${id}`)
+      .append('polygon')
+      .attr('id', `polyggon${id}`)
+      .attr('points', pPlane)
       .style('fill', color)
-      .style('opacity', '100%')
-      .style('stroke', 'none')
-      // .style('transform-box', 'fill-box')
-      // .style('transform-origin', 'center center')
-      // .style('rotate', `${rotateRandom}deg`)
+      .style('opacity', opacity)
       .on('mouseover', function () {
         return tooltip
           .style('visibility', 'visible')
-          .attr('transform', `translate(${cordx + 10}, ${cordy})`)
-          .select('#textTool')
+          .attr('transform', `translate(${cordx + 10}, ${cordy})`) //change tootlip position according to the plane
+          .select('#textTool') //change tootlip text according to the plane id
           .text(`${id}`);
       })
       .on('mouseout', function () {
@@ -283,44 +315,54 @@ export default class MapFlightTracker extends Component {
       });
 
     svg
+      .select(`#g${id}`)
+      .append('path')
+      .classed('pathPlane', true)
+      .attr('d', dPlane)
+      .attr('class', styles.pathPlane)
+      .style('fill', color)
+      .style('opacity', opacity)
+      .style('opacity', '100%')
+      .style('stroke', 'none');
+
+    // Get the size in pixels of svg
+    const sizeSVG = svg.node().getBoundingClientRect().width,
+      scaleToPixels = sizeSVG / 500; //get the value on pixels of the viewbox metric
+
+    // Get plane size in pixels
+    const sizePlane = svg.select(`#polyggon${id}`).node().getBoundingClientRect(),
+      heightPlane = sizePlane.height / scaleToPixels,
+      widthPlane = sizePlane.width / scaleToPixels;
+
+    // Plane positioning on map according of his coords, and his size
+    svg
       .select(`#id${id}`)
+      .attr(
+        'transform',
+        `translate(${cordx - (widthPlane * scale) / 2}, ${cordy - (heightPlane * scale) / 2}) scale(${scale}) `,
+      );
+
+    // Draw the plane line direction
+    svg
+      .select(`#g${id}`)
       .append('line')
-      .attr('x1', `${sizeBox}`)
-      .attr('y1', '1022.3622')
-      .attr('x2', `${sizeBox}`)
-      .attr('y2', `${1022.3622 - sizeBox * 2}`)
+      .attr('x1', `${widthPlane / 2}`)
+      .attr('y1', '0')
+      .attr('x2', `${widthPlane / 2}`)
+      .attr('y2', `${-widthPlane * 1.5}`)
       .attr('stroke-dasharray', '9, 1.5')
       .style('stroke', 'white')
-      .style('stroke-width', '1')
-      .style('transform-origin', `center ${sizeBox * 3}px`)
-      .style('transform-box', 'fill-box')
-      .style('rotate', `${rotateRandom}deg`);
+      .style('stroke-width', '1');
 
-    const coord160 = this.cordsPlaneInMap(-70.455929982759, -31.0853237055783, zoom);
-    const long_lat_serena = [-71.25715298618236, -29.89192170340795];
-    const coords_serena = this.cordsPlaneInMap(-70.73709442008416, -30.240476801377167, zoom);
+    // Get the height of plane with the line
+    const heightTotalPlane = svg.select(`#g${id}`).node().getBoundingClientRect().height / scaleToPixels;
+
+    // Set the rotation of plane considering his center to origin
     svg
-      .append('circle')
-      .attr('id', 'point')
-      .attr('cx', `${coords_serena[0]}`)
-      .attr('cy', `${coords_serena[1]}`)
-      // .attr('cx', '250')
-      // .attr('cy', '140')
-      .attr('r', '2')
-      .attr('fill', 'orange');
-    // .attr(
-    //   'transform',
-    //   `scale(${scale}) translate(495, 495)`,
-    // );
-    svg
-      .append('circle')
-      .attr('id', 'point')
-      // .attr('cx', `${coord160[0]}`)
-      // .attr('cx', `${coord160[1]}`)
-      .attr('cx', cordx)
-      .attr('cy', cordy)
-      .attr('r', '2')
-      .attr('fill', 'orange');
+      .select(`#g${id}`)
+      .style('transform-box', 'fill-box')
+      .style('transform-origin', `center ${heightTotalPlane / scale - heightPlane / 2}px`)
+      .style('rotate', `${rotateRandom}deg`);
   }
 
   /**
@@ -361,71 +403,17 @@ export default class MapFlightTracker extends Component {
   }
 
   render() {
-    const { planes } = this.props;
-    const rotate = 70;
     const { zoom } = this.props;
 
     return (
       <>
-        {this.renderMap(zoom)}
+        <div className={styles.divMap}>{this.renderMap(zoom)}</div>
 
-        {planes.map((airCraft) => {
-          this.addPlanes(airCraft);
-        })}
-        {/* <div className={styles.mapDiv}>
-          <svg
-            className={styles.Svg}
-            width="500"
-            height="500"
-            id="svg2"
-            viewBox="0 0 500 500"
-          >
-            {planes.map((airCraft) => {
-              const scale = 1;
-              const sizePlane = 14.5 * scale;
-              const rotate = 0;
-              const [longitude, latitude] = airCraft.loc;
-              const [cordx, cordy] = this.cordsPlaneInMap(latitude, longitude);
-
-              return (
-                <g
-                  id="layer1"
-                  key={airCraft.id}
-                  transform={`scale(${scale}) translate(${(cordx - sizePlane) / scale},${
-                    -1022.3622 + (cordy - sizePlane) / scale
-                  }) `}
-                >
-                  <path
-                    id="path1972-5"
-                    d="m 14.83626,1023.9633 c -1.27638,-0.022 -2.23322,1.3945 -1.93048,2.5893 -0.0106,2.3825 0.0254,4.5399 -0.0211,6.9222 -0.86563,0.724 -1.95196,1.1101 -2.84804,1.7935 -2.6499502,1.6543 -5.3834402,3.1905 -7.9741805,4.9298 -0.52658,1.0194 -0.12448,2.19 -0.25868,3.2744 0.11289,0.5899 0.9093903,0.7624 1.3520503,0.4239 3.29418,-1.0185 6.53329,-2.2113 9.8415802,-3.184 -0.0136,1.2588 0.0536,2.5172 0.0159,3.7764 -0.0278,0.3845 0.0353,0.8094 -0.0793,1.1678 -0.73435,0.8237 -1.95869,1.1927 -2.42191,2.2475 -0.15271,0.6859 -0.0237,1.3982 -0.0669,2.0926 0.0545,0.4878 0.57437,0.9328 1.06023,0.7042 0.96241,-0.3065 1.93965,-0.5659 2.88352,-0.9103 0.49901,-0.1817 1.0366,-0.1155 1.51212,0.093 1.06199,0.324 2.1249,0.8298 3.24892,0.8142 0.5432,-0.2545 0.45447,-0.9487 0.40024,-1.437 0.0965,-0.7182 0.11746,-1.6418 -0.57108,-2.084 -0.65138,-0.5245 -1.36097,-0.9863 -1.96573,-1.5694 -0.0402,-1.6279 -0.0903,-3.3324 0.0123,-4.9143 1.26835,0.4358 2.56344,0.7925 3.82879,1.2414 2.24148,0.7382 4.46719,1.5504 6.75364,2.1317 0.57349,-0.097 0.70865,-0.8342 0.54603,-1.3122 -0.02,-0.838 0.23484,-1.7759 -0.23779,-2.5329 -1.9355,-1.3961 -4.08122,-2.4651 -6.08613,-3.7567 -1.61971,-0.9718 -3.23783,-1.9463 -4.85386,-2.9243 -0.1822,-1.0478 0.0511,-2.1208 -0.0622,-3.1775 -0.008,-1.8175 0.13456,-3.4277 -0.16148,-5.2296 -0.32567,-0.7305 -1.12107,-1.2029 -1.91639,-1.1695 z"
-                    style={{
-                      fill: 'white',
-                      filloOpacity: '1',
-                      stroke: 'none',
-                      transformBox: 'fill-box',
-                      transformOrigin: 'center',
-                      rotate: rotate + 'deg',
-                    }}
-                  />
-                  <line 
-                    x1={sizePlane} 
-                    y1={1022.3622} 
-                    x2={sizePlane} 
-                    y2={1022.3622- sizePlane*2} 
-                    stroke-dasharray="9, 1.5" 
-                    style={{
-                      stroke:'white', 
-                      strokeWidth:'1',
-                      transformBox: 'fill-box',
-                      transformOrigin: `center ${sizePlane*3}px`,
-                      rotate: rotate + 'deg',
-                    }}
-                    />
-                </g>
-              );
-            })}
-          </svg>
-          </div> */}
+        {/* This is for generate the static map */}
+        {/* <div>{this.getRegionSvg()}</div> */}
+        {/* <div id="telescopeDiv">
+          <svg id="Paths" className={styles.CoquimboSvg}></svg>
+        </div> */}
       </>
     );
   }

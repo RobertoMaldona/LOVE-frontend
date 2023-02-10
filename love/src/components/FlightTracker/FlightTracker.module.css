@@ -17,6 +17,11 @@
   width: 100%;
   height: 100%;
 }
+
+/* .divMap > svg {
+  z-index: 2;
+} */
+
 .Svg {
   border: 1px solid rgb(255, 255, 255);
 }
@@ -111,6 +116,7 @@ td.statusColumn {
   display: flex;
   position: relative;
   margin-top: -4em;
+  width: min-content;
 }
 
 .zoom {

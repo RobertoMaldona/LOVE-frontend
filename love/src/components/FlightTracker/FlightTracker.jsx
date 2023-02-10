@@ -5,9 +5,9 @@ import Value from '../GeneralPurpose/SummaryPanel/Value';
 import Title from '../GeneralPurpose/SummaryPanel/Title';
 import StatusText from '../GeneralPurpose/StatusText/StatusText';
 import Button from '../GeneralPurpose/Button/Button';
-import isEqual, { remove } from 'lodash';
+import isEqual from 'lodash';
 import SimpleTable from 'components/GeneralPurpose/SimpleTable/SimpleTable';
-import ManagerInterface, { formatSecondsToDigital } from 'Utils';
+import ManagerInterface from 'Utils';
 import ZoomInIcon from 'components/icons/Zoom/ZoomInIcon';
 import ZoomOutIcon from 'components/icons/Zoom/ZoomOutIcon';
 
@@ -123,7 +123,6 @@ export default class FlightTracker extends Component {
         planesState: planesStateIN,
         planesDistance: planeDistance,
       });
-      console.log(res);
     });
 
     //Get Planes's data from API every x seconds.
@@ -139,19 +138,6 @@ export default class FlightTracker extends Component {
       },
       this.props.pollingTimeout ? this.props.pollingTimeout * 1000 : DEFAULT_POLLING_TIMEOUT,
     );
-  };
-
-  /*
-    Returns a new Dictionary of timers, to change in setState
-  */
-  changeStateTimer = (timers) => {
-    const newTimers = timers;
-    for (const [key, value] of Object.entries(newTimers)) {
-      if (value > 0) {
-        newTimers[key] = value - 1;
-      }
-    }
-    return { timers: newTimers };
   };
 
   /**
@@ -237,8 +223,8 @@ export default class FlightTracker extends Component {
       }
     }
 
-    let zoomOut = this.state.zoom === '200' ? <ZoomInIcon block={true}></ZoomInIcon> : <ZoomInIcon></ZoomInIcon>;
-    let zoomIn = this.state.zoom === '100' ? <ZoomOutIcon block={true}></ZoomOutIcon> : <ZoomOutIcon></ZoomOutIcon>;
+    let zoomOut = this.state.zoom === '200' ? <ZoomOutIcon block={true}></ZoomOutIcon> : <ZoomOutIcon></ZoomOutIcon>;
+    let zoomIn = this.state.zoom === '100' ? <ZoomInIcon block={true}></ZoomInIcon> : <ZoomInIcon></ZoomInIcon>;
     const inRadius = timerLength > 0 ? 'warning' : 'ok';
 
     return (
