@@ -105,8 +105,8 @@ class Layout extends Component {
       tokenSwapRequested: false,
       isTakingScreenshot: false,
       isLightHidden: true,
-      efdStatus: {label: "EFD Healthy status Unknown", style: "invalid"},
-      salStatus: {label: "SAL status Unknown", style: "invalid"},
+      efdStatus: { label: 'EFD Healthy status Unknown', style: 'invalid' },
+      salStatus: { label: 'SAL status Unknown', style: 'invalid' },
     };
 
     this.requestToastID = null;
@@ -136,7 +136,7 @@ class Layout extends Component {
 
   componentDidUpdate = (prevProps, prevState) => {
     if (!isEqual(this.props.config?.content?.alarms, prevProps.config?.content?.alarms)) {
-      const minSeverityNotification = this.props.config.content.alarms.minSeverityNotification?.trim().toLowerCase();
+      const minSeverityNotification = this.props.config?.content.alarms.minSeverityNotification?.trim().toLowerCase();
       if (!minSeverityNotification || minSeverityNotification === 'mute' || minSeverityNotification === 'muted') {
         // If minSeverityNotification is null or "mute" or "muted", then do not play any sound
         this.setState({ minSeverityNotification: severityEnum.critical + 1 });
@@ -244,12 +244,12 @@ class Layout extends Component {
   checkEfdStatus = () => {
     const url = this.props.efdConfigFile?.urlStatus;
     const status = ManagerInterface.getEFDStatus(url);
-    status.then(result => {
+    status.then((result) => {
       this.setState({
         efdStatus: result,
       });
     });
-  }
+  };
 
   getHeartbeatTitle = (component) => {
     if (component === '') return '';

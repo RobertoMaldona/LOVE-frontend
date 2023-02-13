@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import celestial from 'd3-celestial';
 import styles from './SkyMap.module.css';
+import Select from 'components/GeneralPurpose/Select/Select';
 
 const Celestial = celestial.Celestial();
 window.Celestial = Celestial;
@@ -22,146 +23,152 @@ export default class SkyMap extends Component {
 
   constructor(props) {
     super(props);
+    this.state = {
+      config: {
+        width: 0,
+        projection: 'aitoff',
+        transform: 'equatorial',
+        center: [-65, 0], // TODO : Fix it to const ID
+        adaptable: true,
+        interactive: true,
+        form: false,
+        location: false,
+        controls: false,
+        container: 'map',
+        datapath: '../Data/',
+        // STARS
+        stars: {
+          show: true, // Show stars
+          limit: 3, // Show only stars brighter than limit magnitude
+          colors: true, // Show stars in spectral colors, if not use "color"
+          style: { fill: '#ffffff', opacity: 1 }, // Default style for stars
+          names: false, // Show star names (Bayer, Flamsteed, Variable star, Gliese, whichever applies first)
+          proper: false, // Show proper name (if present)
+          desig: false, // Show all names, including Draper and Hipparcos
+          namelimit: 2.5, // Show only names for stars brighter than namelimit
+          namestyle: {
+            fill: '#ddddbb',
+            font: "11px Georgia, Times, 'Times Roman', serif",
+            align: 'left',
+            baseline: 'top',
+          },
+          propernamestyle: {
+            fill: '#ddddbb',
+            font: "11px Georgia, Times, 'Times Roman', serif",
+            align: 'right',
+            baseline: 'bottom',
+          },
+          propernamelimit: 1.5, // Show proper names for stars brighter than propernamelimit
+          size: 7, // Maximum size (radius) of star circle in pixels
+          exponent: -0.58, // Scale exponent for star size, larger = more linear
+          data: 'stars.6.json', // Data source for stellar data
+          //data: 'stars.8.json' // Alternative deeper data source for stellar data
+        },
+        planets: {
+          show: true,
+          symbolType: 'disk',
+        },
+        // DEEP SKY OBJECTS
+        dsos: {
+          show: true, // Show Deep Space Objects
+          limit: 6, // Show only DSOs brighter than limit magnitude
+          names: true, // Show DSO names
+          desig: true, // Show short DSO names
+          namelimit: 4, // Show only names for DSOs brighter than namelimit
+          namestyle: { fill: '#cccccc', font: '11px Helvetica, Arial, serif', align: 'left', baseline: 'top' },
+          size: null, // Optional seperate scale size for DSOs, null = stars.size
+          exponent: 1.4, // Scale exponent for DSO size, larger = more non-linear
+          data: 'dsos.bright.json', // Data source for DSOs
+          //data: 'dsos.6.json'  // Alternative broader data source for DSOs
+          //data: 'dsos.14.json' // Alternative deeper data source for DSOs
+          symbols: {
+            //DSO symbol styles
+            gg: { shape: 'circle', fill: '#ff0000' }, // Galaxy cluster
+            g: { shape: 'ellipse', fill: '#ff0000' }, // Generic galaxy
+            s: { shape: 'ellipse', fill: '#ff0000' }, // Spiral galaxy
+            s0: { shape: 'ellipse', fill: '#ff0000' }, // Lenticular galaxy
+            sd: { shape: 'ellipse', fill: '#ff0000' }, // Dwarf galaxy
+            e: { shape: 'ellipse', fill: '#ff0000' }, // Elliptical galaxy
+            i: { shape: 'ellipse', fill: '#ff0000' }, // Irregular galaxy
+            oc: { shape: 'circle', fill: '#ffcc00', stroke: '#ffcc00', width: 1.5 }, // Open cluster
+            gc: { shape: 'circle', fill: '#ff9900' }, // Globular cluster
+            en: { shape: 'square', fill: '#ff00cc' }, // Emission nebula
+            bn: { shape: 'square', fill: '#ff00cc', stroke: '#ff00cc', width: 2 }, // Generic bright nebula
+            sfr: { shape: 'square', fill: '#cc00ff', stroke: '#cc00ff', width: 2 }, // Star forming region
+            rn: { shape: 'square', fill: '#00ooff' }, // Reflection nebula
+            pn: { shape: 'diamond', fill: '#00cccc' }, // Planetary nebula
+            snr: { shape: 'diamond', fill: '#ff00cc' }, // Supernova remnant
+            dn: { shape: 'square', fill: '#999999', stroke: '#999999', width: 2 }, // Dark nebula grey
+            pos: { shape: 'marker', fill: '#cccccc', stroke: '#cccccc', width: 1.5 }, // Generic marker
+          },
+        },
+        // CONSTELLATIONS
+        constellations: {
+          show: false, // Show constellations
+          names: true, // Show constellation names
+          desig: true, // Show short constellation names (3 letter designations)
+          namestyle: {
+            fill: '#cccc99',
+            align: 'center',
+            baseline: 'middle',
+            font: [
+              '14px Helvetica, Arial, sans-serif', // Style for constellations
+              '12px Helvetica, Arial, sans-serif', // Different fonts for diff.
+              '11px Helvetica, Arial, sans-serif',
+            ],
+          }, // ranked constellations
+          lines: true, // Show constellation lines, style below
+          linestyle: { stroke: '#cccccc', width: 1, opacity: 0.6 },
+          bounds: false, // Show constellation boundaries, style below
+          boundstyle: { stroke: '#cccc00', width: 0.5, opacity: 0.8, dash: [2, 4] },
+        },
+        // MILKY WAY
+        mw: {
+          show: true,
+          data: 'mw.json',
+          style: { fill: '#ffffff', opacity: 0.15 },
+        },
+        // LINES
+        lines: {
+          graticule: {
+            show: true,
+            stroke: '#cccccc',
+            width: 0.6,
+            opacity: 0.8,
+            // grid values: "outline", "center", or [lat,...] specific position
+            lon: {
+              pos: [''],
+              fill: '#eee',
+              font: '10px Helvetica, Arial, sans-serif',
+            },
+            // grid values: "outline", "center", or [lon,...] specific position
+            lat: {
+              pos: [''],
+              fill: '#eee',
+              font: '10px Helvetica, Arial, sans-serif',
+            },
+          },
+          equatorial: { show: true, stroke: '#aaaaaa', width: 1.3, opacity: 0.7 },
+        },
+        // BACKGROUND
+        background: {
+          fill: '#000000', // Area fill
+          opacity: 1,
+          stroke: '#3e3d40', // Outline
+          width: 1.5,
+        },
+        // HORIZON
+        horizon: {
+          //Show horizon marker, if location is set and map projection is all-sky
+          show: false,
+          stroke: '#000099', // Line
+          width: 1.0,
+          fill: '#000000', // Area below horizon
+          opacity: 0.5,
+        },
+      },
+    };
   }
-
-  config = {
-    width: 0,
-    projection: 'aitoff',
-    transform: 'equatorial',
-    center: null, // TODO : Fix it to const ID
-    adaptable: true,
-    interactive: true,
-    form: false,
-    location: false,
-    controls: false,
-    container: 'map',
-    datapath: '../Data/',
-    // STARS
-    stars: {
-      show: true, // Show stars
-      limit: 3, // Show only stars brighter than limit magnitude
-      colors: true, // Show stars in spectral colors, if not use "color"
-      style: { fill: '#ffffff', opacity: 1 }, // Default style for stars
-      names: false, // Show star names (Bayer, Flamsteed, Variable star, Gliese, whichever applies first)
-      proper: false, // Show proper name (if present)
-      desig: false, // Show all names, including Draper and Hipparcos
-      namelimit: 2.5, // Show only names for stars brighter than namelimit
-      namestyle: { fill: '#ddddbb', font: "11px Georgia, Times, 'Times Roman', serif", align: 'left', baseline: 'top' },
-      propernamestyle: {
-        fill: '#ddddbb',
-        font: "11px Georgia, Times, 'Times Roman', serif",
-        align: 'right',
-        baseline: 'bottom',
-      },
-      propernamelimit: 1.5, // Show proper names for stars brighter than propernamelimit
-      size: 7, // Maximum size (radius) of star circle in pixels
-      exponent: -0.58, // Scale exponent for star size, larger = more linear
-      data: 'stars.6.json', // Data source for stellar data
-      //data: 'stars.8.json' // Alternative deeper data source for stellar data
-    },
-    planets: {
-      show: true,
-      symbolType: 'disk',
-    },
-    // DEEP SKY OBJECTS
-    dsos: {
-      show: true, // Show Deep Space Objects
-      limit: 6, // Show only DSOs brighter than limit magnitude
-      names: true, // Show DSO names
-      desig: true, // Show short DSO names
-      namelimit: 4, // Show only names for DSOs brighter than namelimit
-      namestyle: { fill: '#cccccc', font: '11px Helvetica, Arial, serif', align: 'left', baseline: 'top' },
-      size: null, // Optional seperate scale size for DSOs, null = stars.size
-      exponent: 1.4, // Scale exponent for DSO size, larger = more non-linear
-      data: 'dsos.bright.json', // Data source for DSOs
-      //data: 'dsos.6.json'  // Alternative broader data source for DSOs
-      //data: 'dsos.14.json' // Alternative deeper data source for DSOs
-      symbols: {
-        //DSO symbol styles
-        gg: { shape: 'circle', fill: '#ff0000' }, // Galaxy cluster
-        g: { shape: 'ellipse', fill: '#ff0000' }, // Generic galaxy
-        s: { shape: 'ellipse', fill: '#ff0000' }, // Spiral galaxy
-        s0: { shape: 'ellipse', fill: '#ff0000' }, // Lenticular galaxy
-        sd: { shape: 'ellipse', fill: '#ff0000' }, // Dwarf galaxy
-        e: { shape: 'ellipse', fill: '#ff0000' }, // Elliptical galaxy
-        i: { shape: 'ellipse', fill: '#ff0000' }, // Irregular galaxy
-        oc: { shape: 'circle', fill: '#ffcc00', stroke: '#ffcc00', width: 1.5 }, // Open cluster
-        gc: { shape: 'circle', fill: '#ff9900' }, // Globular cluster
-        en: { shape: 'square', fill: '#ff00cc' }, // Emission nebula
-        bn: { shape: 'square', fill: '#ff00cc', stroke: '#ff00cc', width: 2 }, // Generic bright nebula
-        sfr: { shape: 'square', fill: '#cc00ff', stroke: '#cc00ff', width: 2 }, // Star forming region
-        rn: { shape: 'square', fill: '#00ooff' }, // Reflection nebula
-        pn: { shape: 'diamond', fill: '#00cccc' }, // Planetary nebula
-        snr: { shape: 'diamond', fill: '#ff00cc' }, // Supernova remnant
-        dn: { shape: 'square', fill: '#999999', stroke: '#999999', width: 2 }, // Dark nebula grey
-        pos: { shape: 'marker', fill: '#cccccc', stroke: '#cccccc', width: 1.5 }, // Generic marker
-      },
-    },
-    // CONSTELLATIONS
-    constellations: {
-      show: false, // Show constellations
-      names: true, // Show constellation names
-      desig: true, // Show short constellation names (3 letter designations)
-      namestyle: {
-        fill: '#cccc99',
-        align: 'center',
-        baseline: 'middle',
-        font: [
-          '14px Helvetica, Arial, sans-serif', // Style for constellations
-          '12px Helvetica, Arial, sans-serif', // Different fonts for diff.
-          '11px Helvetica, Arial, sans-serif',
-        ],
-      }, // ranked constellations
-      lines: true, // Show constellation lines, style below
-      linestyle: { stroke: '#cccccc', width: 1, opacity: 0.6 },
-      bounds: false, // Show constellation boundaries, style below
-      boundstyle: { stroke: '#cccc00', width: 0.5, opacity: 0.8, dash: [2, 4] },
-    },
-    // MILKY WAY
-    mw: {
-      show: true,
-      // data: "mw.json",
-      style: { fill: '#ffffff', opacity: 0.15 },
-    },
-    // LINES
-    lines: {
-      graticule: {
-        show: true,
-        stroke: '#cccccc',
-        width: 0.6,
-        opacity: 0.8,
-        // grid values: "outline", "center", or [lat,...] specific position
-        lon: {
-          pos: [''],
-          fill: '#eee',
-          font: '10px Helvetica, Arial, sans-serif',
-        },
-        // grid values: "outline", "center", or [lon,...] specific position
-        lat: {
-          pos: [''],
-          fill: '#eee',
-          font: '10px Helvetica, Arial, sans-serif',
-        },
-      },
-      equatorial: { show: true, stroke: '#aaaaaa', width: 1.3, opacity: 0.7 },
-    },
-    // BACKGROUND
-    background: {
-      fill: '#000000', // Area fill
-      opacity: 1,
-      stroke: '#3e3d40', // Outline
-      width: 1.5,
-    },
-    // HORIZON
-    horizon: {
-      //Show horizon marker, if location is set and map projection is all-sky
-      show: false,
-      stroke: '#000099', // Line
-      width: 1.0,
-      fill: '#000000', // Area below horizon
-      opacity: 0.5,
-    },
-  };
 
   // Asterisms canvas style properties for lines, text and pointing
   lineStyle = {
@@ -232,6 +239,128 @@ export default class SkyMap extends Component {
     ],
   };
 
+  actConfig = (transformUpdated) => {
+    const configUpdated = {
+      width: 0,
+      projection: 'airy',
+      transform: `${transformUpdated}`,
+      center: [-65, 0], // TODO : Fix it to const ID
+      adaptable: true,
+      interactive: true,
+      form: false,
+      location: false,
+      controls: false,
+      container: 'map',
+      datapath: '../skyMap/',
+      // STARS
+      stars: {
+        show: false,
+        colors: true,
+        names: false,
+        style: { fill: '#000', opacity: 1 },
+        limit: 6,
+        size: 5,
+        // data: "stars.6.json"
+      },
+      // DEEP SKY OBJECTS
+      dsos: {
+        names: true,
+        show: true,
+        size: null,
+        exponent: 1.4,
+        symbols: {
+          //DSO symbol styles, 'stroke'-parameter present = outline
+          gg: { shape: 'circle', fill: '#ff0000' }, // Galaxy cluster
+          g: { shape: 'ellipse', fill: '#ff0000' }, // Generic galaxy
+          s: { shape: 'ellipse', fill: '#ff0000' }, // Spiral galaxy
+          s0: { shape: 'ellipse', fill: '#ff0000' }, // Lenticular galaxy
+          sd: { shape: 'ellipse', fill: '#ff0000' }, // Dwarf galaxy
+          e: { shape: 'ellipse', fill: '#ff0000' }, // Elliptical galaxy
+          i: { shape: 'ellipse', fill: '#ff0000' }, // Irregular galaxy
+          oc: { shape: 'circle', fill: '#ffcc00', stroke: '#ffcc00', width: 1.5 }, // Open cluster
+          gc: { shape: 'circle', fill: '#ff9900' }, // Globular cluster
+          en: { shape: 'square', fill: '#ff00cc' }, // Emission nebula
+          bn: { shape: 'square', fill: '#ff00cc', stroke: '#ff00cc', width: 2 }, // Generic bright nebula
+          sfr: { shape: 'square', fill: '#cc00ff', stroke: '#cc00ff', width: 2 }, // Star forming region
+          rn: { shape: 'square', fill: '#00ooff' }, // Reflection nebula
+          pn: { shape: 'diamond', fill: '#00cccc' }, // Planetary nebula
+          snr: { shape: 'diamond', fill: '#ff00cc' }, // Supernova remnant
+          dn: { shape: 'square', fill: '#999999', stroke: '#999999', width: 2 }, // Dark nebula grey
+          pos: { shape: 'marker', fill: '#cccccc', stroke: '#cccccc', width: 1.5 }, // Generic marker
+        },
+      },
+      // CONSTELLATIONS
+      constellations: {
+        show: true, // Show constellations
+        names: true, // Show constellation names
+        desig: true, // Show short constellation names (3 letter designations)
+        namestyle: {
+          fill: '#cccc99',
+          align: 'center',
+          baseline: 'middle',
+          font: [
+            '14px Helvetica, Arial, sans-serif', // Style for constellations
+            '12px Helvetica, Arial, sans-serif', // Different fonts for diff.
+            '11px Helvetica, Arial, sans-serif',
+          ],
+        }, // ranked constellations
+        lines: true, // Show constellation lines, style below
+        linestyle: { stroke: '#cccccc', width: 1, opacity: 0.6 },
+        bounds: false, // Show constellation boundaries, style below
+        boundstyle: { stroke: '#cccc00', width: 0.5, opacity: 0.8, dash: [2, 4] },
+      },
+      // MILKY WAY
+      mw: {
+        show: true,
+        data: 'mw.json',
+        style: { fill: '#ffffff', opacity: 0.15 },
+      },
+      // LINES
+      lines: {
+        graticule: {
+          show: false,
+          stroke: '#cccccc',
+          width: 0.6,
+          opacity: 0.8,
+          // grid values: "outline", "center", or [lat,...] specific position
+          lon: {
+            pos: [''],
+            fill: '#eee',
+            font: '10px Helvetica, Arial, sans-serif',
+          },
+          // grid values: "outline", "center", or [lon,...] specific position
+          lat: {
+            pos: [''],
+            fill: '#eee',
+            font: '10px Helvetica, Arial, sans-serif',
+          },
+        },
+        equatorial: { show: true, stroke: '#aaaaaa', width: 1.3, opacity: 0.7 },
+      },
+      // BACKGROUND
+      background: {
+        fill: '#3e3d40', // Area fill
+        opacity: 1,
+        stroke: '#3e3d40', // Outline
+        width: 1.5,
+      },
+      // HORIZON
+      horizon: {
+        //Show horizon marker, if location is set and map projection is all-sky
+        show: false,
+        stroke: '#000099', // Line
+        width: 1.0,
+        fill: '#000000', // Area below horizon
+        opacity: 0.5,
+      },
+    };
+    this.setState({ config: configUpdated });
+  };
+
+  componentDidUpdate = () => {
+    Celestial.display(this.state.config);
+  };
+
   //targets features
   features = [];
 
@@ -245,29 +374,29 @@ export default class SkyMap extends Component {
       lineStyle = this.lineStyle,
       textStyle = this.textStyle,
       pointStyle = this.pointStyle,
-      config = this.config,
+      config = this.state.config,
       features = this.features;
 
-    this.props.targets.map((t) => {
-      features.push({
-        type: 'Feature',
-        id: 'SomeDesignator',
-        properties: {
-          name: 'Some Name',
-          mag: 10,
-          dim: 250,
-        },
-        geometry: {
-          type: 'Point',
-          coordinates: t.loc,
-        },
-      });
-    });
+    // this.props.targets.map((t) => {
+    //   features.push({
+    //     type: 'Feature',
+    //     id: 'SomeDesignator',
+    //     properties: {
+    //       name: 'Some Name',
+    //       mag: 10,
+    //       dim: 250,
+    //     },
+    //     geometry: {
+    //       type: 'Point',
+    //       coordinates: t.loc,
+    //     },
+    //   });
+    // });
 
-    jsonTargets = {
-      type: 'FeatureCollection',
-      features: features,
-    };
+    // jsonTargets = {
+    //   type: 'FeatureCollection',
+    //   features: features,
+    // };
 
     //Add the polygons
     Celestial.add({
@@ -283,7 +412,6 @@ export default class SkyMap extends Component {
         // Trigger redraw to display changes
         Celestial.redraw();
       },
-
       redraw: function () {
         // Select the added objects by class name as given previously
         Celestial.container.selectAll('.ast').each(function (d) {
@@ -351,12 +479,23 @@ export default class SkyMap extends Component {
       },
     });
 
-    Celestial.display(this.config);
+    Celestial.display(config);
   };
 
   render() {
+    const selectOptions = ['equatorial', 'ecliptic', 'galactic', 'supergalactic'];
     return (
       <div className={styles.container}>
+        <br></br>
+        <div className={styles.selectSystemCoord}>
+          <Select
+            options={selectOptions}
+            onChange={(e) => {
+              e.value ? this.actConfig(e?.value) : true;
+            }}
+            value={'equatorial'}
+          ></Select>
+        </div>
         <div id="map-container">
           <div id="map"></div>
         </div>
