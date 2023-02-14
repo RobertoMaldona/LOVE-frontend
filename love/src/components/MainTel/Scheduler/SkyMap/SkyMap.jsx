@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import celestial from 'd3-celestial';
 import styles from './SkyMap.module.css';
 import Select from 'components/GeneralPurpose/Select/Select';
+import { config } from 'fetch-mock';
 
 const Celestial = celestial.Celestial();
 window.Celestial = Celestial;
@@ -11,14 +12,19 @@ export default class SkyMap extends Component {
   static propTypes = {
     /** Function to subscribe to streams to receive */
     subscribeToStreams: PropTypes.func,
-
     /** Pointing position of objetive */
     pointing: PropTypes.array,
+    /** Targets */
+    targets: PropTypes.array,
+    /** Dark zones, with the coords to draw the polygons */
+    darkZones: PropTypes.array,
   };
 
   static defaultProps = {
     subscribeToStreams: (value) => console.log(value),
     pointing: [-82.7653, 30.7837],
+    targets: [{ id: 'actualTarget', position: [] }],
+    darkZones: [],
   };
 
   constructor(props) {
@@ -70,7 +76,7 @@ export default class SkyMap extends Component {
         },
         // DEEP SKY OBJECTS
         dsos: {
-          show: true, // Show Deep Space Objects
+          show: false, // Show Deep Space Objects
           limit: 6, // Show only DSOs brighter than limit magnitude
           names: true, // Show DSO names
           desig: true, // Show short DSO names
@@ -104,7 +110,7 @@ export default class SkyMap extends Component {
         },
         // CONSTELLATIONS
         constellations: {
-          show: false, // Show constellations
+          show: true, // Show constellations
           names: true, // Show constellation names
           desig: true, // Show short constellation names (3 letter designations)
           namestyle: {
@@ -239,126 +245,22 @@ export default class SkyMap extends Component {
     ],
   };
 
+  /**
+   * Function to change the transformation to view the skymap
+   * @param {*} transformUpdated : the new transform get from select input
+   */
   actConfig = (transformUpdated) => {
-    const configUpdated = {
-      width: 0,
-      projection: 'airy',
-      transform: `${transformUpdated}`,
-      center: [-65, 0], // TODO : Fix it to const ID
-      adaptable: true,
-      interactive: true,
-      form: false,
-      location: false,
-      controls: false,
-      container: 'map',
-      datapath: '../skyMap/',
-      // STARS
-      stars: {
-        show: false,
-        colors: true,
-        names: false,
-        style: { fill: '#000', opacity: 1 },
-        limit: 6,
-        size: 5,
-        // data: "stars.6.json"
-      },
-      // DEEP SKY OBJECTS
-      dsos: {
-        names: true,
-        show: true,
-        size: null,
-        exponent: 1.4,
-        symbols: {
-          //DSO symbol styles, 'stroke'-parameter present = outline
-          gg: { shape: 'circle', fill: '#ff0000' }, // Galaxy cluster
-          g: { shape: 'ellipse', fill: '#ff0000' }, // Generic galaxy
-          s: { shape: 'ellipse', fill: '#ff0000' }, // Spiral galaxy
-          s0: { shape: 'ellipse', fill: '#ff0000' }, // Lenticular galaxy
-          sd: { shape: 'ellipse', fill: '#ff0000' }, // Dwarf galaxy
-          e: { shape: 'ellipse', fill: '#ff0000' }, // Elliptical galaxy
-          i: { shape: 'ellipse', fill: '#ff0000' }, // Irregular galaxy
-          oc: { shape: 'circle', fill: '#ffcc00', stroke: '#ffcc00', width: 1.5 }, // Open cluster
-          gc: { shape: 'circle', fill: '#ff9900' }, // Globular cluster
-          en: { shape: 'square', fill: '#ff00cc' }, // Emission nebula
-          bn: { shape: 'square', fill: '#ff00cc', stroke: '#ff00cc', width: 2 }, // Generic bright nebula
-          sfr: { shape: 'square', fill: '#cc00ff', stroke: '#cc00ff', width: 2 }, // Star forming region
-          rn: { shape: 'square', fill: '#00ooff' }, // Reflection nebula
-          pn: { shape: 'diamond', fill: '#00cccc' }, // Planetary nebula
-          snr: { shape: 'diamond', fill: '#ff00cc' }, // Supernova remnant
-          dn: { shape: 'square', fill: '#999999', stroke: '#999999', width: 2 }, // Dark nebula grey
-          pos: { shape: 'marker', fill: '#cccccc', stroke: '#cccccc', width: 1.5 }, // Generic marker
-        },
-      },
-      // CONSTELLATIONS
-      constellations: {
-        show: true, // Show constellations
-        names: true, // Show constellation names
-        desig: true, // Show short constellation names (3 letter designations)
-        namestyle: {
-          fill: '#cccc99',
-          align: 'center',
-          baseline: 'middle',
-          font: [
-            '14px Helvetica, Arial, sans-serif', // Style for constellations
-            '12px Helvetica, Arial, sans-serif', // Different fonts for diff.
-            '11px Helvetica, Arial, sans-serif',
-          ],
-        }, // ranked constellations
-        lines: true, // Show constellation lines, style below
-        linestyle: { stroke: '#cccccc', width: 1, opacity: 0.6 },
-        bounds: false, // Show constellation boundaries, style below
-        boundstyle: { stroke: '#cccc00', width: 0.5, opacity: 0.8, dash: [2, 4] },
-      },
-      // MILKY WAY
-      mw: {
-        show: true,
-        data: 'mw.json',
-        style: { fill: '#ffffff', opacity: 0.15 },
-      },
-      // LINES
-      lines: {
-        graticule: {
-          show: false,
-          stroke: '#cccccc',
-          width: 0.6,
-          opacity: 0.8,
-          // grid values: "outline", "center", or [lat,...] specific position
-          lon: {
-            pos: [''],
-            fill: '#eee',
-            font: '10px Helvetica, Arial, sans-serif',
-          },
-          // grid values: "outline", "center", or [lon,...] specific position
-          lat: {
-            pos: [''],
-            fill: '#eee',
-            font: '10px Helvetica, Arial, sans-serif',
-          },
-        },
-        equatorial: { show: true, stroke: '#aaaaaa', width: 1.3, opacity: 0.7 },
-      },
-      // BACKGROUND
-      background: {
-        fill: '#3e3d40', // Area fill
-        opacity: 1,
-        stroke: '#3e3d40', // Outline
-        width: 1.5,
-      },
-      // HORIZON
-      horizon: {
-        //Show horizon marker, if location is set and map projection is all-sky
-        show: false,
-        stroke: '#000099', // Line
-        width: 1.0,
-        fill: '#000000', // Area below horizon
-        opacity: 0.5,
-      },
+    const changeTransform = (prevState) => {
+      let { config } = prevState;
+      config.transform = transformUpdated;
+      return { config: config };
     };
-    this.setState({ config: configUpdated });
+    this.setState((prevState) => changeTransform(prevState));
   };
 
   componentDidUpdate = () => {
-    Celestial.display(this.state.config);
+    const config = this.state.config;
+    Celestial.display(config);
   };
 
   //targets features
@@ -368,13 +270,18 @@ export default class SkyMap extends Component {
   jsonTargets = {};
 
   componentDidMount = () => {
+    const config = this.state.config;
+    this.addObjects(config);
+    Celestial.display(config);
+  };
+
+  addObjects = (config) => {
     const jsonLine = this.jsonLine,
       jsonSnr = this.jsonSnr,
       jsonTargets = this.jsonTargets,
       lineStyle = this.lineStyle,
       textStyle = this.textStyle,
       pointStyle = this.pointStyle,
-      config = this.state.config,
       features = this.features;
 
     // this.props.targets.map((t) => {
@@ -397,22 +304,23 @@ export default class SkyMap extends Component {
     //   type: 'FeatureCollection',
     //   features: features,
     // };
-
     //Add the polygons
     Celestial.add({
       type: 'line',
 
-      callback: function (error, json) {
+      callback: (error, json) => {
         if (error) return console.warn(error);
+        console.log('transform:', config.transform);
+
         // Load the geoJSON file and transform to correct coordinate system, if necessary
         var asterism = Celestial.getData(jsonLine, config.transform);
-
+        console.log(asterism.features[0].geometry.coordinates);
         // Add to celestial objects container in d3
         Celestial.container.selectAll('.asterisms').data(asterism.features).enter().append('path').attr('class', 'ast');
         // Trigger redraw to display changes
         Celestial.redraw();
       },
-      redraw: function () {
+      redraw: () => {
         // Select the added objects by class name as given previously
         Celestial.container.selectAll('.ast').each(function (d) {
           // Set line styles
@@ -444,7 +352,6 @@ export default class SkyMap extends Component {
         if (error) return console.warn(error);
         // Load the geoJSON file and transform to correct coordinate system, if necessary
         var dsos = Celestial.getData(jsonSnr, config.transform);
-        console.log(dsos.features);
         // Add to celestiasl objects container in d3
         Celestial.container.selectAll('.snrs').data(dsos.features).enter().append('path').attr('class', 'snr');
         // Trigger redraw to display changes
@@ -478,8 +385,6 @@ export default class SkyMap extends Component {
         });
       },
     });
-
-    Celestial.display(config);
   };
 
   render() {
@@ -491,7 +396,7 @@ export default class SkyMap extends Component {
           <Select
             options={selectOptions}
             onChange={(e) => {
-              e.value ? this.actConfig(e?.value) : true;
+              e.value ? this.actConfig(e.value) : true;
             }}
             value={'equatorial'}
           ></Select>
