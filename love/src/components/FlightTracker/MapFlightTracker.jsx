@@ -148,7 +148,7 @@ export default class MapFlightTracker extends Component {
             .attr('mask', 'url(#Mask)')
             .classed(styles.rect, true)
             .attr('width', '100%')
-            .attr('height', '100%');
+            .attr('height', '104%');
 
           // second zone : 160 km area.
           // const long_lat_2 = [-69.80730130824585, -29.056574125505087]
@@ -372,13 +372,13 @@ export default class MapFlightTracker extends Component {
    */
   insertTooltip() {
     const map = d3.select('#mapTelescope');
-    const [width, height] = [10, 3];
+    const [width, height] = [4, 3];
     map
       .append('g')
       .attr('id', 'tooltip')
       .style('visibility', 'hidden')
       .append('rect')
-      .attr('width', `${width}%`)
+      .attr('width', `${width}em`)
       .attr('height', `${height}%`)
       .attr('fill', '#bcd8e2');
 
@@ -386,7 +386,7 @@ export default class MapFlightTracker extends Component {
       .select('#tooltip')
       .append('text')
       .attr('id', 'textTool')
-      .attr('x', `${width / 2}%`)
+      .attr('x', `${width / 1.5}em`)
       .attr('y', `${height / 2}%`)
       .attr('font-size', '75%')
       .attr('alignment-baseline', 'middle')
