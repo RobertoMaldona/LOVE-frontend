@@ -24,7 +24,6 @@ export default class FlightTracker extends Component {
       lastUpdate: 0,
       planesDistance: {},
       zoom: '200',
-      renderPlanes: null,
     };
   }
 

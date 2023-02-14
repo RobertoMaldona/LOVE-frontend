@@ -23,6 +23,7 @@ export default class MapFlightTracker extends Component {
 
   componentDidMount = () => {
     this.insertTooltip();
+    this.addTooltipSerena();
   };
 
   componentDidUpdate = (prevProps) => {
@@ -40,6 +41,7 @@ export default class MapFlightTracker extends Component {
         this.addPlanes(airCraft);
       });
     }
+    this.addTooltipSerena();
   };
 
   /**
@@ -65,7 +67,7 @@ export default class MapFlightTracker extends Component {
   }
 
   /**
-   * Function to generate the svg map with geojson entry
+   * Function to generate the svg map with geojson entry (USE ONLY TO CHANGE THE SVGs)
    */
   getRegionSvg() {
     const width = 500;
@@ -370,7 +372,7 @@ export default class MapFlightTracker extends Component {
    */
   insertTooltip() {
     const map = d3.select('#mapTelescope');
-    const [width, height] = [6, 3];
+    const [width, height] = [10, 3];
     map
       .append('g')
       .attr('id', 'tooltip')
@@ -389,6 +391,28 @@ export default class MapFlightTracker extends Component {
       .attr('font-size', '75%')
       .attr('alignment-baseline', 'middle')
       .attr('text-anchor', 'middle');
+  }
+
+  /**
+   * Add the tootip to the point associated to La Serena
+   */
+  addTooltipSerena() {
+    const svg = d3.select('#mapTelescope');
+    var tooltip = d3.select('#tooltip');
+    const long_lat_serena = [-71.25715298618236, -29.89192170340795];
+    const coords_serena = this.cordsPlaneInMap(long_lat_serena[0], long_lat_serena[1], this.props.zoom);
+    svg
+      .select('#circle_serena')
+      .on('mouseover', function () {
+        return tooltip
+          .style('visibility', 'visible')
+          .attr('transform', `translate(${coords_serena[0] + 10}, ${coords_serena[1]})`) //change tootlip position according to the plane
+          .select('#textTool') //change tootlip text according to the plane id
+          .text('La Serena');
+      })
+      .on('mouseout', function () {
+        return tooltip.style('visibility', 'hidden');
+      });
   }
 
   /**
