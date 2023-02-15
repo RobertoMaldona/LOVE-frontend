@@ -20,7 +20,7 @@ export const schema = {
       type: 'string',
       description: 'Name diplayed in the title bar (if visible)',
       isPrivate: false,
-      default: 'Flight Tracker',
+      default: 'AirCraft Tracker',
     },
     hasRawMode: {
       type: 'boolean',
