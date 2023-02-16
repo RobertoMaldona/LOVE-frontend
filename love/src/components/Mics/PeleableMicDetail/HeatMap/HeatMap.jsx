@@ -31,37 +31,37 @@ export default class HeatMap extends Component {
       height: undefined,
 
       spec: {
-        // width: 200,
-        // height: 200,
-        // data: { name: 'table' },
-        // mark: { type: 'rect' },
-        // encoding: {
-        //   x: { field: 't', type: 'temporal', axis: { title: 'TIME', format: '%H:%M:%S', grid: true } },
-        //   y: {
-        //     field: 'f',
-        //     type: 'quantitative',
-        //     axis: { title: 'FREQUENCY [Hz]', grid: true },
-        //     scale: { domain: [0, this.bufferLength + 1] },
-        //   },
-        //   color: {
-        //     type: 'quantitative',
-        //     field: 'amp',
-        //     scale: { scheme: 'spectral' },
-        //     legend: { labelColor: '#ddd', labelFontSize: 14, titleColor: '#ddd', title: 'dB', gradientLength: 200 },
-        //   },
-        // },
-        // config: {
-        //   background: null,
-        //   axis: {
-        //     gridColor: '#424242',
-        //     tickColor: null,
-        //     titleColor: '#ddd',
-        //     labelColor: '#ddd',
-        //     titleFontWeight: 750,
-        //     labelFontWeight: 750,
-        //     titlePadding: 16,
-        //   },
-        // },
+        width: 200,
+        height: 200,
+        data: { name: 'table' },
+        mark: { type: 'rect' },
+        encoding: {
+          x: { field: 't', type: 'temporal', axis: { title: 'TIME', format: '%H:%M:%S', grid: true } },
+          y: {
+            field: 'f',
+            type: 'quantitative',
+            axis: { title: 'FREQUENCY [Hz]', grid: true },
+            scale: { domain: [0, this.bufferLength + 1] },
+          },
+          color: {
+            type: 'quantitative',
+            field: 'amp',
+            scale: { scheme: 'spectral' },
+            legend: { labelColor: '#ddd', labelFontSize: 14, titleColor: '#ddd', title: 'dB', gradientLength: 200 },
+          },
+        },
+        config: {
+          background: null,
+          axis: {
+            gridColor: '#424242',
+            tickColor: null,
+            titleColor: '#ddd',
+            labelColor: '#ddd',
+            titleFontWeight: 750,
+            labelFontWeight: 750,
+            titlePadding: 16,
+          },
+        },
       },
     };
 

@@ -350,8 +350,6 @@ export default class Microphone extends Component {
 
     dataCopy.table = [...dataCopy.table, ...freqAmpArray];
 
-    this.setState({ actualDb: mindB, actualFreq: freqMaxdB });
-
     // timing.
     let timeDomain;
     let newInitialTime;
@@ -359,72 +357,37 @@ export default class Microphone extends Component {
 
     newTimeArray = this.state.timeArray;
     newTimeArray.push(actTime);
-    this.setState({ timeArray: newTimeArray });
 
     // set window time.
-    if (this.state.timeArray.length === this.windowTimePlot) {
+    if (newTimeArray.length === this.windowTimePlot) {
       dataCopy.table.splice(0, this.bufferLength);
       newTimeArray.shift();
-      this.setState({ timeArray: newTimeArray });
-      this.setState({ initialTime: newTimeArray[0] });
     }
 
-    if (this.state.timeArray.length === 1) {
-      this.setState({ initialTime: actTime });
+    if (newTimeArray.length === 1) {
       timeDomain = [actTime, nextTime];
+      this.setState({
+        timeArray: newTimeArray,
+        initialTime: actTime,
+        timeDomain: timeDomain,
+        actualDb: mindB,
+        actualFreq: freqMaxdB,
+      });
     } else {
       newInitialTime = newTimeArray[0];
       timeDomain = [newInitialTime, nextTime];
+      this.setState({
+        timeArray: newTimeArray,
+        initialTime: newTimeArray[0],
+        timeDomain: timeDomain,
+        actualDb: mindB,
+        actualFreq: freqMaxdB,
+      });
     }
 
     console.log(timeDomain);
-    this.setState({ timeDomain: timeDomain });
     // we return vega lite parameter with changes.
     const result = {
-      // spec3D: {
-      //   width: this.state.width,
-      //   height: this.state.height,
-      //   data: { name: 'table' },
-      //   mark: { type: 'rect' },
-      //   encoding: {
-      //     x: {
-      //       field: 't_min',
-      //       type: 'temporal',
-      //       axis: { title: 'TIME', format: '%H:%M:%S', tickCount: this.windowTimePlot - 1, grid: true },
-      //       scale: { domain: timeDomain },
-      //     },
-      //     x2: {
-      //       field: 't_max',
-      //       type: 'temporal',
-      //     },
-      //     y: {
-      //       field: 'f_min',
-      //       type: 'quantitative',
-      //       axis: { title: 'FREQUENCY [Hz]', grid: true, labels: true },
-      //       scale: { domain: [0, this.bufferLength + 1] },
-      //     },
-      //     y2: { field: 'f_max', type: 'quantitative' },
-      //     color: {
-      //       type: 'quantitative',
-      //       field: 'amp',
-      //       scale: { scheme: 'spectral' },
-      //       legend: { labelColor: '#ddd', labelFontSize: 10, titleColor: '#ddd', title: 'dB', gradientLength: 150 },
-      //     },
-      //   },
-      //   config: {
-      //     background: null,
-      //     axis: {
-      //       gridColor: '#424242',
-      //       tickColor: null,
-      //       titleColor: '#ddd',
-      //       labelColor: '#ddd',
-      //       titleFontWeight: 750,
-      //       labelFontWeight: 750,
-      //       titlePadding: 16,
-      //     },
-      //   },
-      // },
-
       data3D: dataCopy,
     };
 
