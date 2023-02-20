@@ -126,7 +126,7 @@ export default class Mics extends Component {
    */
   recordPush = (id, currentTime, url, blob) => {
     const newRecord = (prevRecords) => {
-      prevRecords.push({ nameFile: id + currentTime.toString() + '.wav', url: url, blob: blob });
+      prevRecords.push({ nameFile: id + '-' + currentTime.toString() + '.wav', url: url, blob: blob });
       return { records: prevRecords };
     };
     this.setState((prevState) => newRecord(prevState.records));

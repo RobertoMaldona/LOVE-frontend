@@ -256,8 +256,8 @@ export default class Microphone extends Component {
       const blob = this.encodeAudio(buffers); // <11>
       const url = URL.createObjectURL(blob);
       console.log('blob by record function', blob);
-
-      recordPush(id, audioContext.currentTime, url, blob);
+      const timeNow = this.getTimeUTCformat();
+      recordPush(id, timeNow, url, blob);
     }
   };
 
@@ -364,34 +364,30 @@ export default class Microphone extends Component {
       newTimeArray.shift();
     }
 
+    console.log(timeDomain);
+    // we return vega lite parameter with changes.
     if (newTimeArray.length === 1) {
       timeDomain = [actTime, nextTime];
-      this.setState({
+      return {
+        data3D: dataCopy,
         timeArray: newTimeArray,
         initialTime: actTime,
         timeDomain: timeDomain,
         actualDb: mindB,
         actualFreq: freqMaxdB,
-      });
+      };
     } else {
       newInitialTime = newTimeArray[0];
       timeDomain = [newInitialTime, nextTime];
-      this.setState({
+      return {
+        data3D: dataCopy,
         timeArray: newTimeArray,
         initialTime: newTimeArray[0],
         timeDomain: timeDomain,
         actualDb: mindB,
         actualFreq: freqMaxdB,
-      });
+      };
     }
-
-    console.log(timeDomain);
-    // we return vega lite parameter with changes.
-    const result = {
-      data3D: dataCopy,
-    };
-
-    return result;
   };
 
   /**
@@ -466,14 +462,6 @@ export default class Microphone extends Component {
       volumeFunc: this.changeVolume,
       selectMe: this.selectMe,
       volume: this.masterGain?.gain,
-      //Plot Variables..
-      actualFreq: this.state.actualFreq,
-      actualDb: this.state.actualDb,
-      appearInputdBLimit: this.appearInputdBLimit,
-      setDbLimitState: this.setDbLimitState,
-      dflexbLimit: this.state.dbLimit,
-      spec3D: this.state.spec3D,
-      data3D: this.state.data3D,
     };
 
     return (
@@ -491,9 +479,9 @@ export default class Microphone extends Component {
         </td>
         <td onClick={() => this.turnNotifications()}>
           {this.state.notifications ? (
-            <NtfOnIcon selected={isSelected} className={styles.svgTable}></NtfOnIcon>
+            <NtfOnIcon selected={isSelected} className={[styles.svgTable, styles.pointer].join(' ')}></NtfOnIcon>
           ) : (
-            <NtfOffIcon selected={isSelected} className={styles.svgTable}></NtfOffIcon>
+            <NtfOffIcon selected={isSelected} className={[styles.svgTable, styles.pointer].join(' ')}></NtfOffIcon>
           )}
         </td>
         <td>

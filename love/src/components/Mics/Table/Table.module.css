@@ -86,3 +86,7 @@ tr {
   background-color: var(--second-primary-background-color);
   border-radius: 4px;
 }
+
+.pointer {
+  cursor: pointer;
+}
