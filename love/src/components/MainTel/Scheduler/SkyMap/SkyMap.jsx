@@ -110,9 +110,9 @@ export default class SkyMap extends Component {
         },
         // CONSTELLATIONS
         constellations: {
-          show: true, // Show constellations
-          names: true, // Show constellation names
-          desig: true, // Show short constellation names (3 letter designations)
+          show: false, // Show constellations
+          names: false, // Show constellation names
+          desig: false, // Show short constellation names (3 letter designations)
           namestyle: {
             fill: '#cccc99',
             align: 'center',
@@ -245,6 +245,12 @@ export default class SkyMap extends Component {
     ],
   };
 
+  //targets features
+  features = [];
+
+  //JSON with the targets position
+  jsonTargets = {};
+
   /**
    * Function to change the transformation to view the skymap
    * @param {*} transformUpdated : the new transform get from select input
@@ -263,12 +269,6 @@ export default class SkyMap extends Component {
     Celestial.display(config);
   };
 
-  //targets features
-  features = [];
-
-  //JSON with the targets position
-  jsonTargets = {};
-
   componentDidMount = () => {
     const config = this.state.config;
     this.addObjects(config);
@@ -276,7 +276,7 @@ export default class SkyMap extends Component {
   };
 
   addObjects = (config) => {
-    const jsonLine = this.jsonLine,
+    let jsonLine = this.jsonLine,
       jsonSnr = this.jsonSnr,
       jsonTargets = this.jsonTargets,
       lineStyle = this.lineStyle,
@@ -284,26 +284,26 @@ export default class SkyMap extends Component {
       pointStyle = this.pointStyle,
       features = this.features;
 
-    // this.props.targets.map((t) => {
-    //   features.push({
-    //     type: 'Feature',
-    //     id: 'SomeDesignator',
-    //     properties: {
-    //       name: 'Some Name',
-    //       mag: 10,
-    //       dim: 250,
-    //     },
-    //     geometry: {
-    //       type: 'Point',
-    //       coordinates: t.loc,
-    //     },
-    //   });
-    // });
+    this.props.targets.map((t) => {
+      features.push({
+        type: 'Feature',
+        id: 'SomeDesignator',
+        properties: {
+          name: 'Some Name',
+          mag: 10,
+          dim: 250,
+        },
+        geometry: {
+          type: 'Point',
+          coordinates: t.loc,
+        },
+      });
+    });
 
-    // jsonTargets = {
-    //   type: 'FeatureCollection',
-    //   features: features,
-    // };
+    jsonTargets = {
+      type: 'FeatureCollection',
+      features: features,
+    };
     //Add the polygons
     Celestial.add({
       type: 'line',
@@ -313,8 +313,10 @@ export default class SkyMap extends Component {
         console.log('transform:', config.transform);
 
         // Load the geoJSON file and transform to correct coordinate system, if necessary
-        var asterism = Celestial.getData(jsonLine, config.transform);
-        console.log(asterism.features[0].geometry.coordinates);
+        let jsonLineCopy = structuredClone(jsonLine);
+        var asterism = Celestial.getData(jsonLineCopy, config.transform);
+        console.log(asterism.features[0]);
+
         // Add to celestial objects container in d3
         Celestial.container.selectAll('.asterisms').data(asterism.features).enter().append('path').attr('class', 'ast');
         // Trigger redraw to display changes
@@ -334,7 +336,8 @@ export default class SkyMap extends Component {
           // If point is visible (this doesn't work automatically for points)
           if (Celestial.clip(d.properties.loc)) {
             // get point coordinates
-            let pt = Celestial.mapProjection(d.properties.loc);
+            let pt = Celestial.getPoint(d.properties.loc, config.transform);
+            pt = Celestial.mapProjection(pt);
             // Set text styles
             Celestial.setTextStyle(textStyle);
             // and draw text on canvas
@@ -351,7 +354,8 @@ export default class SkyMap extends Component {
       callback: function (error, json) {
         if (error) return console.warn(error);
         // Load the geoJSON file and transform to correct coordinate system, if necessary
-        var dsos = Celestial.getData(jsonSnr, config.transform);
+        let jsonSnrCopy = structuredClone(jsonSnr);
+        var dsos = Celestial.getData(jsonSnrCopy, config.transform);
         // Add to celestiasl objects container in d3
         Celestial.container.selectAll('.snrs').data(dsos.features).enter().append('path').attr('class', 'snr');
         // Trigger redraw to display changes
