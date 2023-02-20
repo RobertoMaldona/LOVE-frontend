@@ -110,9 +110,10 @@ export default class Microphone extends Component {
     }, 1000);
   };
 
-  componentDidUpdate = () => {};
-
-  componentWillUnmount = () => {};
+  componentWillUnmount = () => {
+    this.countPollingIterval = null;
+    this.audioContext?.close();
+  };
 
   /* Method to set up the audio variables*/
   initAudio() {

@@ -63,6 +63,10 @@ export default class Mics extends Component {
     this.setState({ mics: mics });
   };
 
+  componentWillUnmount = () => {
+    this.closeMicDetails();
+  };
+
   /**
    * Function to select a mic to show in details
    * @param {*} mic to be select
