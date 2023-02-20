@@ -44,6 +44,16 @@ export const observatoryIndex = {
       },
     },
   },
+  DMFlow: {
+    component: require('../DMFlow/DMFlow.container').default,
+    schema: {
+      ...require('../DMFlow/DMFlow.container').schema,
+      props: {
+        ...defaultSchemaProps,
+        ...require('../DMFlow/DMFlow.container').schema.props,
+      },
+    },
+  },
   CSCDetail: {
     component: require('../CSCSummary/CSCDetail/CSCDetail.container').default,
     schema: {
