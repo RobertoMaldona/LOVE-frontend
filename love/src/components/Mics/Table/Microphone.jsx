@@ -66,29 +66,10 @@ export default class Microphone extends Component {
 
       showInput: false,
     };
-
-    // ========================================================
-    // Audio Setup
-    // ========================================================
-    this.audioContext;
-    this.masterGain;
-    this.song;
-    this.songSource;
-    this.audioRecorder;
-    this.vMeter;
-    this.buffers;
-
-    this.analyser;
-    this.bufferLength;
-    this.dataArray;
-    this.windowTimePlot;
-    this.frequencyData;
-    this.countPollingIterval;
-
-    this.resizeObserver = undefined;
   }
 
   componentDidMount = () => {
+    //Init audio variables
     this.initAudio();
 
     if (this.countPollingIterval) clearInterval(this.countPollingIterval);
@@ -122,27 +103,36 @@ export default class Microphone extends Component {
     this.source = source;
 
     //Init the AudioContext, masterGain to controlate the volume and AudioNode
-    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    this.masterGain = this.audioContext.createGain();
-    this.song = new Audio(source);
-    this.songSource = this.audioContext.createMediaElementSource(this.song);
 
+    //AudioContext to controlate the sound
+    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    //Master Gain to controlate the volume
+    this.masterGain = this.audioContext.createGain();
+    //HTML media element of sound with the soucre
+    this.song = new Audio(source);
+    //Create a Node associated with song to work
+    this.songSource = this.audioContext.createMediaElementSource(this.song);
+    //Create analyser Node to get the decibels by frecuency
     this.analyser = this.audioContext.createAnalyser();
+
+    //Variables to analize the sound
     this.analyser.smoothingTimeConstant = 0.9;
     this.analyser.fftSize = 2048; // sampling rate.
     this.bufferLength = this.analyser.frequencyBinCount; // frequency band.
     this.dataArray = new Float32Array(this.bufferLength);
     this.windowTimePlot = 7;
     this.frequencyData = Array.from({ length: this.bufferLength }, (_, index) => index);
-    this.countPollingIterval;
 
-    //Set the init gain, connect the nodes and load the AudioWorklets
+    //To can connect to the source
     this.song.crossOrigin = 'anonymous';
     this.masterGain.gain.value = 0.4;
+
+    //Connect the nodes
     this.songSource.connect(this.analyser);
     this.analyser.connect(this.masterGain);
-    // this.songSource.connect(this.masterGain);
     this.masterGain.connect(this.audioContext.destination);
+
+    //load module to worklet and record
     this.loadModule(this.audioContext, this.songSource);
   }
 
@@ -212,16 +202,19 @@ export default class Microphone extends Component {
     } catch (e) {
       console.log(`Failed to load module: record-processor.js: `, e);
     }
+    //Create the worklet node with the recordProcessor charge previously
     this.audioRecorder = new AudioWorkletNode(ctx, 'recordProcessor');
     this.buffers = [];
 
+    //Get the message send by worklet processor with the buffer and push on buffers
     this.audioRecorder.port.addEventListener('message', (event) => {
-      // <6>
       this.buffers.push(event.data.buffer);
     });
-    this.audioRecorder.port.start(); // <7>
+    this.audioRecorder.port.start();
 
-    source.connect(this.audioRecorder); // <8>
+    //connect the source with the AudioWorklet Node
+    source.connect(this.audioRecorder);
+    //connect the record with the audioContext to can be played
     this.audioRecorder.connect(ctx.destination);
   }
 
@@ -229,14 +222,13 @@ export default class Microphone extends Component {
   play = () => {
     const { audioContext, song, masterGain } = this;
     if (!this.state.play) {
+      //It's necessary to the first time
       audioContext.resume();
       masterGain.gain.value = 0.5;
       song.play();
-      console.log('play');
       this.setState({ play: true });
     } else {
       masterGain.gain.value = 0;
-      console.log('paused');
       this.setState({ play: false });
     }
   };
@@ -246,17 +238,22 @@ export default class Microphone extends Component {
     const { audioContext, audioRecorder, buffers } = this;
     const { id, recordPush } = this.props;
 
+    //Get the parameter of AudioWorklet
+    const parameter = audioRecorder.parameters.get('isRecording');
     if (!this.state.isRecording) {
-      const parameter = audioRecorder.parameters.get('isRecording');
-      parameter.setValueAtTime(1, audioContext.currentTime); // <9>
+      //Set the value at 1, so the processor start to push the buffer
+      parameter.setValueAtTime(1, audioContext.currentTime);
+      //Reomves the elements of the buffers to start to record again
       buffers.splice(0, buffers.length);
-      console.log('start Recording');
       this.setState({ isRecording: true });
     } else {
+      //Set the value at 0, so the processor end to push the buffer
+      parameter.setValueAtTime(0, audioContext.currentTime);
       this.setState({ isRecording: false });
-      const blob = this.encodeAudio(buffers); // <11>
+      //Encode the buffers's audio to save in a blob object
+      const blob = this.encodeAudio(buffers);
+      //Create a url associated to blob
       const url = URL.createObjectURL(blob);
-      console.log('blob by record function', blob);
       const timeNow = this.getTimeUTCformat();
       recordPush(id, timeNow, url, blob);
     }
@@ -310,9 +307,6 @@ export default class Microphone extends Component {
     this.setState({ dbLimit: dbLimit });
   };
 
-  // ========================================================
-  // PLOT HEAT MAP
-
   /**
    * Function that update the data that will be receiving by Vega Lite Heat Map.
    * @param {Object} prevState ,the previous state, we have interest in spec and data states.
@@ -365,7 +359,6 @@ export default class Microphone extends Component {
       newTimeArray.shift();
     }
 
-    console.log(timeDomain);
     // we return vega lite parameter with changes.
     if (newTimeArray.length === 1) {
       timeDomain = [actTime, nextTime];

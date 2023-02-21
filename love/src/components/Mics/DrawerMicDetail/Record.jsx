@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ManagerInterface from 'Utils';
-import styles from './PeleableMicDetail.module.css';
+import styles from './DrawerMicDetail.module.css';
 import PlayIcon from 'components/icons/MICS/Play/PlayIcon';
 import DownloadIcon from 'components/icons/MICS/Download/DownloadIcon';
 import PauseIcon from 'components/icons/MICS/Pause/PauseIcon';
@@ -37,8 +37,10 @@ export default class Record extends Component {
     this.masterGain.gain.value = 1;
     this.songSource.connect(this.masterGain);
     this.masterGain.connect(this.aCtx.destination);
+  };
 
-    console.log(this.props.url);
+  componentWillUnmount = () => {
+    if (this.state.play) this.play();
   };
 
   /**
@@ -54,16 +56,6 @@ export default class Record extends Component {
       source.play();
       this.setState({ play: true });
     }
-  };
-
-  /**
-   * TESSSSST
-   * Function Test to send the blob to the Backend
-   * @param {*} blob
-   */
-  auxFunc = (blob) => {
-    ManagerInterface.postBlob(blob);
-    console.log(blob);
   };
 
   render() {

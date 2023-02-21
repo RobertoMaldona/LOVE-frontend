@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styles from './Microphone.module.css';
-import PeleableMicDetail from './PeleableMicDetail/PeleableMicDetail';
+import DrawerMicDetail from './DrawerMicDetail/DrawerMicDetail';
 import Table from './Table/Table';
 import ManagerInterface from 'Utils';
 import StopRecIcon from 'components/icons/MICS/StopRec/StopRec';
@@ -102,7 +102,6 @@ export default class Mics extends Component {
    * Function to close Mic details and set null the current mic
    */
   closeMicDetails = () => {
-    console.log('closed');
     if (this.state.isRecording) this.record();
     if (this.state.play) this.play();
     this.state.currentMic.selectMe();
@@ -159,7 +158,7 @@ export default class Mics extends Component {
   };
 
   render() {
-    const peelableDetail = this.state.viewInfo ? styles.micDetails : styles.collapsedMicDetail;
+    const drawerDetail = this.state.viewInfo ? styles.micDetails : styles.collapsedMicDetail;
     const svgRec = this.state.isRecording ? (
       <StopRecIcon className={[styles.recSVG, styles.verticalSpace].join(' ')}></StopRecIcon>
     ) : (
@@ -189,8 +188,8 @@ export default class Mics extends Component {
               setInfoPlot={this.setInfoPlot}
             ></Table>
           </div>
-          <PeleableMicDetail
-            peelableDetailCss={peelableDetail}
+          <DrawerMicDetail
+            drawerDetailCss={drawerDetail}
             id={this.state.currentMic?.id}
             infoPlot={this.state.infoPlot}
             closeMicDetails={this.closeMicDetails}
@@ -204,7 +203,7 @@ export default class Mics extends Component {
             svgRec={svgRec}
             textPlay={textPlay}
             textRec={textRec}
-          ></PeleableMicDetail>
+          ></DrawerMicDetail>
         </div>
       </div>
     );

@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import styles from './PeleableMicDetail.module.css';
+import styles from './DrawerMicDetail.module.css';
 import Slider from 'components/GeneralPurpose/Slider/Slider';
 import Record from './Record';
 import HeatMap from './HeatMap/HeatMap';
 import Button from 'components/GeneralPurpose/Button/Button';
 import Input from 'components/GeneralPurpose/Input/Input';
 
-export default class PeleableMicDetail extends Component {
+export default class DrawerMicDetail extends Component {
   constructor(props) {
     super(props);
 
@@ -96,7 +96,7 @@ export default class PeleableMicDetail extends Component {
   render() {
     const {
       id,
-      peelableDetailCss,
+      drawerDetailCss,
       play,
       setVolume,
       volume,
@@ -117,7 +117,7 @@ export default class PeleableMicDetail extends Component {
     const { actualFreq, actualDb, showInput, appearInputdBLimit, setDbLimitState, dbLimit } = this.props.infoPlot;
 
     return (
-      <div className={peelableDetailCss}>
+      <div className={drawerDetailCss}>
         <div className={styles.divTitleSection}>
           <span className={styles.spanIdDetails}> {id ?? ''}</span>
         </div>
