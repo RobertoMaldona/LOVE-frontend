@@ -125,7 +125,6 @@ export default class MapFlightTracker extends Component {
               .style('stroke', '#4c606a');
           });
 
-          console.log('');
           // first zone : 200 km area.
           // const long_lat_1 = [-69.72640645677438, -28.671508190008392,];
           // const coords_1 = projection(long_lat_1)
@@ -277,11 +276,11 @@ export default class MapFlightTracker extends Component {
     var rotateRandom = Math.floor(Math.random() * 360);
     /* Path plane */
     const svg = d3.select('#mapTelescope');
-    const dPlane =
+    const pathBorderPlane =
       'm8.59.66l4.06,9.97,4.15,10.19h-1.16l-6.89-6.1-.17-.15-.17.15-6.89,6.1H.37l4.15-10.19L8.59.66m0-.66l-4.29,10.54L0,21.08h1.63l6.96-6.17,6.96,6.17h1.63l-4.29-10.54L8.59,0h0Z';
-    const pPlane = '.18 20.95 8.59 .33 16.98 20.95 15.54 20.95 8.59 14.74 1.55 20.98 .18 20.95';
+    const pointsFillPlane = '.18 20.95 8.59 .33 16.98 20.95 15.54 20.95 8.59 14.74 1.55 20.98 .18 20.95';
 
-    /* Color of circles*/
+    /* Color of circles if some plane is inside the radius*/
     if (distance[0] < 100) {
       svg.select('#intern_circle').style('stroke', '#df5601');
     } else if (distance[0] < 160) {
@@ -294,7 +293,7 @@ export default class MapFlightTracker extends Component {
 
     var tooltip = d3.select('#tooltip');
 
-    /* Add plane in map */
+    /* Add plane in map part 1*/
     svg
       .append('g')
       .attr('id', `id${id}`)
@@ -302,7 +301,7 @@ export default class MapFlightTracker extends Component {
       .attr('id', `g${id}`)
       .append('polygon')
       .attr('id', `polyggon${id}`)
-      .attr('points', pPlane)
+      .attr('points', pointsFillPlane)
       .style('fill', color)
       .style('opacity', opacity)
       .on('mouseover', function () {
@@ -316,11 +315,12 @@ export default class MapFlightTracker extends Component {
         return tooltip.style('visibility', 'hidden');
       });
 
+    /* Add plane in map part 2*/
     svg
       .select(`#g${id}`)
       .append('path')
       .classed('pathPlane', true)
-      .attr('d', dPlane)
+      .attr('d', pathBorderPlane)
       .attr('class', styles.pathPlane)
       .style('fill', color)
       .style('opacity', opacity)
@@ -331,7 +331,7 @@ export default class MapFlightTracker extends Component {
     const sizeSVG = svg.node().getBoundingClientRect().width,
       scaleToPixels = sizeSVG / 500; //get the value on pixels of the viewbox metric
 
-    // Get plane size in pixels
+    // Get plane size in pixels (path element)
     const sizePlane = svg.select(`#polyggon${id}`).node().getBoundingClientRect(),
       heightPlane = sizePlane.height / scaleToPixels,
       widthPlane = sizePlane.width / scaleToPixels;
