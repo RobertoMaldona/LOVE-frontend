@@ -52,7 +52,7 @@ const PaginatedTable = ({ title, headers, data, paginationOptions, callBack }) =
         if (typeof value === 'string') {
           if (value.includes(elem)) dataFilter.push(arrow);
         } else {
-          if (value === elem) dataFilter.push(arrow);
+          if (value === parseInt(elem, 10)) dataFilter.push(arrow);
         }
       });
     });

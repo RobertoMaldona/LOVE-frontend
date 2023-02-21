@@ -198,6 +198,29 @@ export const stateToStyleLightpath = {
   'UNKNOWN POSITION': 'invalid',
 };
 
+//DM Flow
+export const dmFlowStatusMap = {
+  1: 'INTEGRATING',
+  2: 'FORDWARDED',
+  3: 'STOPPED',
+  4: 'DROPPED',
+  5: 'COMPLETE',
+  6: 'COPYING',
+  7: 'PROCESSED',
+  0: 'UNKNOWN',
+};
+
+export const stateToStyleDMFlow = {
+  INTEGRATING: 'warning',
+  FORDWARDED: 'warning',
+  STOPPED: 'ok',
+  DROPPED: 'alert',
+  COMPLETE: 'running',
+  COPYING: 'warning',
+  PROCESSED: 'running',
+  UNKNOWN: 'invalid',
+};
+
 // M2
 
 // M1M3
@@ -353,7 +376,7 @@ export const instrumentStateMap = {
 export const ATPneumaticsLimits = {
   cellLoad: {
     min: 3.83,
-    max: 117.80,
+    max: 117.8,
   },
   pressure: {
     min: 47160.14,

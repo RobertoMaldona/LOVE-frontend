@@ -1,0 +1,22 @@
+.borderRadiusLeft {
+  border-bottom-left-radius: 0.2em;
+  border-top-left-radius: 0.2em;
+}
+.divIcon {
+  color: #555;
+  text-align: center;
+  background-color: var(--tertiary-background-color);
+  /* border: 0.1em solid #d6d6d6; */
+  height: 80%;
+  align-self: center;
+  /* aspect-ratio: 1 / 1; */
+  width: 20%;
+  height: 80%;
+  display: inline-grid;
+  align-items: center;
+  justify-items: center;
+}
+.divIcon > * {
+  height: 90%;
+  width: 90%;
+}
