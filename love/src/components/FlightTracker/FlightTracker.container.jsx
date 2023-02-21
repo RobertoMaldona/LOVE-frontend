@@ -7,7 +7,7 @@ import FlightTracker from './FlightTracker';
 import MapFlightTracker from './MapFlightTracker';
 
 export const schema = {
-  description: 'Component that displays the position of the camera',
+  description: 'Component that displays the aircraft tracker on planes above the observatory.',
   defaultSize: [30, 30],
   props: {
     titleBar: {
@@ -20,7 +20,13 @@ export const schema = {
       type: 'string',
       description: 'Name diplayed in the title bar (if visible)',
       isPrivate: false,
-      default: 'Flight Tracker',
+      default: 'AirCraft Tracker',
+    },
+    hasRawMode: {
+      type: 'boolean',
+      description: 'Whether the component has a raw mode version',
+      isPrivate: true,
+      default: false,
     },
   },
 };
