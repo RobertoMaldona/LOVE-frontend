@@ -6,13 +6,26 @@ import PaginatedTable from 'components/GeneralPurpose/PaginatedTable/PaginatedTa
 import StatusText from 'components/GeneralPurpose/StatusText/StatusText';
 import Info from './InfoDMFlow/Info';
 import Pipeline from './icons/Pipeline';
+import Moon from 'components/icons/Moon/Moon';
+import Sky from 'components/icons/Sky/Sky';
+import Sun from 'components/icons/Sun/Sun';
+import Stars from 'components/icons/Stars/Stars';
+import Connection from './icons/Connection/Connection';
+import Enabled from './icons/Connection/Enabled';
 
 let dataMock = [];
 for (let i = 1; i < 100; i++) {
   dataMock.push({
     thumbnail: 'img',
     imageName: 'CC_O_200202_000' + i.toString(),
-    state: Math.floor(Math.random() * 10),
+    phases: {
+      0: Math.floor(Math.random() * 4),
+      1: Math.floor(Math.random() * 4),
+      2: Math.floor(Math.random() * 4),
+      3: Math.floor(Math.random() * 4),
+      4: Math.floor(Math.random() * 4),
+      5: Math.floor(Math.random() * 4),
+    },
     status: Math.floor(Math.random() * 7),
   });
 }
@@ -61,11 +74,11 @@ export default class DMFlow extends Component {
         type: 'string',
       },
       {
-        field: 'state',
+        field: 'phases',
         title: 'Pipeline',
-        // render: (value) => {
-        //   return Math.round(value * 100) / 100;
-        // },
+        render: (value) => {
+          return <Pipeline phases={value}></Pipeline>;
+        },
       },
       {
         field: 'textStatus',
@@ -87,11 +100,12 @@ export default class DMFlow extends Component {
     return (
       <div className={styles.container}>
         <div>
-          {/* <Info></Info> */}
-          <Pipeline></Pipeline>
+          <Info state={'enabled'} name={'OODS'}></Info>
+          <Connection state={'disabled'}></Connection>
         </div>
-
-        <PaginatedTable headers={headers} data={dataMock}></PaginatedTable>
+        <div className={styles.divTable}>
+          <PaginatedTable headers={headers} data={dataMock}></PaginatedTable>
+        </div>
       </div>
     );
   }

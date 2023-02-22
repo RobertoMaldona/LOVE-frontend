@@ -1,6 +1,14 @@
 .container {
   color: var(--primary-font-color);
+  display: grid;
+  justify-items: center;
+  align-items: center;
 }
 .containerCenter {
   text-align: center;
+}
+.divTable {
+  width: 75%;
+  align-self: center;
+  justify-self: center;
 }

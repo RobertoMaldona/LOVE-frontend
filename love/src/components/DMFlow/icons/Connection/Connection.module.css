@@ -1,0 +1,12 @@
+.disabled {
+  fill: #788f9b;
+}
+.enabled {
+  fill: #00a26d;
+}
+.danger {
+  fill: #eee203;
+}
+.error {
+  fill: #dd5602;
+}
