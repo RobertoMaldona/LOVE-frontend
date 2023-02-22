@@ -52,7 +52,7 @@ const PaginatedTable = ({ title, headers, data, paginationOptions, callBack }) =
         if (typeof value === 'string') {
           if (value.includes(elem)) dataFilter.push(arrow);
         } else {
-          if (value === elem) dataFilter.push(arrow);
+          if (value === parseInt(elem, 10)) dataFilter.push(arrow);
         }
       });
     });
@@ -85,7 +85,7 @@ const PaginatedTable = ({ title, headers, data, paginationOptions, callBack }) =
           <div className={styles.DTlfLeft}>{title ?? 'TITLE HEADER'}</div>
           <div className={styles.DTlfRight}>
             <div className={styles.DTperPage}>
-              <span className={styles.spanLabel}>Per page: </span>
+              <span className={styles.spanLabel}>Rows per page: </span>
               <Select
                 onChange={onSelectChange}
                 controlClassName={styles.select}
@@ -205,6 +205,32 @@ const PaginatedTable = ({ title, headers, data, paginationOptions, callBack }) =
 };
 
 PaginatedTable.propTypes = {
+  /**
+   * Array with the options to select rows per page
+   */
   paginationOptions: PropTypes.arrayOf(PropTypes.number),
+  /**
+   * Title of table
+   */
+  /** Array with properties of table columns and its headers.*/
+  headers: PropTypes.arrayOf(
+    PropTypes.shape({
+      /** Property accessor of this column's value on each data row */
+      field: PropTypes.string,
+      /** Node to be rendered as header label */
+      title: PropTypes.node,
+      /** Data type of this column: number, string, ... */
+      type: PropTypes.string,
+      /** Callback with signature (value,row) => node
+       * Use it customize how the cell's value is displayed  */
+      render: PropTypes.func,
+      /** className to be applied to the whole column */
+      className: PropTypes.string,
+    }),
+  ),
+  /** Rows to be rendered in the table */
+  data: PropTypes.arrayOf(PropTypes.object),
+  /** Function to process the data of the actual page */
+  callBack: PropTypes.func,
 };
 export default PaginatedTable;

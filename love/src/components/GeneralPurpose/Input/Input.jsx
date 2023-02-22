@@ -12,7 +12,7 @@ export default function Input({
   placeholder,
   ...props
 }) {
-  const [iValue, setIValue] = React.useState(0);
+  const [inputValue, setIValue] = React.useState(0);
 
   const change = (e) => {
     setIValue(e.target.value);
@@ -23,7 +23,7 @@ export default function Input({
     if (e.isComposing || e.keyCode === 229) {
       return;
     }
-    if (e.keyCode === 13) onClick?.(iValue);
+    if (e.keyCode === 13) onClick?.(inputValue);
   };
 
   const borderInputLeft = icon ? '' : styles.borderRadiusLeft;
@@ -44,7 +44,7 @@ export default function Input({
       />
       {iconButton && (
         <div
-          onClick={() => onClick?.(iValue)}
+          onClick={() => onClick?.(inputValue)}
           className={[styles.divIcon, styles.pointer, styles.borderRadiusRight].join(' ')}
         >
           {iconButton}
